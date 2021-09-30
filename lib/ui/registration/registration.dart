@@ -143,8 +143,8 @@ class _Registration extends State<Registration> {
     final username = _usernameController.text;
     final password = _passwordController.text;
     try {
-      assert(!isNullOrEmpty(username));
-      assert(!isNullOrEmpty(password));
+      assert(!username.isNullOrEmpty);
+      assert(!password.isNullOrEmpty);
       handleProceedState(true);
     } catch (e) {
       handleProceedState(false);
