@@ -9,27 +9,25 @@ import 'assets.dart';
 import 'decorations.dart';
 import 'dimensions.dart';
 
-Widget inAppLogo({
-  Color textColor = colorBlack
-}) => Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    Text(
-      textSmart,
-      style: bTS(size: 20, color: textColor),
-    ),
-    Lottie.asset(
-      lottieBee,
-      repeat: true,
-      height: 50,
-      width: 50,
-    ),
-    Text(
-      textHive,
-      style: bTS(size: 20, color: textColor),
-    )
-  ],
-);
+Widget inAppLogo({Color textColor = colorBlack}) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          textSmart,
+          style: bTS(size: 20, color: textColor),
+        ),
+        Lottie.asset(
+          lottieBee,
+          repeat: true,
+          height: 50,
+          width: 50,
+        ),
+        Text(
+          textHive,
+          style: bTS(size: 20, color: textColor),
+        )
+      ],
+    );
 
 Widget registrationTextField(
   double width,
@@ -107,4 +105,54 @@ Widget proceedButton(double width, double height, String text,
       ),
     ],
   );
+}
+
+Widget sheetTextField(
+  double width,
+  double height,
+  TextEditingController controller,
+  String hint, {
+  TextInputType type = TextInputType.text,
+  bool shouldHideText = false,
+  bool last = false,
+  void Function(String string)? submit,
+}) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Container(
+        margin: symmetric(0, 16),
+        height: height * 0.06,
+        decoration: BoxDecoration(
+          color: colorBgRegistrationTextField,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: TextField(
+            textAlign: TextAlign.start,
+            textAlignVertical: TextAlignVertical.center,
+            autofocus: false,
+            controller: controller,
+            textInputAction: last ? TextInputAction.done : TextInputAction.next,
+            maxLines: 1,
+            style: rTS(color: colorWhite),
+            keyboardType: type,
+            obscureText: shouldHideText ? true : false,
+            decoration: hintDecoration
+                .copyWith(
+                  hintText: hint,
+                )
+                .copyWith(
+                    constraints: BoxConstraints(minHeight: height * 0.06)),
+            onSubmitted: last ? submit : null,
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Widget sheetButton(){
+
+  }
 }

@@ -4,6 +4,7 @@ import 'package:smart_beehive/ui/registration/registration.dart';
 import 'package:smart_beehive/ui/registration/registration_viewmodel.dart';
 import 'package:smart_beehive/ui/splash/splash.dart';
 
+import 'data/local/models/beehive.dart';
 import 'ui/home.dart';
 
 // top-level variables
@@ -11,6 +12,7 @@ double screenHeight = 0;
 double screenWidth = 0;
 double screenBottomPadding = 0;
 BuildContext? mContext;
+List<Beehive> beehives = [];
 
 void main() {
   runApp(const MyApp());

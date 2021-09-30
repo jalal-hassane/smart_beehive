@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
-import 'package:smart_beehive/composite/fonts.dart';
+import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
-import 'package:smart_beehive/utils/log_utils.dart';
+import 'package:smart_beehive/ui/home/analysis.dart';
+import 'package:smart_beehive/ui/home/farm.dart';
+import 'package:smart_beehive/ui/home/profile.dart';
 
 import '../main.dart';
+import 'home/alerts.dart';
+import 'settings/notifications.dart';
+import 'settings/settings.dart';
 
 const _tag = 'Home';
 
@@ -20,6 +25,7 @@ class Home extends StatefulWidget {
 
 class _Home extends State<Home> {
   int _selectedIndex = 0;
+  String _selectedPage = farm;
   bool bottomNavigationVisibility = true;
 
   @override
@@ -29,46 +35,59 @@ class _Home extends State<Home> {
     screenBottomPadding = MediaQuery.of(context).padding.bottom;
     return SafeArea(
       child: Scaffold(
-        drawer: _drawer(),
-        bottomNavigationBar: Visibility(
-          visible: bottomNavigationVisibility,
-          child: BottomNavigationBar(
-            showSelectedLabels: true,
-            showUnselectedLabels: true,
-            currentIndex: _selectedIndex,
-            selectedLabelStyle: bottomNavigationTextStyle,
-            unselectedLabelStyle: bottomNavigationTextStyle,
-            type: BottomNavigationBarType.shifting,
-            selectedItemColor: colorPrimary,
-            iconSize: 30,
-            onTap: (index) {
-              if (_selectedIndex != index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              }
-            },
-            items: [
-              _bottomNavigationBarItem(
-                Icons.home,
-                'Farm',
-              ),
-              _bottomNavigationBarItem(
-                Icons.bar_chart,
-                'Analysis',
-              ),
-              _bottomNavigationBarItem(
-                Icons.alarm,
-                'Alarms',
-              ),
-              _bottomNavigationBarItem(
-                Icons.person,
-                'Profile',
-              ),
-            ],
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            _selectedPage,
+            style: mTS(color: colorBlack),
           ),
+          centerTitle: true,
         ),
+        drawer: _drawer(),
+        //bottomNavigationBar: _bnv(),
         body: _screen(_selectedIndex),
+      ),
+    );
+  }
+
+  Widget _bnv() {
+    return Visibility(
+      visible: bottomNavigationVisibility,
+      child: BottomNavigationBar(
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        currentIndex: _selectedIndex,
+        selectedLabelStyle: bottomNavigationTextStyle,
+        unselectedLabelStyle: bottomNavigationTextStyle,
+        type: BottomNavigationBarType.shifting,
+        selectedItemColor: colorPrimary,
+        iconSize: 30,
+        onTap: (index) {
+          if (_selectedIndex != index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          }
+        },
+        items: [
+          _bottomNavigationBarItem(
+            Icons.home,
+            farm,
+          ),
+          _bottomNavigationBarItem(
+            Icons.bar_chart,
+            analysis,
+          ),
+          _bottomNavigationBarItem(
+            Icons.alarm,
+            alerts,
+          ),
+          _bottomNavigationBarItem(
+            Icons.person,
+            profile,
+          ),
+        ],
       ),
     );
   }
@@ -114,10 +133,10 @@ class _Home extends State<Home> {
             ),
           ),
           _divider,
-          _drawerItem(Icons.home, farm, () {}),
-          _drawerItem(Icons.bar_chart, analysis, () {}),
-          _drawerItem(Icons.alarm, alarms, () {}),
-          _drawerItem(Icons.person, profile, () {}),
+          _drawerItem(Icons.home, farm, () => _navigate(0, farm)),
+          _drawerItem(Icons.bar_chart, analysis, () => _navigate(1, analysis)),
+          _drawerItem(Icons.alarm, alerts, () => _navigate(2, alerts)),
+          _drawerItem(Icons.person, profile, () => _navigate(3, profile)),
           Container(
             margin: trbl(20, 0, 0, 12),
             alignment: Alignment.centerLeft,
@@ -130,8 +149,9 @@ class _Home extends State<Home> {
             ),
           ),
           _divider,
-          _drawerItem(Icons.notifications, notifications, () {}),
-          _drawerItem(Icons.settings, settings, () {})
+          _drawerItem(
+              Icons.notifications, notifications, () => _navigateToSettings(0)),
+          _drawerItem(Icons.settings, settings, () => _navigateToSettings(1))
         ],
       ),
     );
@@ -184,36 +204,47 @@ class _Home extends State<Home> {
   }
 
   Widget _screen(int index) {
-    logInfo("setting screen $index", tag: _tag);
-    return const Center(
-      child: Text(
-        'Home screen',
-        style: TextStyle(
-          fontFamily: montserratRegular,
-          fontSize: 26,
-        ),
-      ),
-    );
-    /*switch (index) {
+    switch (index) {
       case 0:
-        return HomeScreen(
-          remainingMessages: mProfile?.allowedMessages,
-          callback: this.callback,
-        );
+        return const Farm();
       case 1:
-        return MemoriesScreen(
-          refreshInbox: this.refreshInbox,
+        return const Analysis(
+          index: 0,
         );
       case 2:
-        return ShopScreen();
+        return const Alerts(
+          index: 0,
+        );
       default:
-        return AccountScreen();
-    }*/
+        return const Profile();
+    }
   }
 
   _showBottomNavigationCallback() {
     setState(() {
       bottomNavigationVisibility = true;
     });
+  }
+
+  _navigate(int index, String page) {
+    // close drawer
+    Navigator.pop(context);
+    setState(() {
+      _selectedIndex = index;
+      _selectedPage = page;
+    });
+  }
+
+  _navigateToSettings(int index) {
+    Navigator.pop(context);
+    Widget _screen;
+    if (index == 0) {
+      _screen = const Notifications();
+    } else {
+      _screen = const Settings();
+    }
+    Navigator.of(context).push(
+      enterFromBottom(_screen),
+    );
   }
 }
