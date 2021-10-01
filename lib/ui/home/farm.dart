@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
-import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
-import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/hive/logs.dart';
 import 'package:smart_beehive/ui/hive/overview.dart';
 import 'package:smart_beehive/ui/hive/properties.dart';
-import 'package:smart_beehive/ui/home/alerts.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
-import 'analysis.dart';
-
 const _tag = 'My Farm';
+int _selectedTabIndex = 0;
 
 class Farm extends StatefulWidget {
   const Farm({Key? key}) : super(key: key);
@@ -124,7 +119,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         ),
       );
     } else {
-      return const Center(child: Text(textAddHiveHint));
+      return Center(child: Text(textAddHiveHint,style: mTS(color: colorBlack),));
     }
   }
 
@@ -138,9 +133,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(32),
           image: const DecorationImage(
             fit: BoxFit.cover,
-            image: AssetImage(
-              backgroundHive,
-            ),
+            image: AssetImage(backgroundHive),
           ),
           boxShadow: const [
             BoxShadow(
@@ -188,8 +181,18 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
     if (index == 1) {
       hive.qrScanned = true;
     }
-    _propertyTitleVisibility = true;
-    if (hive.qrScanned != null && hive.qrScanned!) {
+
+    if (index == 2) {
+      hive.qrScanned = true;
+      hive.overview.name = 'hive2';
+    }
+    setState(() {
+      logInfo('Hive ${hive.qrScanned}');
+      _propertyTitleVisibility = true;
+      _properties = Details(beehive: hive);
+    });
+    return;
+    /*if (hive.qrScanned != null && hive.qrScanned!) {
       _properties = Column(
         children: [
           TabBar(
@@ -204,7 +207,8 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
             onTap: (value) {
               _selectedTabIndex = value;
               _tabsPageController.animateToPage(value,
-                  duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeIn);
             },
           ),
           Expanded(
@@ -255,23 +259,10 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
           ElevatedButton(onPressed: () {}, child: const Text(textShare)),
         ],
       );
-    }
+    }*/
     setState(() {
       _propertiesVisibility = true;
     });
-  }
-
-  _tabWidget(IconData iconData, String text) {
-    return Tab(
-      icon: Icon(
-        iconData,
-        size: 20,
-      ),
-      child: Text(
-        text,
-        style: bTS(size: 10, color: colorPrimaryDark!),
-      ),
-    );
   }
 
   _addHive() {
@@ -444,19 +435,136 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
     }
   }
 }
+
 // todo finish details page
 class Details extends StatefulWidget {
-  const Details({Key? key}) : super(key: key);
+  final Beehive beehive;
+
+  const Details({Key? key, required this.beehive}) : super(key: key);
 
   @override
   _Details createState() => _Details();
 }
-class _Details  extends State<Farm> with TickerProviderStateMixin{
+
+class _Details extends State<Details> with TickerProviderStateMixin {
+  late Beehive _hive;
+  TabController? _tabController;
+  PageController? _tabsPageController;
+
   @override
-  Widget build(BuildContext context) {
-    throw UnimplementedError();
+  void initState() {
+    super.initState();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    _hive = widget.beehive;
+    return _hive.qrScanned != null && _hive.qrScanned!
+        ? _detailsWidget()
+        : _scanQrWidget();
+  }
+
+  _detailsWidget() {
+    if(_tabController==null){
+      _tabController = TabController(initialIndex: _selectedTabIndex,length: 3, vsync: this);
+    }
+
+    _tabsPageController ??= PageController(initialPage: _selectedTabIndex);
+    return Column(
+      children: [
+        TabBar(
+          tabs: [
+            _tabWidget(Icons.remove_red_eye, textOverview),
+            _tabWidget(Icons.paste_rounded, textProperties),
+            _tabWidget(Icons.library_books, textLogs),
+          ],
+          indicatorColor: colorBlack,
+          indicatorPadding: symmetric(0, 8),
+          controller: _tabController,
+          onTap: (value) {
+            //_selectedTabIndex = value;
+            _tabsPageController!.animateToPage(value,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn);
+          },
+        ),
+        Expanded(
+          child: PageView(
+            controller: _tabsPageController,
+            children: [
+              Overview(beehive: _hive),
+              Properties(beehive: _hive),
+              Logs(beehive: _hive),
+            ],
+            onPageChanged: (value) {
+              logInfo('onPageChanged $value');
+              _tabController!.animateTo(value);
+              _selectedTabIndex = value;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  _tabWidget(IconData iconData, String text) {
+    return Tab(
+      icon: Icon(
+        iconData,
+        size: 20,
+      ),
+      child: Text(
+        text,
+        style: bTS(size: 10, color: colorPrimaryDark!),
+      ),
+    );
+  }
+
+  _scanQrWidget() {
+    _tabsPageController = null;
+    _tabController = null;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          margin: bottom(30),
+          child: Text(
+            textHiveNotAdded,
+            style: rTS(color: colorBlack),
+          ),
+        ),
+        QrImage(
+          data: uuid(),
+          backgroundColor: colorWhite,
+          version: QrVersions.auto,
+          size: 200.0,
+        ),
+        Container(
+          margin: top(30),
+          child: ElevatedButton(
+            onPressed: () {},
+            child: Text(
+              textScan,
+              style: rTS(color: colorBlack),
+            ),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {},
+          child: Text(
+            textShare,
+            style: rTS(color: colorBlack),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    logInfo('dispose from details page');
+    _tabController?.dispose();
+    _tabsPageController?.dispose();
+    super.dispose();
+  }
 }
-
-

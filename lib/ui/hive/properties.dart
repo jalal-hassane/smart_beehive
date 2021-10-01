@@ -22,11 +22,12 @@ class Properties extends StatefulWidget {
 }
 
 class _Properties extends State<Properties> with TickerProviderStateMixin {
-  late final Beehive _hive = widget.beehive;
+  late Beehive _hive;
 
   @override
   Widget build(BuildContext context) {
-    _celsiusController.forward();
+    _hive = widget.beehive;
+    _celsiusController.forward(from: 0);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -37,7 +38,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             _propertyItem(svgScale, _hive.properties.weight),
             GestureDetector(
               onTap: () => _openPage(alerts, 1),
-              child: _propertyIconItem(Icons.alarm, 'set alerts'),
+              child: _propertyIconItem(Icons.alarm, alerts),
             ),
           ],
         ),
@@ -48,7 +49,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             _propertyItem(svgHumidity, '${_hive.properties.humidity}%'),
             GestureDetector(
               onTap: () => _openPage(analysis, 1),
-              child: _propertyIconItem(Icons.bar_chart, 'start analysis'),
+              child: _propertyIconItem(Icons.bar_chart, analysis),
             ),
           ],
         )
@@ -147,16 +148,10 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
   _openPage(String page, int index) {
     Widget _screen;
     if (page == alerts) {
-      _screen = Alerts(
-        index: index,
-      );
+      _screen = Alerts(index: index);
     } else {
-      _screen = Analysis(
-        index: index,
-      );
+      _screen = Analysis(index: index);
     }
-    Navigator.of(context).push(
-      enterFromRight(_screen),
-    );
+    Navigator.of(context).push(enterFromRight(_screen));
   }
 }

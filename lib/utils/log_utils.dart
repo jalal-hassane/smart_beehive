@@ -1,7 +1,7 @@
 import 'package:logger/logger.dart';
 
 final logger = Logger();
-const mainTag = 'HermelStore';
+const mainTag = 'SmartBeehive';
 
 void logError(String message, {String? tag}) =>
     logger.e((tag ?? mainTag).toString() + ' => $message');

@@ -18,11 +18,12 @@ class Overview extends StatefulWidget {
 }
 
 class _Overview extends State<Overview> with TickerProviderStateMixin {
-  late final Beehive _hive = widget.beehive;
+  late Beehive _hive;
 
   @override
   Widget build(BuildContext context) {
-    _animationController.forward();
+    _hive = widget.beehive;
+    _animationController.forward(from: 0);
     return Padding(
       padding: all(16),
       child: Column(

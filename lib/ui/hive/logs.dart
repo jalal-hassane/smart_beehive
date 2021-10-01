@@ -16,8 +16,10 @@ class Logs extends StatefulWidget {
 }
 
 class _Logs extends State<Logs> {
+  late Beehive _hive;
   @override
   Widget build(BuildContext context) {
+    _hive = widget.beehive;
     return Center(
       child: Text('Logs'),
     );
