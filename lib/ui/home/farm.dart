@@ -119,7 +119,11 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         ),
       );
     } else {
-      return Center(child: Text(textAddHiveHint,style: mTS(color: colorBlack),));
+      return Center(
+          child: Text(
+        textAddHiveHint,
+        style: mTS(color: colorBlack),
+      ));
     }
   }
 
@@ -270,64 +274,71 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
       context: context,
       isScrollControlled: true,
       barrierColor: Colors.transparent,
+      enableDrag: false,
       builder: (_) {
-        return BottomSheet(
-          backgroundColor: colorBlack.withOpacity(0.8),
-          constraints: BoxConstraints(
-              maxHeight: screenHeight * 0.7, minHeight: screenHeight * 0.7),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(35),
-              topRight: Radius.circular(35),
-            ),
-          ),
-          onClosing: () {},
-          builder: (_) {
-            return StatefulBuilder(
-              builder: (_, setState) {
-                return PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: _page(
-                            textStepOne,
-                            textStepOneHint,
-                            textCreate,
-                            setState,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: _createdWidget,
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: _page(
-                            textStepTwo,
-                            textStepTwoHint,
-                            textGenerateQr,
-                            setState,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: _qrWidget,
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            );
+        return GestureDetector(
+          onVerticalDragUpdate: (details) {
+            if (details.delta.dy > 1) Navigator.pop(_);
           },
+          child: BottomSheet(
+            backgroundColor: colorBlack.withOpacity(0.8),
+            enableDrag: false,
+            constraints: BoxConstraints(
+                maxHeight: screenHeight * 0.7, minHeight: screenHeight * 0.7),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(35),
+                topRight: Radius.circular(35),
+              ),
+            ),
+            onClosing: () {},
+            builder: (_) {
+              return StatefulBuilder(
+                builder: (_, setState) {
+                  return PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      Column(
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: _page(
+                              textStepOne,
+                              textStepOneHint,
+                              textCreate,
+                              setState,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: _createdWidget,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: _page(
+                              textStepTwo,
+                              textStepTwoHint,
+                              textGenerateQr,
+                              setState,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: _qrWidget,
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         );
       },
     );
@@ -465,8 +476,9 @@ class _Details extends State<Details> with TickerProviderStateMixin {
   }
 
   _detailsWidget() {
-    if(_tabController==null){
-      _tabController = TabController(initialIndex: _selectedTabIndex,length: 3, vsync: this);
+    if (_tabController == null) {
+      _tabController = TabController(
+          initialIndex: _selectedTabIndex, length: 3, vsync: this);
     }
 
     _tabsPageController ??= PageController(initialPage: _selectedTabIndex);

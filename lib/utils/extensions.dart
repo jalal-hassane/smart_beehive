@@ -2,9 +2,24 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_beehive/composite/strings.dart';
+import 'package:smart_beehive/data/local/models/alert.dart';
 
 extension IsNullOrEmpty on String? {
   bool get isNullOrEmpty => this == null || this!.isEmpty;
+
+  AlertType get alertFromString{
+    switch(this){
+      case typeTemperature: return AlertType.TEMPERATURE;
+      case typeWeight: return AlertType.WEIGHT;
+      case typePopulation: return AlertType.POPULATION;
+      default: return AlertType.HUMIDITY;
+    }
+  }
+}
+
+extension Ex on double {
+  double toPrecision(int n) => double.parse(toStringAsFixed(n));
 }
 
 // unfocus

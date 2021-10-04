@@ -8,6 +8,7 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
 import '../../main.dart';
@@ -29,6 +30,9 @@ class _Alerts extends State<Alerts> {
   final _typeController = TextEditingController();
   final _lowestController = TextEditingController();
   final _highestController = TextEditingController();
+  AlertType _alertType = AlertType.TEMPERATURE;
+
+  //String _alertType = AlertType.TEMPERATURE.description;
 
   @override
   void initState() {
@@ -60,7 +64,7 @@ class _Alerts extends State<Alerts> {
         ),
         body: Column(
           children: [
-            Row(
+            /*Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
@@ -71,7 +75,7 @@ class _Alerts extends State<Alerts> {
                     ),
                   ),
                 ),
-                /* Expanded(
+                */ /* Expanded(
                   flex: 3,
                   child: PopupMenuButton<String>(
                     initialValue: _selectedHive,
@@ -106,8 +110,8 @@ class _Alerts extends State<Alerts> {
                       ),
                     ),
                   ),
-                ),*/
-                Expanded(
+                ),*/ /*
+                */ /*Expanded(
                   flex: 3,
                   child: DropdownButtonHideUnderline(
                     child: Container(
@@ -139,9 +143,9 @@ class _Alerts extends State<Alerts> {
                       ),
                     ),
                   ),
-                ),
+                ),*/ /*
               ],
-            ),
+            ),*/
             Expanded(
               child: _checkAlerts(),
             ),
@@ -166,19 +170,21 @@ class _Alerts extends State<Alerts> {
       // show add widget
       return GestureDetector(
         onTap: _addAlert,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.add_alarm,
-              size: 100,
-            ),
-            Text(
-              textNoAlertsHint,
-              textAlign: TextAlign.center,
-              style: mTS(color: colorBlack),
-            ),
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.add_alarm,
+                size: 100,
+              ),
+              Text(
+                textNoAlertsHint,
+                textAlign: TextAlign.center,
+                style: mTS(color: colorBlack),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -197,10 +203,11 @@ class _Alerts extends State<Alerts> {
           child: IconSlideAction(
             color: colorBlack,
             icon: Icons.delete_forever,
-            caption: 'remove',
+            caption: btRemove,
             foregroundColor: colorPrimary,
             onTap: () {
-              //_deleteMessage(message);
+              _hive.properties.alerts?.removeAt(index);
+              setState(() {});
             },
           ),
         ),
@@ -221,7 +228,7 @@ class _Alerts extends State<Alerts> {
             title: Center(
               child: Text(
                 alert.description,
-                style: rTS(size: 16,color: colorBlack),
+                style: rTS(size: 16, color: colorBlack),
               ),
             ),
           ),
@@ -248,12 +255,12 @@ class _Alerts extends State<Alerts> {
   }
 
   _dropDownItems() {
-    return beehives.map<DropdownMenuItem<String>>((Beehive value) {
+    return AlertType.values.map<DropdownMenuItem<String>>((AlertType value) {
       return DropdownMenuItem<String>(
         alignment: Alignment.center,
-        value: value.name ?? '',
+        value: value.description,
         child: Text(
-          value.name ?? '',
+          value.description,
           style: rTS(),
         ),
       );
@@ -264,53 +271,104 @@ class _Alerts extends State<Alerts> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      enableDrag: false,
       barrierColor: Colors.transparent,
       builder: (_) {
-        return BottomSheet(
-          backgroundColor: colorBlack.withOpacity(0.8),
-          constraints: BoxConstraints(
-              maxHeight: screenHeight * 0.7, minHeight: screenHeight * 0.7),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(35),
-              topRight: Radius.circular(35),
-            ),
-          ),
-          onClosing: () {},
-          builder: (_) {
-            return StatefulBuilder(
-              builder: (_, setState) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      'Create Alert',
-                      style: bTS(size: 30),
-                    ),
-                    _sheetItemWidget(_typeController,'Type',type: TextInputType.text),
-                    _sheetItemWidget(_lowestController,'Lowest'),
-                    _sheetItemWidget(_highestController,'Highest',isLast: true),
-                    TextButton(
-                      onPressed: () {
-                        //
-                      },
-                      child: Container(
-                        width: screenWidth * 0.4,
-                        height: screenHeight * 0.7 * 0.08,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: colorWhite,
-                        ),
-                        child: Center(child: Text('Create Alert',style: mTS(),)),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            );
+        return GestureDetector(
+          onVerticalDragUpdate: (details) {
+            if (details.delta.dy > 1) Navigator.pop(_);
           },
+          child: BottomSheet(
+            enableDrag: false,
+            backgroundColor: colorBlack.withOpacity(0.8),
+            constraints: BoxConstraints(
+              maxHeight: screenHeight * 0.7,
+              minHeight: screenHeight * 0.7,
+            ),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(35),
+                topRight: Radius.circular(35),
+              ),
+            ),
+            onClosing: () {},
+            builder: (_) {
+              return StatefulBuilder(
+                builder: (_, setState) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        textCreateAlert,
+                        style: bTS(size: 30),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: left(16),
+                            child: Text(
+                              textType,
+                              style: boTS(),
+                            ),
+                          ),
+                          Container(
+                            margin: symmetric(0, 16),
+                            child: _dropDownWidget(setState),
+                          ),
+                        ],
+                      ),
+                      _sheetItemWidget(_lowestController, textLowest),
+                      _sheetItemWidget(
+                        _highestController,
+                        textHighest,
+                        isLast: true,
+                      ),
+                      TextButton(
+                        onPressed: () => _createAlert(),
+                        child: Container(
+                          width: screenWidth * 0.4,
+                          height: screenHeight * 0.7 * 0.08,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: colorWhite,
+                          ),
+                          child: Center(
+                            child: Text(
+                              textCreateAlert,
+                              style: mTS(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         );
       },
+    );
+  }
+
+  _dropDownWidget(void Function(void Function()) state) {
+    return Center(
+      child: DropdownButton<String>(
+        iconSize: 0,
+        value: _alertType.description,
+        onChanged: (String? newValue) {
+          state(() {
+            _alertType = newValue!.alertFromString;
+          });
+        },
+        dropdownColor: Colors.black87,
+        isExpanded: true,
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(Icons.arrow_downward),
+        items: _dropDownItems(),
+      ),
     );
   }
 
@@ -318,7 +376,7 @@ class _Alerts extends State<Alerts> {
     TextEditingController controller,
     String text, {
     TextInputType type = const TextInputType.numberWithOptions(decimal: true),
-        bool isLast = false,
+    bool isLast = false,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -341,6 +399,19 @@ class _Alerts extends State<Alerts> {
         ),
       ],
     );
+  }
+
+  _createAlert() {
+    final lowest = _lowestController.text;
+    final highest = _highestController.text;
+    assert(!lowest.isNullOrEmpty);
+    assert(!highest.isNullOrEmpty);
+    final lb = double.parse(lowest.toString());
+    final ub = double.parse(highest.toString());
+    _hive.properties.alerts?.add(
+      Alert(t: _alertType, lb: lb, ub: ub, sv: _alertType.icon),
+    );
+    setState(() {});
   }
 
   _proceed() {}

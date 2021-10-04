@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:smart_beehive/composite/assets.dart';
 
 class Alert {
   AlertType? type; // ex: humidity/temperature
   double? lowerBound;
   double? upperBound;
-  String? _description; // generated based on data, upper and lower bounds
   IconData? iconData;
   String? svg;
 
@@ -14,18 +14,7 @@ class Alert {
 
   String get _type {
     if (type == null) return '';
-    switch (type) {
-      case AlertType.TEMPERATURE:
-        return 'Temperature';
-      case AlertType.HUMIDITY:
-        return 'Humidity';
-      case AlertType.POPULATION:
-        return 'Population';
-      case AlertType.WEIGHT:
-        return 'Weight';
-      default:
-        return '';
-    }
+    return type!.description;
   }
 
   Alert({AlertType? t, double? lb, double? ub, IconData? id, String? sv}) {
@@ -42,4 +31,36 @@ enum AlertType {
   HUMIDITY,
   POPULATION,
   WEIGHT,
+}
+
+extension E on AlertType {
+  String get description {
+    switch (index) {
+      case 0:
+        return 'Temperature';
+      case 1:
+        return 'Humidity';
+      case 2:
+        return 'Population';
+      case 3:
+        return 'Weight';
+      default:
+        return '';
+    }
+  }
+
+  String get icon{
+    switch (index) {
+      case 0:
+        return svgCelsius;
+      case 1:
+        return svgHumidity;
+      case 2:
+        return svgBees;
+      case 3:
+        return svgScale;
+      default:
+        return '';
+    }
+  }
 }

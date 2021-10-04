@@ -19,3 +19,6 @@ const svgCelsius = 'assets/image/celsius.svg';
 const svgHoney = 'assets/image/honey.svg';
 const svgHumidity = 'assets/image/humidity.svg';
 const svgScale = 'assets/image/scale.svg';
+
+// sounds
+const soundAlert = 'assets/sound/alert.mp3';
