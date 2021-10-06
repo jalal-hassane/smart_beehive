@@ -2,24 +2,53 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_beehive/composite/strings.dart';
-import 'package:smart_beehive/data/local/models/alert.dart';
+import 'package:smart_beehive/composite/colors.dart';
+
+import '../main.dart';
 
 extension IsNullOrEmpty on String? {
   bool get isNullOrEmpty => this == null || this!.isEmpty;
-
-  AlertType get alertFromString{
-    switch(this){
-      case typeTemperature: return AlertType.TEMPERATURE;
-      case typeWeight: return AlertType.WEIGHT;
-      case typePopulation: return AlertType.POPULATION;
-      default: return AlertType.HUMIDITY;
-    }
-  }
 }
 
 extension Ex on double {
   double toPrecision(int n) => double.parse(toStringAsFixed(n));
+}
+
+extension ContextExtension on BuildContext {
+  showCustomBottomSheet(Widget Function(BuildContext) builder) {
+    showModalBottomSheet(
+      context: this,
+      isScrollControlled: true,
+      barrierColor: Colors.transparent,
+      enableDrag: false,
+      builder: (_) {
+        return GestureDetector(
+          onVerticalDragUpdate: (details) {
+            if (details.delta.dy > 1) Navigator.pop(_);
+          },
+          child: FractionallySizedBox(
+            heightFactor: 0.9,
+            child: BottomSheet(
+              backgroundColor: colorBlack.withOpacity(0.7),
+              enableDrag: false,
+              constraints: BoxConstraints(
+                maxHeight: screenHeight * 0.9,
+                minHeight: screenHeight * 0.9,
+              ),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35),
+                  topRight: Radius.circular(35),
+                ),
+              ),
+              onClosing: () {},
+              builder: builder,
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 // unfocus

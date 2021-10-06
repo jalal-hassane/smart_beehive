@@ -10,11 +10,6 @@ class Beehive{
   HiveOverview overview = HiveOverview();
   HiveProperties properties  = HiveProperties();
   HiveLogs logs = HiveLogs();
-  /*double? temperature;
-  double? humidity;
-  double? weight;
-  int? population;
-  List<Alert>? alerts;*/
   bool? qrScanned;
   Beehive(this.id);
 }

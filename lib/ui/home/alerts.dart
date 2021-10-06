@@ -24,13 +24,15 @@ class Alerts extends StatefulWidget {
   _Alerts createState() => _Alerts();
 }
 
-class _Alerts extends State<Alerts> {
+class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   String _selectedHive = '';
   late Beehive _hive;
   final _typeController = TextEditingController();
   final _lowestController = TextEditingController();
   final _highestController = TextEditingController();
-  AlertType _alertType = AlertType.TEMPERATURE;
+  AlertType _alertType = AlertType.temperature;
+
+  final _listKey = GlobalKey<AnimatedListState>();
 
   //String _alertType = AlertType.TEMPERATURE.description;
 
@@ -155,9 +157,37 @@ class _Alerts extends State<Alerts> {
     );
   }
 
+  late final AnimationController _animationController = AnimationController(
+    duration: const Duration(seconds: 1),
+    vsync: this,
+    lowerBound: 0.0,
+    upperBound: 1.0,
+  );
+
+  Animation<Offset> _offsetAnimation(double dx, Animation<double> animation) {
+    return Tween<Offset>(
+      begin: Offset(dx, 0.0),
+      end: Offset.zero,
+    ).animate(animation);
+  }
+
   _checkAlerts() {
     if (_hive.properties.alerts!.isNotEmpty) {
       logInfo("Alerts ${_hive.properties.alerts!.length}");
+      //_animationController.forward(from: 0);
+      /*return AnimatedList(
+        key: _listKey,
+        padding: all(8),
+        initialItemCount: _hive.properties.alerts!.length,
+        itemBuilder:
+            (BuildContext context, int index, Animation<double> animation) {
+          return SlideTransition(
+            position: _offsetAnimation(-1, animation),
+            child: _alertWidget(index),
+          );
+          //return _alertWidget(index);
+        },
+      );*/
       return ListView.builder(
         itemCount: _hive.properties.alerts!.length,
         shrinkWrap: true,
@@ -198,37 +228,37 @@ class _Alerts extends State<Alerts> {
       actionPane: const SlidableScrollActionPane(),
       closeOnScroll: true,
       secondaryActions: [
-        Container(
-          margin: bottom(10),
-          child: IconSlideAction(
-            color: colorBlack,
-            icon: Icons.delete_forever,
-            caption: btRemove,
-            foregroundColor: colorPrimary,
-            onTap: () {
-              _hive.properties.alerts?.removeAt(index);
-              setState(() {});
-            },
-          ),
+        _secondaryActionWidget(
+          Icons.volume_up_rounded,
+          btChange,
+          () => _changeSound(index),
+        ),
+        _secondaryActionWidget(
+          Icons.delete_forever,
+          btRemove,
+          () => _removeAlert(index),
         ),
       ],
       actionExtentRatio: 1 / 5,
-      child: SizedBox(
-        height: screenHeight * 0.1,
-        child: Card(
-          margin: bottom(10),
-          shadowColor: colorPrimary,
-          elevation: 2,
-          child: ListTile(
-            horizontalTitleGap: 10,
-            leading: SizedBox(
-              height: double.maxFinite,
-              child: _alertLeadingIcon(alert),
-            ),
-            title: Center(
-              child: Text(
-                alert.description,
-                style: rTS(size: 16, color: colorBlack),
+      child: GestureDetector(
+        onTap: () => _addAlert(edit: true, alert: alert),
+        child: SizedBox(
+          height: screenHeight * 0.1,
+          child: Card(
+            margin: bottom(10),
+            shadowColor: colorPrimary,
+            elevation: 2,
+            child: ListTile(
+              horizontalTitleGap: 10,
+              leading: SizedBox(
+                height: double.maxFinite,
+                child: _alertLeadingIcon(alert),
+              ),
+              title: Center(
+                child: Text(
+                  alert.description,
+                  style: rTS(size: 16, color: colorBlack),
+                ),
               ),
             ),
           ),
@@ -237,6 +267,30 @@ class _Alerts extends State<Alerts> {
     );
   }
 
+  _secondaryActionWidget(
+    IconData icon,
+    String caption,
+    Function()? onTap,
+  ) {
+    return Container(
+      margin: bottom(10),
+      child: IconSlideAction(
+        color: colorBlack,
+        icon: icon,
+        caption: caption,
+        foregroundColor: colorPrimary,
+        onTap: onTap,
+      ),
+    );
+  }
+
+  _removeAlert(int index) {
+    _hive.properties.alerts?.removeAt(index);
+    setState(() {});
+  }
+
+  _changeSound(int index) {}
+
   _alertLeadingIcon(Alert alert) {
     Widget _icon;
     if (alert.svg != null) {
@@ -244,11 +298,13 @@ class _Alerts extends State<Alerts> {
         alert.svg!,
         width: 24,
         height: 24,
+        color: alert.color,
       );
     } else {
       _icon = Icon(
         alert.iconData,
         size: 24,
+        color: alert.color,
       );
     }
     return _icon;
@@ -267,90 +323,68 @@ class _Alerts extends State<Alerts> {
     }).toList();
   }
 
-  _addAlert() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      enableDrag: false,
-      barrierColor: Colors.transparent,
-      builder: (_) {
-        return GestureDetector(
-          onVerticalDragUpdate: (details) {
-            if (details.delta.dy > 1) Navigator.pop(_);
-          },
-          child: BottomSheet(
-            enableDrag: false,
-            backgroundColor: colorBlack.withOpacity(0.8),
-            constraints: BoxConstraints(
-              maxHeight: screenHeight * 0.7,
-              minHeight: screenHeight * 0.7,
-            ),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(35),
-                topRight: Radius.circular(35),
+  _addAlert({bool edit = false, Alert? alert}) {
+    if (edit) {
+      _alertType = alert!.type!;
+      _lowestController.text = alert.lowerBound!.toString();
+      _highestController.text = alert.upperBound!.toString();
+      setState(() {});
+    }
+    context.showCustomBottomSheet((_) {
+      return StatefulBuilder(
+        builder: (_, setState) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                edit ? textEditAlert : textCreateAlert,
+                style: bTS(size: 30),
               ),
-            ),
-            onClosing: () {},
-            builder: (_) {
-              return StatefulBuilder(
-                builder: (_, setState) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        textCreateAlert,
-                        style: bTS(size: 30),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: left(16),
-                            child: Text(
-                              textType,
-                              style: boTS(),
-                            ),
-                          ),
-                          Container(
-                            margin: symmetric(0, 16),
-                            child: _dropDownWidget(setState),
-                          ),
-                        ],
-                      ),
-                      _sheetItemWidget(_lowestController, textLowest),
-                      _sheetItemWidget(
-                        _highestController,
-                        textHighest,
-                        isLast: true,
-                      ),
-                      TextButton(
-                        onPressed: () => _createAlert(),
-                        child: Container(
-                          width: screenWidth * 0.4,
-                          height: screenHeight * 0.7 * 0.08,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: colorWhite,
-                          ),
-                          child: Center(
-                            child: Text(
-                              textCreateAlert,
-                              style: mTS(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        );
-      },
-    );
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: left(16),
+                    child: Text(
+                      textType,
+                      style: boTS(),
+                    ),
+                  ),
+                  Container(
+                    margin: symmetric(0, 16),
+                    child: _dropDownWidget(setState),
+                  ),
+                ],
+              ),
+              _sheetItemWidget(_lowestController, textLowest),
+              _sheetItemWidget(
+                _highestController,
+                textHighest,
+                isLast: true,
+              ),
+              TextButton(
+                onPressed: () => _createAlert(edit: edit, alert: alert),
+                child: Container(
+                  width: screenWidth * 0.4,
+                  height: screenHeight * 0.7 * 0.08,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.red[200],
+                  ),
+                  child: Center(
+                    child: Text(
+                      edit ? textSaveAlert : textCreateAlert,
+                      style: mTS(color: colorWhite),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   _dropDownWidget(void Function(void Function()) state) {
@@ -401,16 +435,39 @@ class _Alerts extends State<Alerts> {
     );
   }
 
-  _createAlert() {
+  _createAlert({bool edit = false, Alert? alert}) {
     final lowest = _lowestController.text;
     final highest = _highestController.text;
     assert(!lowest.isNullOrEmpty);
     assert(!highest.isNullOrEmpty);
     final lb = double.parse(lowest.toString());
     final ub = double.parse(highest.toString());
-    _hive.properties.alerts?.add(
-      Alert(t: _alertType, lb: lb, ub: ub, sv: _alertType.icon),
-    );
+
+    if (edit) {
+      alert!.type = _alertType;
+      alert.lowerBound = lb;
+      alert.upperBound = ub;
+      alert.svg = _alertType.icon;
+      alert.color = _alertType.color;
+      Navigator.pop(context);
+    } else {
+      _hive.properties.alerts?.insert(
+        0,
+        Alert(
+          t: _alertType,
+          lb: lb,
+          ub: ub,
+          sv: _alertType.icon,
+          c: _alertType.color,
+        ),
+      );
+
+      _lowestController.clear();
+      _highestController.clear();
+    }
+
+    //_listKey.currentState?.insertItem(0);
+
     setState(() {});
   }
 

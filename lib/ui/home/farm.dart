@@ -29,12 +29,10 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   Widget _createdWidget = Container();
   Widget _qrWidget = Container();
   Widget _properties = Container();
-  bool _propertiesVisibility = false;
   bool _propertyTitleVisibility = false;
   int _selectedHiveIndex = -1;
   late final _tabController = TabController(length: 3, vsync: this);
   final _tabsPageController = PageController();
-  int _selectedTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -195,153 +193,55 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
       _propertyTitleVisibility = true;
       _properties = Details(beehive: hive);
     });
-    return;
-    /*if (hive.qrScanned != null && hive.qrScanned!) {
-      _properties = Column(
-        children: [
-          TabBar(
-            tabs: [
-              _tabWidget(Icons.remove_red_eye, textOverview),
-              _tabWidget(Icons.paste_rounded, textProperties),
-              _tabWidget(Icons.library_books, textLogs),
-            ],
-            indicatorColor: colorBlack,
-            indicatorPadding: symmetric(0, 8),
-            controller: _tabController,
-            onTap: (value) {
-              _selectedTabIndex = value;
-              _tabsPageController.animateToPage(value,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeIn);
-            },
-          ),
-          Expanded(
-            child: PageView(
-              controller: _tabsPageController,
-              children: [
-                Overview(
-                  beehive: hive,
-                ),
-                Properties(
-                  beehive: hive,
-                ),
-                Logs(
-                  beehive: hive,
-                ),
-              ],
-              onPageChanged: (value) {
-                setState(() {
-                  _tabController.animateTo(value);
-                  _selectedTabIndex = value;
-                });
-              },
-            ),
-          ),
-        ],
-      );
-    } else {
-      // show qr code with scan button
-      _properties = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-              margin: bottom(30),
-              child: const Text(
-                textHiveNotAdded,
-              )),
-          QrImage(
-            data: uuid(),
-            backgroundColor: colorWhite,
-            version: QrVersions.auto,
-            size: 200.0,
-          ),
-          Container(
-            margin: top(30),
-            child:
-                ElevatedButton(onPressed: () {}, child: const Text(textScan)),
-          ),
-          ElevatedButton(onPressed: () {}, child: const Text(textShare)),
-        ],
-      );
-    }*/
-    setState(() {
-      _propertiesVisibility = true;
-    });
   }
 
   _addHive() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      barrierColor: Colors.transparent,
-      enableDrag: false,
-      builder: (_) {
-        return GestureDetector(
-          onVerticalDragUpdate: (details) {
-            if (details.delta.dy > 1) Navigator.pop(_);
-          },
-          child: BottomSheet(
-            backgroundColor: colorBlack.withOpacity(0.8),
-            enableDrag: false,
-            constraints: BoxConstraints(
-                maxHeight: screenHeight * 0.7, minHeight: screenHeight * 0.7),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(35),
-                topRight: Radius.circular(35),
+    context.showCustomBottomSheet((_) {
+      return StatefulBuilder(
+        builder: (_, setState) {
+          return PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: _page(
+                      textStepOne,
+                      textStepOneHint,
+                      textCreate,
+                      setState,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: _createdWidget,
+                  ),
+                ],
               ),
-            ),
-            onClosing: () {},
-            builder: (_) {
-              return StatefulBuilder(
-                builder: (_, setState) {
-                  return PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      Column(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: _page(
-                              textStepOne,
-                              textStepOneHint,
-                              textCreate,
-                              setState,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: _createdWidget,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: _page(
-                              textStepTwo,
-                              textStepTwoHint,
-                              textGenerateQr,
-                              setState,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: _qrWidget,
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        );
-      },
-    );
+              Column(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: _page(
+                      textStepTwo,
+                      textStepTwoHint,
+                      textGenerateQr,
+                      setState,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: _qrWidget,
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   _page(String title, String description, String action,
@@ -375,12 +275,12 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
               height: screenHeight * 0.7 * 0.08,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: colorWhite,
+                color: Colors.red[200],
               ),
               child: Center(
                   child: Text(
                 action,
-                style: mTS(),
+                style: mTS(color: colorWhite),
               )),
             ),
           ),
@@ -476,10 +376,8 @@ class _Details extends State<Details> with TickerProviderStateMixin {
   }
 
   _detailsWidget() {
-    if (_tabController == null) {
-      _tabController = TabController(
+    _tabController ??= TabController(
           initialIndex: _selectedTabIndex, length: 3, vsync: this);
-    }
 
     _tabsPageController ??= PageController(initialPage: _selectedTabIndex);
     return Column(

@@ -127,14 +127,10 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                         autoScrollingMode: AutoScrollingMode.start,
                         labelPlacement: LabelPlacement.onTicks,
                       ),
-                      // Chart title
                       title: ChartTitle(
                         text: textTemperature,
                         textStyle: mTS(color: colorBlack),
                       ),
-                      // Enable legend
-                      //legend: Legend(isVisible: true),
-                      // Enable tooltip
                       tooltipBehavior: _tooltipBehavior,
                       series: <StackedLineSeries<TempInfo, DateTime>>[
                         StackedLineSeries<TempInfo, DateTime>(
@@ -143,7 +139,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                           xValueMapper: (TempInfo info, _) => info.time,
                           yValueMapper: (TempInfo info, _) =>
                               info.value.toPrecision(2),
-                          // Enable data label
                           dataLabelSettings: DataLabelSettings(
                             isVisible: true,
                             builder:
@@ -153,10 +148,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                               return Text(_value.toString());
                             },
                           ),
-                          markerSettings: const MarkerSettings(
-                            isVisible: true,
-                          ),
-                          //animationDelay: 0,
+                          markerSettings: const MarkerSettings(isVisible: true),
                           animationDuration: 0,
                           dataLabelMapper: (datum, index) =>
                               datum.value.toString(),
@@ -167,7 +159,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                     ),
                     Positioned.fill(
                       child: _tempAlertWidget(_showTempAlert, _highTemp),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -183,14 +175,10 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                         autoScrollingMode: AutoScrollingMode.start,
                         labelPlacement: LabelPlacement.onTicks,
                       ),
-                      // Chart title
                       title: ChartTitle(
                         text: textWeight,
                         textStyle: mTS(color: colorBlack),
                       ),
-                      // Enable legend
-                      //legend: Legend(isVisible: true),
-                      // Enable tooltip
                       tooltipBehavior: _tooltipBehavior,
                       series: <StackedLineSeries<Info, DateTime>>[
                         StackedLineSeries<Info, DateTime>(
@@ -198,7 +186,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                           dataSource: _weight,
                           xValueMapper: (Info info, _) => info.time,
                           yValueMapper: (Info info, _) => info.value,
-                          // Enable data label
                           dataLabelSettings: DataLabelSettings(
                             isVisible: true,
                             builder:
@@ -209,7 +196,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                             },
                           ),
                           markerSettings: const MarkerSettings(isVisible: true),
-                          //animationDelay: 0,
                           animationDuration: 0,
                           dataLabelMapper: (datum, index) =>
                               datum.value.toString(),
@@ -232,9 +218,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                     text: textPopulation,
                     textStyle: mTS(color: colorBlack),
                   ),
-                  // Enable legend
                   legend: Legend(isVisible: true),
-                  // Enable tooltip
                   tooltipBehavior: _tooltipBehavior,
                   series: <PieSeries<BeeType, String>>[
                     PieSeries<BeeType, String>(
@@ -244,8 +228,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                       // Enable data label
                       dataLabelSettings:
                           const DataLabelSettings(isVisible: true),
-                      //animationDelay: 0,
-                      //dataLabelMapper: (datum, index) => datum.value.toString(),
                     ),
                   ],
                 ),
@@ -254,92 +236,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
           ),
         ),
       ),
-    );
-  }
-
-  _dropDownItems() {
-    return beehives.map<DropdownMenuItem<String>>((Beehive value) {
-      return DropdownMenuItem<String>(
-        alignment: Alignment.center,
-        value: value.name ?? '',
-        child: Text(
-          value.name ?? '',
-          style: rTS(),
-        ),
-      );
-    }).toList();
-  }
-
-  _startAnalysis() {}
-
-  _showTutorial() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      barrierColor: Colors.transparent,
-      enableDrag: false,
-      builder: (_) {
-        return GestureDetector(
-          onVerticalDragUpdate: (details) {
-            if (details.delta.dy > 1) Navigator.pop(_);
-          },
-          child: BottomSheet(
-            backgroundColor: colorBlack.withOpacity(0.8),
-            enableDrag: false,
-            constraints: BoxConstraints(
-              maxHeight: screenHeight * 0.4,
-              minHeight: screenHeight * 0.4,
-            ),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(35),
-                topRight: Radius.circular(35),
-              ),
-            ),
-            onClosing: () {},
-            builder: (_) {
-              return StatefulBuilder(
-                builder: (_, setState) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'About The Analysis',
-                        style: bTS(size: 30),
-                      ),
-                      Text(
-                        'Record your bees buzzing for 15 seconds to get the results',
-                        textAlign: TextAlign.center,
-                        style: rTS(size: 16),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          width: screenWidth * 0.4,
-                          height: screenHeight * 0.7 * 0.08,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: colorWhite,
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Got It',
-                              style: mTS(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        );
-      },
     );
   }
 
@@ -499,110 +395,3 @@ class BeeType {
 
   BeeType(this.name, this.value);
 }
-
-/// record and tutorial widgets
-/* Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Hive',
-                        style: boTS(color: colorBlack),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: DropdownButtonHideUnderline(
-                      child: Container(
-                        margin: right(16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.black45,
-                        ),
-                        child: Center(
-                          child: DropdownButton<String>(
-                            iconSize: 0,
-                            value: _selectedHive,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedHive = newValue!;
-                                _hive = beehives.firstWhere(
-                                    (element) => _selectedHive == element.name);
-                              });
-                            },
-                            dropdownColor: Colors.black45,
-                            isExpanded: true,
-                            borderRadius: const BorderRadius.only(
-                              bottomRight: Radius.circular(8),
-                              bottomLeft: Radius.circular(8),
-                            ),
-                            icon: const Icon(Icons.arrow_downward),
-                            items: _dropDownItems(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: screenHeight * 0.15,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: colorBlack,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colorPrimary,
-                                  offset: Offset(0, 1.0), //(x,y)
-                                  blurRadius: 6.0,
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.mic,
-                              size: screenHeight * 0.12,
-                              color: colorPrimary,
-                            ),
-                          ),
-                          Text(
-                            'Start Analysis',
-                            style: rTS(color: colorBlack),
-                          )
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: _showTutorial,
-                        child: Align(
-                          alignment: Alignment.topRight,
-                          child: Container(
-                            margin: trbl(12, 16, 0, 0),
-                            height: 20,
-                            width: 20,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              color: Colors.black45,
-                            ),
-                            child: Center(
-                              child: Text(
-                                'i',
-                                style: boTS(size: 12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),*/
