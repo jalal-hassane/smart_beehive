@@ -6,11 +6,7 @@ const lottieSplashLetsBee = 'assets/lottie/lets-bee-splash.json';
 const lottieGoldScores = 'assets/lottie/gold-scores-icon.json';
 
 //
-const backgroundHoney = 'assets/image/honeyComb.png';
 const backgroundHive = 'assets/image/hiveBackground.png';
-const backgroundHoney_4 = 'assets/image/honeyComb_4.png';
-const backgroundHoney_5 = 'assets/image/honeyComb_5.png';
-const backgroundHoney_6 = 'assets/image/honeyComb_6.png';
 const backgroundHoney_7 = 'assets/image/honeyComb_7.png';
 
 // svg
@@ -22,3 +18,10 @@ const svgScale = 'assets/image/scale.svg';
 
 // sounds
 const soundAlert = 'assets/sound/alert.mp3';
+
+// logs
+const pngGeneral = 'assets/image/beehive.png';
+const pngQueen = 'assets/image/crown.png';
+const pngHarvests = 'assets/image/honey.png';
+const pngFeeds = 'assets/image/syrup.png';
+const pngTreatment = 'assets/image/treatment.png';

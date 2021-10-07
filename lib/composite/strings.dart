@@ -85,12 +85,14 @@ const alertTempLow = 'Beehive temperature is too low.'
 const btTurnOff = 'Turn Off';
 const btRemove = 'remove';
 const btChange = 'change';
-
+/// hive logs
+const logGeneral= 'General';
+const logTreatment= 'Treatment';
 /// hive logs - queen
 //<editor-fold desc='queen'>
 const logQueen = 'Queen';
 // queen marking
-const logMarking = 'Marking';
+const logQueenMarking = 'Marking';
 const logOneSix = '1 or 6';
 const logTwoSeven = '2 or 7';
 const logThreeEight = '3 or 8';
@@ -98,7 +100,7 @@ const logFourNine = '4 or 9';
 const logFiveZero = '5 or 0';
 const logQueenMarkingInfo =
     'Queen marking involves placing a contrasting spot of'
-    ' colored paint on the top of her torax';
+    ' colored paint on the top of her torax.';
 
 // queen status
 const logQueenStatus = 'Queen Status';
@@ -106,7 +108,7 @@ const logQueenRight = 'Queenright';
 const logQueenLess = 'Queenless';
 const logTimeToReQueen = 'Time To Requeen';
 const logQueenReplaced = 'Queen Replaced';
-const logQueenStatusInfo = 'Your colony\'s queen status';
+const logQueenStatusInfo = 'Your colony\'s queen status.';
 
 // queen wings
 const logQueenWings = 'Wings';
@@ -115,7 +117,7 @@ const logQueenWingsNotClipped = 'Wings Not Clipped';
 const logQueenWingsInfo =
     'Clipping the queen bee\'s wings involves snipping 1/4th of'
     ' an inch pr 6 mm of one or both wings using specialized'
-    ' clippers or small scissors, such as fingernail scissors';
+    ' clippers or small scissors, such as fingernail scissors.';
 
 // queen cells
 const logCells = 'Cells';
@@ -138,11 +140,11 @@ const logCellSwarmInfo =
     ' the workers to establish a new colony.';
 const logCellLayingWorkerInfo =
     'The humber of laying worker cells you found during'
-    'inspection';
+    ' inspection.';
 const logCellDroneInfo =
-    'The humber of drone cells you found during inspection';
+    'The humber of drone cells you found during inspection.';
 const logCellYoungestBroodInfo =
-    'The youngest type of brood you found during inspection';
+    'The youngest type of brood you found during inspection.';
 
 // queen swarm status
 const logSwarmStatus = 'Swarm Status';
@@ -150,7 +152,7 @@ const logNotSwarming = 'Not Swarming';
 const logPreSwarming = 'Pre Swarming';
 const logSwarming = 'Swarming';
 const logSwarmStatusInfo =
-    'Whether your colony is swarming, preparing to swarm, or none';
+    'Whether your colony is swarming, preparing to swarm, or none.';
 
 // queen excluder
 const logQueenExcluder = 'Queen Excluder';
@@ -163,7 +165,7 @@ const logQueenExcluderInfo =
     '\nBrood in honey supers means extra care is required when'
     ' harvesting honey, particularly in commercial operations.'
     '\nExcluders assist with colony management by confining the'
-    ' queen to a specific part of the hive';
+    ' queen to a specific part of the hive.';
 //</editor-fold>
 
 /// hive logs - harvests
@@ -202,7 +204,7 @@ const logPattyPollenInfo =
 const logPattyProteinInfo =
     'Protein patties are a food source for bees made from'
     ' various formulas. Protein patties provide an early Spring'
-    ' supplement to help stimulate the queen to produce brood';
+    ' supplement to help stimulate the queen to produce brood.';
 const logProbioticsInfo =
     'Probiotic bee supplements are beneficial microorganisms'
     ' known for promoting intestinal and immune support.'

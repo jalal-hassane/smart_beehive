@@ -36,46 +36,46 @@ const semiBoldFontStyle = TextStyle(
 // black textStyle
 TextStyle bTS({
   double size = 14,
-  Color color = colorPrimary,
+  Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
 
 // regular textStyle
 TextStyle rTS({
   double size = 14,
-  Color color = colorPrimary,
+  Color color = colorBlack,
 }) =>
     regularFontStyle.copyWith(fontSize: size, color: color);
 
 // medium textStyle
 TextStyle mTS({
   double size = 14,
-  Color color = colorPrimary,
+  Color color = colorBlack,
 }) =>
     mediumFontStyle.copyWith(fontSize: size, color: color);
 
 // bold textStyle
 TextStyle boTS({
   double size = 14,
-  Color color = colorPrimary,
+  Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
 
 // semiBold textStyle
 TextStyle sbTS({
   double size = 14,
-  Color color = colorPrimary,
+  Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
 
 // extraBold textStyle
 TextStyle ebTS({
   double size = 14,
-  Color color = colorPrimary,
+  Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
 
 final bottomNavigationTextStyle = regularFontStyle.copyWith(
-  color: colorBlack,
+  color: colorPrimary,
   fontSize: 12,
 );

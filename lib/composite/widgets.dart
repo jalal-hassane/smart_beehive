@@ -54,7 +54,7 @@ Widget registrationTextField(
         controller: controller,
         textInputAction: last ? TextInputAction.done : TextInputAction.next,
         maxLines: 1,
-        style: rTS(color: colorBlack),
+        style: rTS(),
         keyboardType: type,
         obscureText: shouldHideText ? true : false,
         decoration: horizontalPaddingDecoration.copyWith(hintText: hint),
@@ -81,7 +81,7 @@ Widget proceedButton(double width, double height, String text,
       child: Center(
         child: Text(
           text,
-          style: mTS(color: colorBlack, size: 18),
+          style: mTS(size: 18),
         ),
       ),
     ),

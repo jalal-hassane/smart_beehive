@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/strings.dart';
 
 class HiveLogs {
-  Queen? queen;
-  Harvests? harvests;
-  Feeds? feeds;
-  Treatments? treatments;
-  Standard? standard;
-  Wintering? wintering;
+  LogQueen? queen = LogQueen();
+  LogHarvests? harvests;
+  LogFeeds? feeds;
+  LogTreatment? treatment;
+  LogGeneral? general;
+  LogWintering? wintering;
 }
 
 enum QueenStatus { queenRight, queenLess, timeToReQueen, queenReplaced }
@@ -28,7 +28,8 @@ extension Status on QueenStatus {
     }
   }
 
-  static String get info => logQueenStatusInfo;
+  static ItemAbout get info =>
+      ItemAbout('', logQueenStatus, logQueenStatusInfo);
 }
 
 enum QueenMarking { white, yellow, red, green, blue }
@@ -64,7 +65,8 @@ extension Marking on QueenMarking {
     }
   }
 
-  static String get info => logQueenMarkingInfo;
+  static ItemAbout get info =>
+      ItemAbout('', logQueenMarking, logQueenMarkingInfo);
 }
 
 enum QueenCells {
@@ -76,7 +78,7 @@ enum QueenCells {
   youngestBrood
 }
 
-extension Cells on QueenCells{
+extension Cells on QueenCells {
   String get description {
     switch (index) {
       case 0:
@@ -94,27 +96,27 @@ extension Cells on QueenCells{
     }
   }
 
-  String get info{
+  ItemAbout get info {
     switch (index) {
       case 0:
-        return '';
+        return ItemAbout('', '', '');
       case 1:
-        return logCellSupersedureInfo;
+        return ItemAbout('', '$logCellSupersedure Cells', logCellSupersedureInfo);
       case 2:
-        return logCellSwarmInfo;
+        return ItemAbout('', '$logCellSwarm Cells', logCellSwarmInfo);
       case 3:
-        return logCellLayingWorkerInfo;
+        return ItemAbout('', '$logCellLayingWorker Cells', logCellLayingWorkerInfo);
       case 4:
-        return logCellDroneInfo;
+        return ItemAbout('', '$logCellDrone Cells', logCellDroneInfo);
       default:
-        return logCellYoungestBroodInfo;
+        return ItemAbout('', '$logCellYoungestBrood Cells', logCellYoungestBroodInfo);
     }
   }
 }
 
 enum SwarmStatus { notSwarming, preSwarming, swarming }
 
-extension Swarm on SwarmStatus{
+extension Swarm on SwarmStatus {
   String get description {
     switch (index) {
       case 0:
@@ -126,24 +128,53 @@ extension Swarm on SwarmStatus{
     }
   }
 
-  static String get info => logSwarmStatusInfo;
-
+  static ItemAbout get info =>
+      ItemAbout('', logSwarmStatus, logSwarmStatusInfo);
 }
-class Queen {
+
+class LogQueen {
   QueenStatus? status;
   QueenMarking? marking;
   QueenCells? cells;
   SwarmStatus? swarmStatus;
   bool? wingsClipped;
   bool? queenExcluder;
+
+  List<ItemAbout> get info {
+    final res = <ItemAbout>[];
+    res.add(Status.info);
+    res.add(
+      ItemAbout('', logQueenWings, logQueenWingsInfo),
+    );
+    res.add(Marking.info);
+    res.add(QueenCells.supersedure.info);
+    res.add(QueenCells.swarm.info);
+    res.add(QueenCells.layingWorker.info);
+    res.add(QueenCells.drone.info);
+    res.add(QueenCells.youngestBrood.info);
+    res.add(Swarm.info);
+   // item about wings
+    res.add(
+      ItemAbout('', logQueenExcluder, logQueenExcluderInfo),
+    ); // item about excluder
+    return res;
+  }
 }
 
-class Harvests {}
+class LogHarvests {}
 
-class Feeds {}
+class LogFeeds {}
 
-class Treatments {}
+class LogTreatment {}
 
-class Standard {}
+class LogGeneral {}
 
-class Wintering {}
+class LogWintering {}
+
+class ItemAbout {
+  final String icon;
+  final String title;
+  final String description;
+
+  ItemAbout(this.icon, this.title, this.description);
+}

@@ -78,7 +78,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
                       Center(
                         child: Text(
                           textDetails,
-                          style: rTS(color: colorBlack),
+                          style: rTS(),
                         ),
                       ),
                       const Flexible(
@@ -120,7 +120,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
       return Center(
           child: Text(
         textAddHiveHint,
-        style: mTS(color: colorBlack),
+        style: mTS(),
       ));
     }
   }
@@ -167,7 +167,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
               child: Center(
                   child: Text(
                 'hive #$hiveIndex',
-                style: sbTS(color: colorBlack),
+                style: sbTS(),
               )),
             ),
           ],
@@ -253,7 +253,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         children: [
           Text(
             title,
-            style: bTS(size: 30),
+            style: bTS(size: 30,color: colorPrimary),
           ),
           Center(
             child: Padding(
@@ -261,7 +261,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
               child: Text(
                 description,
                 textAlign: TextAlign.start,
-                style: rTS(),
+                style: rTS(color: colorPrimary),
               ),
             ),
           ),
@@ -440,7 +440,7 @@ class _Details extends State<Details> with TickerProviderStateMixin {
           margin: bottom(30),
           child: Text(
             textHiveNotAdded,
-            style: rTS(color: colorBlack),
+            style: rTS(),
           ),
         ),
         QrImage(
@@ -455,7 +455,7 @@ class _Details extends State<Details> with TickerProviderStateMixin {
             onPressed: () {},
             child: Text(
               textScan,
-              style: rTS(color: colorBlack),
+              style: rTS(),
             ),
           ),
         ),
@@ -463,7 +463,7 @@ class _Details extends State<Details> with TickerProviderStateMixin {
           onPressed: () {},
           child: Text(
             textShare,
-            style: rTS(color: colorBlack),
+            style: rTS(),
           ),
         ),
       ],

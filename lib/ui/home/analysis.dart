@@ -95,7 +95,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
           elevation: 0,
           title: Text(
             analysis,
-            style: mTS(color: colorBlack),
+            style: mTS(),
           ),
           centerTitle: true,
           actions: [
@@ -129,7 +129,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                       ),
                       title: ChartTitle(
                         text: textTemperature,
-                        textStyle: mTS(color: colorBlack),
+                        textStyle: mTS(),
                       ),
                       tooltipBehavior: _tooltipBehavior,
                       series: <StackedLineSeries<TempInfo, DateTime>>[
@@ -177,7 +177,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                       ),
                       title: ChartTitle(
                         text: textWeight,
-                        textStyle: mTS(color: colorBlack),
+                        textStyle: mTS(),
                       ),
                       tooltipBehavior: _tooltipBehavior,
                       series: <StackedLineSeries<Info, DateTime>>[
@@ -216,7 +216,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                   // Chart title
                   title: ChartTitle(
                     text: textPopulation,
-                    textStyle: mTS(color: colorBlack),
+                    textStyle: mTS(),
                   ),
                   legend: Legend(isVisible: true),
                   tooltipBehavior: _tooltipBehavior,
@@ -276,7 +276,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
           children: [
             Text(
               textAlert,
-              style: bTS(size: 30, color: colorBlack),
+              style: bTS(size: 30),
             ),
             ScaleTransition(
               scale: _scaleAnimation,
@@ -290,14 +290,14 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
               padding: all(6),
               child: Text(
                 alertWeight,
-                style: rTS(color: colorBlack),
+                style: rTS(),
               ),
             ),
             ElevatedButton(
               onPressed: () async => await stopAlert(),
               child: Text(
                 btTurnOff,
-                style: mTS(color: colorBlack),
+                style: mTS(),
               ),
             ),
           ],
@@ -320,7 +320,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
           children: [
             Text(
               textAlert,
-              style: bTS(size: 30, color: colorBlack),
+              style: bTS(size: 30),
             ),
             ScaleTransition(
               scale: _scaleAnimation,
@@ -334,14 +334,14 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
               padding: all(6),
               child: Text(
                 highTemp ? alertTempHigh : alertTempLow,
-                style: rTS(color: colorBlack),
+                style: rTS(),
               ),
             ),
             ElevatedButton(
               onPressed: () async => await stopAlert(temp: true),
               child: Text(
                 btTurnOff,
-                style: mTS(color: colorBlack),
+                style: mTS(),
               ),
             ),
           ],

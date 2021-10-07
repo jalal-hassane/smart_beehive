@@ -40,7 +40,7 @@ class _Home extends State<Home> {
           elevation: 0,
           title: Text(
             _selectedPage,
-            style: mTS(color: colorBlack),
+            style: mTS(),
           ),
           centerTitle: true,
         ),
@@ -126,10 +126,7 @@ class _Home extends State<Home> {
             alignment: Alignment.centerLeft,
             child: Text(
               navigation,
-              style: ebTS(
-                size: 11,
-                color: colorBlack,
-              ),
+              style: ebTS(size: 11),
             ),
           ),
           _divider,
@@ -142,10 +139,7 @@ class _Home extends State<Home> {
             alignment: Alignment.centerLeft,
             child: Text(
               settings,
-              style: ebTS(
-                size: 11,
-                color: colorBlack,
-              ),
+              style: ebTS(size: 11),
             ),
           ),
           _divider,
@@ -177,7 +171,7 @@ class _Home extends State<Home> {
       ),
       title: Text(
         label,
-        style: mTS(color: colorBlack),
+        style: mTS(),
       ),
       onTap: onTap,
     );

@@ -86,11 +86,11 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
           children: [
             Text(
               title,
-              style: mTS(color: colorBlack),
+              style: mTS(),
             ),
             Text(
               value!,
-              style: rTS(color: colorBlack),
+              style: rTS(),
             ),
           ],
         ),

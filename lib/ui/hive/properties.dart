@@ -74,7 +74,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             ),
             Text(
               text.toString(),
-              style: ebTS(size: 18, color: colorBlack),
+              style: ebTS(size: 18),
             ),
           ],
         ),
@@ -99,7 +99,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             ),
             Text(
               text,
-              style: ebTS(size: 18, color: colorBlack),
+              style: ebTS(size: 18),
             ),
           ],
         ),

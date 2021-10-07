@@ -85,7 +85,7 @@ extension E on AlertType {
       case 1:
         return Colors.blue;
       case 2:
-        return colorBlack;
+        return colorPrimary;
       case 3:
         return Colors.lightGreen;
       default:

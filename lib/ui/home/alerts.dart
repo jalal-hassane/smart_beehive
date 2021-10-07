@@ -52,7 +52,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           elevation: 0,
           title: Text(
             alerts,
-            style: mTS(color: colorBlack),
+            style: mTS(),
           ),
           centerTitle: true,
         ),
@@ -73,7 +73,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                   child: Center(
                     child: Text(
                       'Hive',
-                      style: boTS(color: colorBlack),
+                      style: boTS(),
                     ),
                   ),
                 ),
@@ -211,7 +211,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
               Text(
                 textNoAlertsHint,
                 textAlign: TextAlign.center,
-                style: mTS(color: colorBlack),
+                style: mTS(),
               ),
             ],
           ),
@@ -257,7 +257,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
               title: Center(
                 child: Text(
                   alert.description,
-                  style: rTS(size: 16, color: colorBlack),
+                  style: rTS(size: 16),
                 ),
               ),
             ),
@@ -317,7 +317,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
         value: value.description,
         child: Text(
           value.description,
-          style: rTS(),
+          style: rTS(color: colorPrimary),
         ),
       );
     }).toList();
@@ -338,7 +338,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
             children: [
               Text(
                 edit ? textEditAlert : textCreateAlert,
-                style: bTS(size: 30),
+                style: bTS(size: 30,color: colorPrimary),
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
@@ -348,7 +348,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                     margin: left(16),
                     child: Text(
                       textType,
-                      style: boTS(),
+                      style: boTS(color: colorPrimary),
                     ),
                   ),
                   Container(
@@ -420,7 +420,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           margin: left(16),
           child: Text(
             text,
-            style: boTS(),
+            style: boTS(color: colorPrimary),
           ),
         ),
         sheetTextField(
