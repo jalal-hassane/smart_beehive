@@ -51,23 +51,22 @@ class _About extends State<About> {
             children: [
               Row(
                 children: [
-                  const Icon(
-                    Icons.extension,
-                    size: 35,
-                  ),
-                  /*Image.asset(
+                  Image.asset(
                     itemAbout.icon,
-                    height: 50,
-                    width: 50,
-                  ),*/
-                  Text(
-                    itemAbout.title,
-                    style: mTS(color: colorGreen),
+                    height: 35,
+                    width: 35,
+                  ),
+                  Container(
+                    margin: left(5),
+                    child: Text(
+                      itemAbout.title,
+                      style: mTS(color: colorGreen),
+                    ),
                   ),
                 ],
               ),
               Container(
-                margin: left(35),
+                margin: left(40),
                 child: Text(
                   itemAbout.description,
                   style: rTS(),

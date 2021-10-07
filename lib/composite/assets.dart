@@ -25,3 +25,22 @@ const pngQueen = 'assets/image/crown.png';
 const pngHarvests = 'assets/image/honey.png';
 const pngFeeds = 'assets/image/syrup.png';
 const pngTreatment = 'assets/image/treatment.png';
+
+// logs - queen
+const pngQueenStatus = 'assets/image/queen_less.png';
+const pngQueenLess = 'assets/image/queen_less.png';
+const pngQueenRight = 'assets/image/queen_right.png';
+const pngQueenMarkerNone = 'assets/image/marker_none.png';
+const pngQueenMarkerWhite = 'assets/image/marker_white.png';
+const pngQueenMarkerYellow = 'assets/image/marker_yellow.png';
+const pngQueenMarkerBlue = 'assets/image/marker_blue.png';
+const pngQueenMarkerRed = 'assets/image/marker_red.png';
+const pngQueenMarkerGreen = 'assets/image/marker_green.png';
+const pngQueenExcluder = 'assets/image/exclude.png';
+const pngQueenExcluderActive = 'assets/image/exclude_active.png';
+const pngQueenWings = 'assets/image/scissors.png';
+const pngQueenWingsClipped = 'assets/image/scissors_clipped.png';
+const pngQueenSwarmStatus = 'assets/image/swarm_status.png';
+const pngQueenSwarmStatusActive = 'assets/image/swarm_status_active.png';
+const pngQueenCells = 'assets/image/cells.png';
+const pngQueenCellsActive = 'assets/image/cells_active.png';

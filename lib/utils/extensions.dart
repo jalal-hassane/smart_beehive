@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/colors.dart';
+import 'package:smart_beehive/composite/dimensions.dart';
+import 'package:smart_beehive/composite/styles.dart';
+import 'package:smart_beehive/data/local/models/hive_logs.dart';
 
 import '../main.dart';
 
@@ -104,4 +107,28 @@ String uuid() {
   final StringBuffer buffer = StringBuffer();
   buffer.writeAll(uuid);
   return buffer.toString();
+}
+
+extension WidgetsGenerator on List<ItemLog>{
+  generateWidgets(){
+    return List.generate(length, (index) {
+      return Column(
+        children: [
+          Image.asset(
+            this[index].icon,
+            height: 40,
+            width: 40,
+            color: Colors.blueGrey,
+          ),
+          Container(
+            margin: top(12),
+            child: Text(
+              this[index].title,
+              style: mTS(size: 12),
+            ),
+          ),
+        ],
+      );
+    });
+  }
 }

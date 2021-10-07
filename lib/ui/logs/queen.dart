@@ -6,6 +6,7 @@ import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
 import 'package:smart_beehive/ui/global/about.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 
 const _tag = 'Queen';
 
@@ -42,12 +43,19 @@ class _Queen extends State<Queen> {
                   Icons.info_rounded,
                   color: colorBlack,
                 ),
-                onPressed: ()=>_openAbout(),
+                onPressed: () => _openAbout(),
               ),
             ),
           ],
         ),
-        body: Container(),
+        body: Center(
+          child: GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            padding: all(12),
+            children: _logQueen!.logs.generateWidgets(),
+          ),
+        ),
       ),
     );
   }

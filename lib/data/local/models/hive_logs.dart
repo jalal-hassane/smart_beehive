@@ -1,14 +1,15 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/strings.dart';
 
 class HiveLogs {
   LogQueen? queen = LogQueen();
-  LogHarvests? harvests;
-  LogFeeds? feeds;
-  LogTreatment? treatment;
-  LogGeneral? general;
+  LogHarvests? harvests = LogHarvests();
+  LogFeeds? feeds = LogFeeds();
+  LogTreatment? treatment = LogTreatment();
+  LogGeneral? general = LogGeneral();
   LogWintering? wintering;
 }
 
@@ -29,7 +30,7 @@ extension Status on QueenStatus {
   }
 
   static ItemAbout get info =>
-      ItemAbout('', logQueenStatus, logQueenStatusInfo);
+      ItemAbout(pngQueenStatus, logQueenStatus, logQueenStatusInfo);
 }
 
 enum QueenMarking { white, yellow, red, green, blue }
@@ -66,7 +67,7 @@ extension Marking on QueenMarking {
   }
 
   static ItemAbout get info =>
-      ItemAbout('', logQueenMarking, logQueenMarkingInfo);
+      ItemAbout(pngQueenMarkerNone, logQueenMarking, logQueenMarkingInfo);
 }
 
 enum QueenCells {
@@ -101,15 +102,18 @@ extension Cells on QueenCells {
       case 0:
         return ItemAbout('', '', '');
       case 1:
-        return ItemAbout('', '$logCellSupersedure Cells', logCellSupersedureInfo);
+        return ItemAbout(
+            '', '$logCellSupersedure Cells', logCellSupersedureInfo);
       case 2:
         return ItemAbout('', '$logCellSwarm Cells', logCellSwarmInfo);
       case 3:
-        return ItemAbout('', '$logCellLayingWorker Cells', logCellLayingWorkerInfo);
+        return ItemAbout(
+            '', '$logCellLayingWorker Cells', logCellLayingWorkerInfo);
       case 4:
         return ItemAbout('', '$logCellDrone Cells', logCellDroneInfo);
       default:
-        return ItemAbout('', '$logCellYoungestBrood Cells', logCellYoungestBroodInfo);
+        return ItemAbout(
+            '', '$logCellYoungestBrood Cells', logCellYoungestBroodInfo);
     }
   }
 }
@@ -129,7 +133,7 @@ extension Swarm on SwarmStatus {
   }
 
   static ItemAbout get info =>
-      ItemAbout('', logSwarmStatus, logSwarmStatusInfo);
+      ItemAbout(pngQueenSwarmStatus, logSwarmStatus, logSwarmStatusInfo);
 }
 
 class LogQueen {
@@ -144,7 +148,7 @@ class LogQueen {
     final res = <ItemAbout>[];
     res.add(Status.info);
     res.add(
-      ItemAbout('', logQueenWings, logQueenWingsInfo),
+      ItemAbout(pngQueenWings, logQueenWings, logQueenWingsInfo),
     );
     res.add(Marking.info);
     res.add(QueenCells.supersedure.info);
@@ -153,23 +157,74 @@ class LogQueen {
     res.add(QueenCells.drone.info);
     res.add(QueenCells.youngestBrood.info);
     res.add(Swarm.info);
-   // item about wings
+    // item about wings
     res.add(
-      ItemAbout('', logQueenExcluder, logQueenExcluderInfo),
+      ItemAbout(pngQueenExcluder, logQueenExcluder, logQueenExcluderInfo),
     ); // item about excluder
+    return res;
+  }
+
+  List<ItemLog> get logs {
+    final res = <ItemLog>[];
+    res.add(ItemLog(pngQueenStatus, logQueenStatus));
+    res.add(ItemLog(pngQueenWings, logQueenWings));
+    res.add(ItemLog(pngQueenMarkerNone, logQueenMarking));
+    res.add(ItemLog(pngQueenCells, logCells));
+    res.add(ItemLog(pngQueenSwarmStatus, logSwarmStatus));
+    res.add(ItemLog(pngQueenExcluder, logQueenExcluder));
     return res;
   }
 }
 
-class LogHarvests {}
+class LogHarvests {
+  List<ItemAbout> get info {
+    return [];
+  }
+  List<ItemLog> get logs {
+    final res = <ItemLog>[];
+    return res;
+  }
+}
 
-class LogFeeds {}
+class LogFeeds {
+  List<ItemAbout> get info {
+    return [];
+  }
+  List<ItemLog> get logs {
+    final res = <ItemLog>[];
+    return res;
+  }
+}
 
-class LogTreatment {}
+class LogTreatment {
+  List<ItemAbout> get info {
+    return [];
+  }
+  List<ItemLog> get logs {
+    final res = <ItemLog>[];
+    return res;
+  }
+}
 
-class LogGeneral {}
+class LogGeneral {
+  List<ItemAbout> get info {
+    return [];
+  }
+  List<ItemLog> get logs {
+    final res = <ItemLog>[];
+    return res;
+  }
+}
 
-class LogWintering {}
+class LogWintering {
+  List<ItemAbout> get info {
+    return [];
+  }
+  List<ItemLog> get logs {
+    final res = <ItemLog>[];
+    return res;
+  }
+}
 
 class ItemAbout {
   final String icon;
@@ -177,4 +232,11 @@ class ItemAbout {
   final String description;
 
   ItemAbout(this.icon, this.title, this.description);
+}
+
+class ItemLog {
+  final String icon;
+  final String title;
+
+  ItemLog(this.icon, this.title);
 }
