@@ -50,10 +50,11 @@ class _General extends State<General> {
         ),
         body: Center(
           child: GridView.count(
+            key: UniqueKey(),
             crossAxisCount: 3,
             shrinkWrap: true,
             padding: all(12),
-            children: _logGeneral!.logs.generateWidgets(),
+            children: _logGeneral!.logs.generateWidgets(_taps),
           ),
         ),
       ),
@@ -62,4 +63,21 @@ class _General extends State<General> {
 
   _openAbout() => Navigator.of(context)
       .push(enterFromRight(About(items: _logGeneral!.info)));
+
+  final _taps = <Function()>[];
+
+  _generateTaps() {
+    for (int i = 0; i < _logGeneral!.logs.length; i++) {
+      final f = context.showCustomBottomSheet((p0) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              children: [],
+            );
+          },
+        );
+      });
+      _taps.add(f);
+    }
+  }
 }

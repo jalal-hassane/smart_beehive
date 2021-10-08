@@ -50,10 +50,11 @@ class _Harvests extends State<Harvests> {
         ),
         body: Center(
           child: GridView.count(
+            key: UniqueKey(),
             crossAxisCount: 3,
             shrinkWrap: true,
             padding: all(12),
-            children: _logHarvests!.logs.generateWidgets(),
+            children: _logHarvests!.logs.generateWidgets(_taps),
           ),
         ),
       ),
@@ -62,4 +63,21 @@ class _Harvests extends State<Harvests> {
 
   _openAbout() => Navigator.of(context)
       .push(enterFromRight(About(items: _logHarvests!.info)));
+
+  final _taps = <Function()>[];
+
+  _generateTaps() {
+    for (int i = 0; i < _logHarvests!.logs.length; i++) {
+      final f = context.showCustomBottomSheet((p0) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              children: [],
+            );
+          },
+        );
+      });
+      _taps.add(f);
+    }
+  }
 }

@@ -8,6 +8,7 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
 
 import '../main.dart';
+import 'log_utils.dart';
 
 extension IsNullOrEmpty on String? {
   bool get isNullOrEmpty => this == null || this!.isEmpty;
@@ -109,25 +110,65 @@ String uuid() {
   return buffer.toString();
 }
 
-extension WidgetsGenerator on List<ItemLog>{
-  generateWidgets(){
+extension WidgetsGenerator on List<ItemLog> {
+  generateWidgets(List<Function()> taps) {
     return List.generate(length, (index) {
-      return Column(
-        children: [
-          Image.asset(
-            this[index].icon,
-            height: 40,
-            width: 40,
-            color: Colors.blueGrey,
-          ),
-          Container(
-            margin: top(12),
-            child: Text(
-              this[index].title,
-              style: mTS(size: 12),
+      return GestureDetector(
+        onTap: () => taps[index].call(),
+        child: Column(
+          children: [
+            Image.asset(
+              this[index].icon,
+              height: 40,
+              width: 40,
+              color: this[index].isActive ? null : Colors.blueGrey,
             ),
-          ),
-        ],
+            Container(
+              margin: top(12),
+              child: Text(
+                this[index].title,
+                style: mTS(
+                  size: 12,
+                  color: this[index].isActive ? colorBlack : Colors.blueGrey,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  generateSameTapWidgets(Function() tap,Function(void Function()) setState) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+        onTap: () {
+          tap.call();
+          logInfo(this[index].title);
+          setState((){
+            this[index].isActive = true;
+          });
+        },
+        child: Column(
+          children: [
+            Image.asset(
+              this[index].icon,
+              height: 40,
+              width: 40,
+              color: this[index].isActive ? null : Colors.blueGrey,
+            ),
+            Container(
+              margin: top(12),
+              child: Text(
+                this[index].title,
+                style: mTS(
+                  size: 12,
+                  color: this[index].isActive ? colorPrimary : Colors.blueGrey,
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     });
   }

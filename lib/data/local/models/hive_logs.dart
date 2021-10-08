@@ -31,6 +31,28 @@ extension Status on QueenStatus {
 
   static ItemAbout get info =>
       ItemAbout(pngQueenStatus, logQueenStatus, logQueenStatusInfo);
+
+  ItemLog get log {
+    switch (index) {
+      case 0:
+        return ItemLog(pngQueenRight, logQueenRight);
+      case 1:
+        return ItemLog(pngQueenLess, logQueenLess);
+      case 2:
+        return ItemLog(pngQueenLess, logTimeToReQueen);
+      default:
+        return ItemLog(pngQueenLess, logQueenReplaced);
+    }
+  }
+
+  static List<ItemLog> get logs {
+    return [
+      QueenStatus.queenRight.log,
+      QueenStatus.queenLess.log,
+      QueenStatus.timeToReQueen.log,
+      QueenStatus.queenReplaced.log,
+    ];
+  }
 }
 
 enum QueenMarking { white, yellow, red, green, blue }
@@ -68,6 +90,31 @@ extension Marking on QueenMarking {
 
   static ItemAbout get info =>
       ItemAbout(pngQueenMarkerNone, logQueenMarking, logQueenMarkingInfo);
+
+  ItemLog get log {
+    switch (index) {
+      case 0:
+        return ItemLog(pngQueenMarkerWhite, logOneSix);
+      case 1:
+        return ItemLog(pngQueenMarkerYellow, logTwoSeven);
+      case 2:
+        return ItemLog(pngQueenMarkerRed, logThreeEight);
+      case 3:
+        return ItemLog(pngQueenMarkerGreen, logFourNine);
+      default:
+        return ItemLog(pngQueenMarkerBlue, logFiveZero);
+    }
+  }
+
+  static List<ItemLog> get logs {
+    return [
+      QueenMarking.white.log,
+      QueenMarking.yellow.log,
+      QueenMarking.red.log,
+      QueenMarking.green.log,
+      QueenMarking.blue.log,
+    ];
+  }
 }
 
 enum QueenCells {
@@ -116,6 +163,35 @@ extension Cells on QueenCells {
             '', '$logCellYoungestBrood Cells', logCellYoungestBroodInfo);
     }
   }
+
+  // todo fix icons
+  ItemLog get log {
+    switch (index) {
+      case 0:
+        return ItemLog(pngQueenMarkerWhite, logCellEmergency);
+      case 1:
+        return ItemLog(pngQueenMarkerYellow, logCellSupersedure);
+      case 2:
+        return ItemLog(pngQueenMarkerRed, logCellSwarm);
+      case 3:
+        return ItemLog(pngQueenMarkerGreen, logCellLayingWorker);
+      case 4:
+        return ItemLog(pngQueenMarkerGreen, logCellDrone);
+      default:
+        return ItemLog(pngQueenMarkerBlue, logCellYoungestBrood);
+    }
+  }
+
+  static List<ItemLog> get logs {
+    return [
+      QueenCells.emergency.log,
+      QueenCells.supersedure.log,
+      QueenCells.swarm.log,
+      QueenCells.layingWorker.log,
+      QueenCells.drone.log,
+      QueenCells.youngestBrood.log,
+    ];
+  }
 }
 
 enum SwarmStatus { notSwarming, preSwarming, swarming }
@@ -134,6 +210,25 @@ extension Swarm on SwarmStatus {
 
   static ItemAbout get info =>
       ItemAbout(pngQueenSwarmStatus, logSwarmStatus, logSwarmStatusInfo);
+
+  ItemLog get log {
+    switch (index) {
+      case 0:
+        return ItemLog(pngQueenMarkerWhite, logNotSwarming);
+      case 1:
+        return ItemLog(pngQueenMarkerYellow, logPreSwarming);
+      default:
+        return ItemLog(pngQueenMarkerBlue, logSwarming);
+    }
+  }
+
+  static List<ItemLog> get logs {
+    return [
+      SwarmStatus.notSwarming.log,
+      SwarmStatus.preSwarming.log,
+      SwarmStatus.swarming.log,
+    ];
+  }
 }
 
 class LogQueen {
@@ -143,6 +238,15 @@ class LogQueen {
   SwarmStatus? swarmStatus;
   bool? wingsClipped;
   bool? queenExcluder;
+
+  bool get isActive {
+    return status != null ||
+        marking != null ||
+        cells != null ||
+        swarmStatus != null ||
+        wingsClipped != null ||
+        queenExcluder != null;
+  }
 
   List<ItemAbout> get info {
     final res = <ItemAbout>[];
@@ -180,9 +284,14 @@ class LogHarvests {
   List<ItemAbout> get info {
     return [];
   }
+
   List<ItemLog> get logs {
     final res = <ItemLog>[];
     return res;
+  }
+
+  bool get isActive {
+    return false;
   }
 }
 
@@ -190,9 +299,14 @@ class LogFeeds {
   List<ItemAbout> get info {
     return [];
   }
+
   List<ItemLog> get logs {
     final res = <ItemLog>[];
     return res;
+  }
+
+  bool get isActive {
+    return false;
   }
 }
 
@@ -200,9 +314,14 @@ class LogTreatment {
   List<ItemAbout> get info {
     return [];
   }
+
   List<ItemLog> get logs {
     final res = <ItemLog>[];
     return res;
+  }
+
+  bool get isActive {
+    return false;
   }
 }
 
@@ -210,9 +329,14 @@ class LogGeneral {
   List<ItemAbout> get info {
     return [];
   }
+
   List<ItemLog> get logs {
     final res = <ItemLog>[];
     return res;
+  }
+
+  bool get isActive {
+    return false;
   }
 }
 
@@ -220,9 +344,14 @@ class LogWintering {
   List<ItemAbout> get info {
     return [];
   }
+
   List<ItemLog> get logs {
     final res = <ItemLog>[];
     return res;
+  }
+
+  bool get isActive {
+    return false;
   }
 }
 
@@ -235,8 +364,12 @@ class ItemAbout {
 }
 
 class ItemLog {
+  Key? _key;
   final String icon;
   final String title;
+  bool isActive = false;
 
-  ItemLog(this.icon, this.title);
+  ItemLog(this.icon, this.title){
+    _key = UniqueKey();
+  }
 }
