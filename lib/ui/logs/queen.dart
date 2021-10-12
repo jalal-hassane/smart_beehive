@@ -220,7 +220,7 @@ class _Queen extends State<Queen> {
   _itemLogWidget(String icon, String text) {}
 
   _queenStatusWidgets(ItemLog itemLog, Function(void Function()) state) {
-    f(String icon, String title, QueenStatus status) {
+    f(String icon, String title, QueenStatus status,Color? color) {
       for (ItemLog it in Status.logs) {
         it.isActive = false;
       }
@@ -228,6 +228,7 @@ class _Queen extends State<Queen> {
       setState(() {
         _logQueen!.status = status;
         itemLog.setData(icon, title);
+        itemLog.setColor(color);
       });
     }
 

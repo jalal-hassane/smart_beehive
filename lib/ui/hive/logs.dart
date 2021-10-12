@@ -38,7 +38,7 @@ class _Logs extends State<Logs> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _itemLogWidget(pngGeneral, logGeneral, () => _openPage(0)),
+                //_itemLogWidget(pngGeneral, logGeneral, () => _openPage(0)),
                 _itemLogWidget(pngQueen, logQueen, () => _openPage(1)),
                 _itemLogWidget(pngHarvests, logHarvests, () => _openPage(2)),
               ],

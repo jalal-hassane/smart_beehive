@@ -145,9 +145,9 @@ extension Status on QueenStatus {
       case 1:
         return ItemLog(pngQueenLess, logQueenLess);
       case 2:
-        return ItemLog(pngQueenLess, logTimeToReQueen);
+        return ItemLog.colored(pngQueenLess, logTimeToReQueen,Colors.deepOrange);
       default:
-        return ItemLog(pngQueenLess, logQueenReplaced);
+        return ItemLog.colored(pngQueenLess, logQueenReplaced,Colors.green);
     }
   }
 
@@ -367,7 +367,17 @@ class LogHarvests {
   List<ItemLog> harvestsLogs = [];
   List<ItemAbout> harvestsInfo = [];
 
-  clear() {}
+  clear() {
+    beeswax = null;
+    honeyComb = null;
+    honey = null;
+    pollen = null;
+    propolis = null;
+    royalJelly = null;
+    for (ItemLog l in harvestsLogs) {
+      l.reset();
+    }
+  }
 
   List<ItemAbout> get info {
     if (harvestsInfo.isNotEmpty) return harvestsInfo;
@@ -395,16 +405,26 @@ class LogHarvests {
 
 ///<editor-fold desc='feeds'
 class LogFeeds {
+  SyrupType? syrup;
+  bool? honey;
+  PattyType? patty;
+  bool? probiotics;
+
   List<ItemLog> feedsLogs = [];
   List<ItemAbout> feedsInfo = [];
 
   List<ItemAbout> get info {
     if (feedsInfo.isNotEmpty) return feedsInfo;
-    feedsInfo.add(ItemAbout(pngFeedHeavySyrup,'$logSyrupHeavy $logSyrup',logSyrupHeavyInfo));
-    feedsInfo.add(ItemAbout(pngFeedLightSyrup,'$logSyrupLight $logSyrup',logSyrupLightInfo));
-    feedsInfo.add(ItemAbout(pngFeedPattyPollen,'$logPollen $logPatty',logPattyPollenInfo));
-    feedsInfo.add(ItemAbout(pngFeedPattyProtein,'$logProtein $logPatty',logPattyProteinInfo));
-    feedsInfo.add(ItemAbout(pngFeedProbioticsActive,logProbiotics,logProbioticsInfo));
+    feedsInfo.add(ItemAbout(
+        pngFeedHeavySyrup, '$logSyrupHeavy $logSyrup', logSyrupHeavyInfo));
+    feedsInfo.add(ItemAbout(
+        pngFeedLightSyrup, '$logSyrupLight $logSyrup', logSyrupLightInfo));
+    feedsInfo.add(ItemAbout(
+        pngFeedPattyPollen, '$logPollen $logPatty', logPattyPollenInfo));
+    feedsInfo.add(ItemAbout(
+        pngFeedPattyProtein, '$logProtein $logPatty', logPattyProteinInfo));
+    feedsInfo.add(
+        ItemAbout(pngFeedProbioticsActive, logProbiotics, logProbioticsInfo));
     return feedsInfo;
   }
 
@@ -421,7 +441,55 @@ class LogFeeds {
     return false;
   }
 
-  clear(){}
+  clear() {
+    syrup = null;
+    honey = null;
+    patty = null;
+    probiotics = null;
+    for (ItemLog l in feedsLogs) {
+      l.reset();
+    }
+  }
+}
+
+enum SyrupType { light, heavy }
+
+extension SyrupTypes on SyrupType {
+  ItemLog get log {
+    switch (index) {
+      case 0:
+        return ItemLog(pngFeedLightSyrup, '$logSyrupLight $logSyrup');
+      default:
+        return ItemLog(pngFeedHeavySyrup, '$logSyrupHeavy $logSyrup');
+    }
+  }
+
+  static List<ItemLog> get logs {
+    return [
+      SyrupType.light.log,
+      SyrupType.heavy.log,
+    ];
+  }
+}
+
+enum PattyType { pollen, protein }
+
+extension PattyTypes on PattyType {
+  ItemLog get log {
+    switch (index) {
+      case 0:
+        return ItemLog(pngFeedPattyPollen, logPollen);
+      default:
+        return ItemLog(pngFeedPattyProtein, logProtein);
+    }
+  }
+
+  static List<ItemLog> get logs {
+    return [
+      PattyType.pollen.log,
+      PattyType.protein.log,
+    ];
+  }
 }
 
 ///</editor-fold>
@@ -432,24 +500,28 @@ class LogTreatment {
   List<ItemAbout> treatmentInfo = [];
 
   List<ItemAbout> get info {
-    if(treatmentInfo.isNotEmpty) return treatmentInfo;
-    treatmentInfo.add(ItemAbout(pngQueenStatus, logFullBrood, logFullBroodInfo));
-    treatmentInfo.add(ItemAbout(pngQueenStatus, logHiveBeetles, logHiveBeetlesInfo));
+    if (treatmentInfo.isNotEmpty) return treatmentInfo;
+    treatmentInfo
+        .add(ItemAbout(pngQueenStatus, logFullBrood, logFullBroodInfo));
+    treatmentInfo
+        .add(ItemAbout(pngQueenStatus, logHiveBeetles, logHiveBeetlesInfo));
     treatmentInfo.add(ItemAbout(pngQueenStatus, logNosema, logNosemaInfo));
-    treatmentInfo.add(ItemAbout(pngQueenStatus, logTrachealMites, logTrachealMitesInfo));
-    treatmentInfo.add(ItemAbout(pngQueenStatus, logVarroaMites, logVarroaMitesInfo));
+    treatmentInfo
+        .add(ItemAbout(pngQueenStatus, logTrachealMites, logTrachealMitesInfo));
+    treatmentInfo
+        .add(ItemAbout(pngQueenStatus, logVarroaMites, logVarroaMitesInfo));
     treatmentInfo.add(ItemAbout(pngQueenStatus, logWaxMoths, logWaxMothsInfo));
     return treatmentInfo;
   }
 
   List<ItemLog> get logs {
-    if(treatmentLogs.isNotEmpty) return treatmentLogs;
-    treatmentLogs.add(ItemLog(pngQueenStatus,logFullBrood));
-    treatmentLogs.add(ItemLog(pngQueenStatus,logHiveBeetles));
-    treatmentLogs.add(ItemLog(pngQueenStatus,logNosema));
-    treatmentLogs.add(ItemLog(pngQueenStatus,logTrachealMites));
-    treatmentLogs.add(ItemLog(pngQueenStatus,logVarroaMites));
-    treatmentLogs.add(ItemLog(pngQueenStatus,logWaxMoths));
+    if (treatmentLogs.isNotEmpty) return treatmentLogs;
+    treatmentLogs.add(ItemLog(pngQueenStatus, logFullBrood));
+    treatmentLogs.add(ItemLog(pngQueenStatus, logHiveBeetles));
+    treatmentLogs.add(ItemLog(pngQueenStatus, logNosema));
+    treatmentLogs.add(ItemLog(pngQueenStatus, logTrachealMites));
+    treatmentLogs.add(ItemLog(pngQueenStatus, logVarroaMites));
+    treatmentLogs.add(ItemLog(pngQueenStatus, logWaxMoths));
     return treatmentLogs;
   }
 
@@ -457,15 +529,18 @@ class LogTreatment {
     return false;
   }
 
-  clear(){}
+  clear() {
+    for (ItemLog l in treatmentLogs) {
+      l.reset();
+    }
+  }
 }
 
 ///</editor-fold>
 
 ///<editor-fold desc='general'>
 class LogGeneral {
-
-  clear(){}
+  clear() {}
 
   List<ItemAbout> get info {
     return [];
@@ -536,6 +611,11 @@ class ItemLog {
     isActive = true;
     icon = mIcon;
     title = mTitle;
+  }
+
+  setIcon(String mIcon, bool active) {
+    isActive = active;
+    icon = mIcon;
   }
 
   setColor(Color? mColor) {

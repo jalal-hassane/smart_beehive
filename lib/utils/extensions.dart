@@ -124,15 +124,19 @@ extension WidgetsGenerator on List<ItemLog> {
   }
 
   generateQueenStatusWidgets(
-    Function(String t, String i, QueenStatus status) tap,
+    Function(String t, String i, QueenStatus status, Color? color) tap,
   ) {
     return List.generate(length, (index) {
       return GestureDetector(
         onTap: () {
           tap.call(
-              this[index].icon, this[index].title, QueenStatus.values[index]);
+            this[index].icon,
+            this[index].title,
+            QueenStatus.values[index],
+            this[index].color,
+          );
         },
-        child: _itemLogWidget(this[index]),
+        child: _coloredItemLogWidget(this[index]),
       );
     });
   }
@@ -195,7 +199,38 @@ extension WidgetsGenerator on List<ItemLog> {
     });
   }
 
-  _coloredItemLogWidget(ItemLog itemLog,) {
+  generateSyrupWidgets(
+    Function(String t, String i, SyrupType status) tap,
+  ) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+          onTap: () {
+            tap.call(
+                this[index].icon, this[index].title, SyrupType.values[index]);
+          },
+          child: _itemLogWidget(this[index]));
+    });
+  }
+
+  generatePattyWidgets(
+    Function(String t, String i, PattyType status) tap,
+  ) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+        onTap: () {
+          tap.call(
+              this[index].icon, this[index].title, PattyType.values[index]);
+        },
+        child: _itemLogWidget(
+          this[index],
+        ),
+      );
+    });
+  }
+
+  _coloredItemLogWidget(
+    ItemLog itemLog,
+  ) {
     return Column(
       children: [
         Image.asset(
