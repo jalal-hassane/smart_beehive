@@ -8,6 +8,8 @@ import 'package:smart_beehive/data/local/models/hive_logs.dart';
 import 'package:smart_beehive/ui/global/about.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 
+import '../../main.dart';
+
 const _tag = 'Treatment';
 
 class Treatment extends StatefulWidget {
@@ -48,14 +50,39 @@ class _Treatment extends State<Treatment> {
             ),
           ],
         ),
-        body: Center(
-          child: GridView.count(
-            key: UniqueKey(),
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            padding: all(12),
-            children: _logTreatment!.logs.generateWidgets(_taps),
-          ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Center(
+              child: GridView.count(
+                key: UniqueKey(),
+                crossAxisCount: 3,
+                shrinkWrap: true,
+                padding: all(12),
+                children: _logTreatment!.logs.generateWidgets(_taps),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _logTreatment?.clear();
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red[200],
+              ),
+              child: SizedBox(
+                width: screenWidth * 0.4,
+                height: screenHeight * 0.056,
+                child: Center(
+                  child: Text(
+                    textClear,
+                    style: mTS(color: colorWhite),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

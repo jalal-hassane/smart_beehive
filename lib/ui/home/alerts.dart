@@ -363,15 +363,17 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                 textHighest,
                 isLast: true,
               ),
-              TextButton(
+              ElevatedButton(
                 onPressed: () => _createAlert(edit: edit, alert: alert),
-                child: Container(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red[200],
+                  /*shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)
+                    ),*/
+                ),
+                child: SizedBox(
                   width: screenWidth * 0.4,
-                  height: screenHeight * 0.7 * 0.08,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.red[200],
-                  ),
+                  height: screenHeight * 0.056,
                   child: Center(
                     child: Text(
                       edit ? textSaveAlert : textCreateAlert,

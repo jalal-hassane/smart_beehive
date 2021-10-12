@@ -132,7 +132,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         width: screenWidth * 0.3,
         margin: right(12),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(20),
           image: const DecorationImage(
             fit: BoxFit.cover,
             image: AssetImage(backgroundHive),
@@ -253,7 +253,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         children: [
           Text(
             title,
-            style: bTS(size: 30,color: colorPrimary),
+            style: bTS(size: 30, color: colorPrimary),
           ),
           Center(
             child: Padding(
@@ -265,18 +265,20 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
               ),
             ),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               state(() => _handleAction(action));
               logInfo("$action was pressed!!");
             },
+            style: ElevatedButton.styleFrom(
+              primary: Colors.red[200],
+              /*shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6)
+                ),*/
+            ),
             child: Container(
               width: screenWidth * 0.4,
               height: screenHeight * 0.7 * 0.08,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.red[200],
-              ),
               child: Center(
                   child: Text(
                 action,
@@ -376,8 +378,8 @@ class _Details extends State<Details> with TickerProviderStateMixin {
   }
 
   _detailsWidget() {
-    _tabController ??= TabController(
-          initialIndex: _selectedTabIndex, length: 3, vsync: this);
+    _tabController ??=
+        TabController(initialIndex: _selectedTabIndex, length: 3, vsync: this);
 
     _tabsPageController ??= PageController(initialPage: _selectedTabIndex);
     return Column(

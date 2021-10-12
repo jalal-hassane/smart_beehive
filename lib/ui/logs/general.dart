@@ -8,6 +8,8 @@ import 'package:smart_beehive/data/local/models/hive_logs.dart';
 import 'package:smart_beehive/ui/global/about.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 
+import '../../main.dart';
+
 const _tag = 'General';
 
 class General extends StatefulWidget {
@@ -48,14 +50,39 @@ class _General extends State<General> {
             ),
           ],
         ),
-        body: Center(
-          child: GridView.count(
-            key: UniqueKey(),
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            padding: all(12),
-            children: _logGeneral!.logs.generateWidgets(_taps),
-          ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Center(
+              child: GridView.count(
+                key: UniqueKey(),
+                crossAxisCount: 3,
+                shrinkWrap: true,
+                padding: all(12),
+                children: _logGeneral!.logs.generateWidgets(_taps),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _logGeneral?.clear();
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red[200],
+              ),
+              child: SizedBox(
+                width: screenWidth * 0.4,
+                height: screenHeight * 0.056,
+                child: Center(
+                  child: Text(
+                    textClear,
+                    style: mTS(color: colorWhite),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

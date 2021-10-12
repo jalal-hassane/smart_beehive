@@ -38,3 +38,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+// todo fix marker in queen logs section ( only change its color instead of changing the png)

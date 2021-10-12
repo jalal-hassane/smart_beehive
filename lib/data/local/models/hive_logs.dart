@@ -13,6 +13,112 @@ class HiveLogs {
   LogWintering? wintering;
 }
 
+///<editor-fold desc='queen'>
+class LogQueen {
+  QueenStatus? status;
+  QueenMarking? marking;
+  QueenCells? cells;
+  SwarmStatus? swarmStatus;
+  bool? wingsClipped;
+  bool? queenExcluder;
+
+  List<ItemLog> queenLogs = [];
+  List<ItemAbout> queenInfo = [];
+
+  clear() {
+    status = null;
+    marking = null;
+    cells = null;
+    swarmStatus = null;
+    wingsClipped = null;
+    queenExcluder = null;
+    for (ItemLog l in queenLogs) {
+      l.reset();
+    }
+    //queenLogs.clear();
+    //queenInfo.clear();
+    //queenLogs.addAll(logs);
+  }
+
+  bool get isActive {
+    return status != null ||
+        marking != null ||
+        cells != null ||
+        swarmStatus != null ||
+        wingsClipped != null ||
+        queenExcluder != null;
+  }
+
+  List<ItemAbout> get info {
+    if (queenInfo.isNotEmpty) return queenInfo;
+    queenInfo.add(Status.info);
+    queenInfo.add(
+      ItemAbout(pngQueenWings, logQueenWings, logQueenWingsInfo),
+    );
+    queenInfo.add(Marking.info);
+    // todo add cells
+    /*queenInfo.add(QueenCells.supersedure.info);
+    queenInfo.add(QueenCells.swarm.info);
+    queenInfo.add(QueenCells.layingWorker.info);
+    queenInfo.add(QueenCells.drone.info);
+    queenInfo.add(QueenCells.youngestBrood.info);*/
+    queenInfo.add(Swarm.info);
+    // item about wings
+    queenInfo.add(
+      ItemAbout(pngQueenExcluder, logQueenExcluder, logQueenExcluderInfo),
+    ); // item about excluder
+    return queenInfo;
+  }
+
+  List<ItemLog> get logs {
+    if (queenLogs.isNotEmpty) return queenLogs;
+    queenLogs.add(
+      ItemLog(
+        pngQueenStatus,
+        logQueenStatus,
+        //key: const ValueKey(logQueenStatus),
+      ),
+    );
+    queenLogs.add(
+      ItemLog(
+        pngQueenWings,
+        logQueenWings,
+        //key: const ValueKey(logQueenWings),
+      ),
+    );
+    queenLogs.add(
+      ItemLog(
+        pngQueenMarkerNone,
+        logQueenMarking,
+        //key: const ValueKey(logQueenMarking),
+      ),
+    );
+    // todo add cells
+    /*queenLogs.add(
+      ItemLog(
+        pngQueenCells,
+        logCells,
+        //key: const ValueKey(logQueenMarking),
+      ),
+    );*/
+    queenLogs.add(
+      ItemLog(
+        pngQueenSwarmStatus,
+        logSwarmStatus,
+        //key: const ValueKey(logSwarmStatus),
+      ),
+    );
+    queenLogs.add(
+      ItemLog(
+        pngQueenExcluder,
+        logQueenExcluder,
+        //key: const ValueKey(logQueenExcluder),
+      ),
+    );
+    return queenLogs;
+  }
+}
+
 enum QueenStatus { queenRight, queenLess, timeToReQueen, queenReplaced }
 
 extension Status on QueenStatus {
@@ -70,6 +176,21 @@ extension Marking on QueenMarking {
         return logFourNine;
       default:
         return logFiveZero;
+    }
+  }
+
+  String get text {
+    switch (index) {
+      case 0:
+        return 'White';
+      case 1:
+        return 'Yellow';
+      case 2:
+        return 'Red';
+      case 3:
+        return 'Green';
+      default:
+        return 'Blue';
     }
   }
 
@@ -214,11 +335,12 @@ extension Swarm on SwarmStatus {
   ItemLog get log {
     switch (index) {
       case 0:
-        return ItemLog(pngQueenMarkerWhite, logNotSwarming);
+        return ItemLog.colored(pngQueenSwarmStatus, logNotSwarming, Colors.red);
       case 1:
-        return ItemLog(pngQueenMarkerYellow, logPreSwarming);
+        return ItemLog.colored(
+            pngQueenSwarmStatus, logPreSwarming, Colors.orange);
       default:
-        return ItemLog(pngQueenMarkerBlue, logSwarming);
+        return ItemLog.colored(pngQueenSwarmStatus, logSwarming, Colors.green);
     }
   }
 
@@ -231,63 +353,37 @@ extension Swarm on SwarmStatus {
   }
 }
 
-class LogQueen {
-  QueenStatus? status;
-  QueenMarking? marking;
-  QueenCells? cells;
-  SwarmStatus? swarmStatus;
-  bool? wingsClipped;
-  bool? queenExcluder;
+///</editor-fold>
 
-  bool get isActive {
-    return status != null ||
-        marking != null ||
-        cells != null ||
-        swarmStatus != null ||
-        wingsClipped != null ||
-        queenExcluder != null;
-  }
-
-  List<ItemAbout> get info {
-    final res = <ItemAbout>[];
-    res.add(Status.info);
-    res.add(
-      ItemAbout(pngQueenWings, logQueenWings, logQueenWingsInfo),
-    );
-    res.add(Marking.info);
-    res.add(QueenCells.supersedure.info);
-    res.add(QueenCells.swarm.info);
-    res.add(QueenCells.layingWorker.info);
-    res.add(QueenCells.drone.info);
-    res.add(QueenCells.youngestBrood.info);
-    res.add(Swarm.info);
-    // item about wings
-    res.add(
-      ItemAbout(pngQueenExcluder, logQueenExcluder, logQueenExcluderInfo),
-    ); // item about excluder
-    return res;
-  }
-
-  List<ItemLog> get logs {
-    final res = <ItemLog>[];
-    res.add(ItemLog(pngQueenStatus, logQueenStatus));
-    res.add(ItemLog(pngQueenWings, logQueenWings));
-    res.add(ItemLog(pngQueenMarkerNone, logQueenMarking));
-    res.add(ItemLog(pngQueenCells, logCells));
-    res.add(ItemLog(pngQueenSwarmStatus, logSwarmStatus));
-    res.add(ItemLog(pngQueenExcluder, logQueenExcluder));
-    return res;
-  }
-}
-
+///<editor-fold desc='harvests'>
 class LogHarvests {
+  ItemHarvest? beeswax;
+  ItemHarvest? honeyComb;
+  ItemHarvest? honey;
+  ItemHarvest? pollen;
+  ItemHarvest? propolis;
+  ItemHarvest? royalJelly;
+
+  List<ItemLog> harvestsLogs = [];
+  List<ItemAbout> harvestsInfo = [];
+
+  clear() {}
+
   List<ItemAbout> get info {
-    return [];
+    if (harvestsInfo.isNotEmpty) return harvestsInfo;
+
+    return harvestsInfo;
   }
 
   List<ItemLog> get logs {
-    final res = <ItemLog>[];
-    return res;
+    if (harvestsLogs.isNotEmpty) return harvestsLogs;
+    harvestsLogs.add(ItemLog(pngHarvestsBeeswax, logBeeswax));
+    harvestsLogs.add(ItemLog(pngHarvestsHoneycomb, logHoneycomb));
+    harvestsLogs.add(ItemLog(pngHarvestsHoney, logHoney));
+    harvestsLogs.add(ItemLog(pngHarvestsPollen, logPollen));
+    harvestsLogs.add(ItemLog(pngHarvestsPropolis, logPropolis));
+    harvestsLogs.add(ItemLog(pngHarvestsRoyalJelly, logRoyalJelly));
+    return harvestsLogs;
   }
 
   bool get isActive {
@@ -295,37 +391,82 @@ class LogHarvests {
   }
 }
 
+///</editor-fold>
+
+///<editor-fold desc='feeds'
 class LogFeeds {
+  List<ItemLog> feedsLogs = [];
+  List<ItemAbout> feedsInfo = [];
+
   List<ItemAbout> get info {
-    return [];
+    if (feedsInfo.isNotEmpty) return feedsInfo;
+    feedsInfo.add(ItemAbout(pngFeedHeavySyrup,'$logSyrupHeavy $logSyrup',logSyrupHeavyInfo));
+    feedsInfo.add(ItemAbout(pngFeedLightSyrup,'$logSyrupLight $logSyrup',logSyrupLightInfo));
+    feedsInfo.add(ItemAbout(pngFeedPattyPollen,'$logPollen $logPatty',logPattyPollenInfo));
+    feedsInfo.add(ItemAbout(pngFeedPattyProtein,'$logProtein $logPatty',logPattyProteinInfo));
+    feedsInfo.add(ItemAbout(pngFeedProbioticsActive,logProbiotics,logProbioticsInfo));
+    return feedsInfo;
   }
 
   List<ItemLog> get logs {
-    final res = <ItemLog>[];
-    return res;
+    if (feedsLogs.isNotEmpty) return feedsLogs;
+    feedsLogs.add(ItemLog(pngFeedSyrup, logSyrup));
+    feedsLogs.add(ItemLog(pngFeedHoney, logHoney));
+    feedsLogs.add(ItemLog(pngFeedPatty, logPatty));
+    feedsLogs.add(ItemLog(pngFeedProbiotics, logProbiotics));
+    return feedsLogs;
   }
 
   bool get isActive {
     return false;
   }
+
+  clear(){}
 }
 
+///</editor-fold>
+
+///<editor-fold desc='treatment'>
 class LogTreatment {
+  List<ItemLog> treatmentLogs = [];
+  List<ItemAbout> treatmentInfo = [];
+
   List<ItemAbout> get info {
-    return [];
+    if(treatmentInfo.isNotEmpty) return treatmentInfo;
+    treatmentInfo.add(ItemAbout(pngQueenStatus, logFullBrood, logFullBroodInfo));
+    treatmentInfo.add(ItemAbout(pngQueenStatus, logHiveBeetles, logHiveBeetlesInfo));
+    treatmentInfo.add(ItemAbout(pngQueenStatus, logNosema, logNosemaInfo));
+    treatmentInfo.add(ItemAbout(pngQueenStatus, logTrachealMites, logTrachealMitesInfo));
+    treatmentInfo.add(ItemAbout(pngQueenStatus, logVarroaMites, logVarroaMitesInfo));
+    treatmentInfo.add(ItemAbout(pngQueenStatus, logWaxMoths, logWaxMothsInfo));
+    return treatmentInfo;
   }
 
   List<ItemLog> get logs {
-    final res = <ItemLog>[];
-    return res;
+    if(treatmentLogs.isNotEmpty) return treatmentLogs;
+    treatmentLogs.add(ItemLog(pngQueenStatus,logFullBrood));
+    treatmentLogs.add(ItemLog(pngQueenStatus,logHiveBeetles));
+    treatmentLogs.add(ItemLog(pngQueenStatus,logNosema));
+    treatmentLogs.add(ItemLog(pngQueenStatus,logTrachealMites));
+    treatmentLogs.add(ItemLog(pngQueenStatus,logVarroaMites));
+    treatmentLogs.add(ItemLog(pngQueenStatus,logWaxMoths));
+    return treatmentLogs;
   }
 
   bool get isActive {
     return false;
   }
+
+  clear(){}
 }
 
+///</editor-fold>
+
+///<editor-fold desc='general'>
 class LogGeneral {
+
+  clear(){}
+
   List<ItemAbout> get info {
     return [];
   }
@@ -339,6 +480,8 @@ class LogGeneral {
     return false;
   }
 }
+
+///</editor-fold>
 
 class LogWintering {
   List<ItemAbout> get info {
@@ -364,12 +507,51 @@ class ItemAbout {
 }
 
 class ItemLog {
-  Key? _key;
-  final String icon;
-  final String title;
-  bool isActive = false;
+  Key? key;
 
-  ItemLog(this.icon, this.title){
-    _key = UniqueKey();
+  String? id;
+  String icon;
+  String title;
+  bool isActive = false;
+  String? initialIcon;
+  String? initialTitle;
+  Color? color;
+
+  ItemLog(this.icon, this.title, {Key? key}) {
+    id = title;
+    initialIcon = icon;
+    initialTitle = title;
   }
+
+  ItemLog.colored(this.icon, this.title, this.color, {Key? key}) {
+    id = title;
+    initialIcon = icon;
+    initialTitle = title;
+  }
+
+  setData(
+    String mIcon,
+    String mTitle,
+  ) {
+    isActive = true;
+    icon = mIcon;
+    title = mTitle;
+  }
+
+  setColor(Color? mColor) {
+    color = mColor;
+  }
+
+  reset() {
+    isActive = false;
+    icon = initialIcon ?? '';
+    title = initialTitle ?? '';
+  }
+}
+
+class ItemHarvest {
+  double? value;
+  String? unit;
+
+  ItemHarvest(this.value, this.unit);
 }

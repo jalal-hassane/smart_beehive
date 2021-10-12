@@ -13,6 +13,7 @@ const textStepTwoHint = 'Generate the QR code' /*as an identifier of the hive*/
 
 const textCreate = 'Create';
 const textGenerateQr = 'Generate QR';
+const textClear = 'Clear';
 const textAddHiveHint = 'Add a hive by clicking on the + sign';
 const textScan = 'Scan';
 const textShare = 'Share';
@@ -85,6 +86,7 @@ const alertTempLow = 'Beehive temperature is too low.'
 const btTurnOff = 'Turn Off';
 const btRemove = 'remove';
 const btChange = 'change';
+const btClear = 'Clear';
 /// hive logs
 const logGeneral= 'General';
 const logTreatment= 'Treatment';
@@ -93,6 +95,7 @@ const logTreatment= 'Treatment';
 const logQueen = 'Queen';
 // queen marking
 const logQueenMarking = 'Marking';
+const logQueenMarkingTip = 'Marking';
 const logOneSix = '1 or 6';
 const logTwoSeven = '2 or 7';
 const logThreeEight = '3 or 8';
@@ -186,7 +189,7 @@ const logSyrup = 'Syrup';
 const logSyrupHeavy = 'Heavy';
 const logSyrupLight = 'Light';
 const logPatty = 'Patty';
-const logPattyProtein = 'Protein';
+const logProtein = 'Protein';
 const logProbiotics = 'Probiotics';
 const logSyrupHeavyInfo =
     'Heavy syrup or fall syrup is made from 2 parts sugar to'
@@ -211,6 +214,52 @@ const logProbioticsInfo =
     '\nProbiotics are used to stave off common bacterial'
     ' hive infestations.';
 //</editor-fold>
+
+//<editor-fold des='treatment'>
+const logFullBrood = 'Fullbrood';
+const logTerraPatties = 'Terra-Patties';
+const logTerraPro = 'Terra-Pro';
+const logTerramycin = 'Terramycin';
+const logTetraBeeMix = 'Tetra Bee Mix';
+const logTylan = 'Tylan';
+
+const logHiveBeetles = 'Hive Beetles';
+const logDiatomacsiousEarth = 'Diatomacsious Earth';
+const logGardStar = 'GardStar';
+const logPermethrinSFR = 'Permethrin SFR';
+const logNosema = 'Nosema';
+const logFumidilB = 'Fumidil-B';
+const logTrachealMites = 'Tracheal Mites';
+const logMiteAThol = 'Mite-A-Thol';
+const logVarroaMites = 'Varroa Mites';
+const logAmitraz = 'Amitraz';
+const logApiBioxal = 'Api-Bioxal';
+const logApiGuard = 'Apiguard';
+const logApiStan = 'Apistan';
+const logApiVarStrips = 'Apivar Strips';
+const logCheckMite = 'Check Mite';
+const logDroneComb = 'Drone Comb';
+const logFormicPro  = 'Formic Pro';
+const logHopGuard  = 'HopGuard';
+const logMiteAway  = 'Mite Away';
+const logMiteStrips  = 'Mite Strips';
+const logOxalicAcidFumigate  = 'Oxalic Acid - Fumigate';
+const logOxalicAcidDrip  = 'Oxalic Acid - Drip';
+const logOxalicAcidGlycerine  = 'Oxalic Acid - Glycerine';
+const logOxyBee  = 'Oxybee';
+const logTactic  = 'Tactic';
+const logWaxMoths = 'Wax Moths';
+const logB401 = 'B401';
+const logParaMoth = 'Para-Moth';
+
+const logFullBroodInfo = '';
+const logHiveBeetlesInfo = '';
+const logNosemaInfo = '';
+const logTrachealMitesInfo = '';
+const logVarroaMitesInfo = '';
+const logWaxMothsInfo = '';
+//</editor-fold>
+
 
 // Species
 const spMelifera = 'Apis Melifera';

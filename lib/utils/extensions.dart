@@ -8,10 +8,13 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
 
 import '../main.dart';
-import 'log_utils.dart';
 
 extension IsNullOrEmpty on String? {
   bool get isNullOrEmpty => this == null || this!.isEmpty;
+
+  String capitalize() {
+    return "${this![0].toUpperCase()}${this!.substring(1)}";
+  }
 }
 
 extension Ex on double {
@@ -115,61 +118,134 @@ extension WidgetsGenerator on List<ItemLog> {
     return List.generate(length, (index) {
       return GestureDetector(
         onTap: () => taps[index].call(),
-        child: Column(
-          children: [
-            Image.asset(
-              this[index].icon,
-              height: 40,
-              width: 40,
-              color: this[index].isActive ? null : Colors.blueGrey,
-            ),
-            Container(
-              margin: top(12),
-              child: Text(
-                this[index].title,
-                style: mTS(
-                  size: 12,
-                  color: this[index].isActive ? colorBlack : Colors.blueGrey,
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: _itemLogWidget(this[index], stayActive: false),
       );
     });
   }
 
-  generateSameTapWidgets(Function() tap,Function(void Function()) setState) {
+  generateQueenStatusWidgets(
+    Function(String t, String i, QueenStatus status) tap,
+  ) {
     return List.generate(length, (index) {
       return GestureDetector(
         onTap: () {
-          tap.call();
-          logInfo(this[index].title);
-          setState((){
-            this[index].isActive = true;
-          });
+          tap.call(
+              this[index].icon, this[index].title, QueenStatus.values[index]);
         },
-        child: Column(
-          children: [
-            Image.asset(
-              this[index].icon,
-              height: 40,
-              width: 40,
-              color: this[index].isActive ? null : Colors.blueGrey,
-            ),
-            Container(
-              margin: top(12),
-              child: Text(
-                this[index].title,
-                style: mTS(
-                  size: 12,
-                  color: this[index].isActive ? colorPrimary : Colors.blueGrey,
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: _itemLogWidget(this[index]),
       );
     });
+  }
+
+  generateMarkingWidgets(
+    Function(String t, String i, QueenMarking marking) tap,
+  ) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+        onTap: () {
+          tap.call(
+            this[index].icon,
+            QueenMarking.values[index].text,
+            QueenMarking.values[index],
+          );
+        },
+        child: _itemLogWidget(this[index]),
+      );
+    });
+  }
+
+  generateCellsWidgets(
+    Function(String t, String i, QueenCells cells) tap,
+  ) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+        onTap: () {
+          tap.call(
+            this[index].icon,
+            this[index].title,
+            QueenCells.values[index],
+          );
+        },
+        child: _itemLogWidget(this[index]),
+      );
+    });
+  }
+
+  generateSwarmStatusWidgets(
+    Function(
+      String t,
+      String i,
+      SwarmStatus status,
+      Color? color,
+    )
+        tap,
+  ) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+        onTap: () {
+          tap.call(
+            this[index].icon,
+            this[index].title,
+            SwarmStatus.values[index],
+            this[index].color,
+          );
+        },
+        child: _coloredItemLogWidget(this[index]),
+      );
+    });
+  }
+
+  _coloredItemLogWidget(ItemLog itemLog,) {
+    return Column(
+      children: [
+        Image.asset(
+          itemLog.icon,
+          height: 40,
+          width: 40,
+          color: itemLog.color,
+        ),
+        Container(
+          margin: top(12),
+          child: Text(
+            itemLog.title,
+            style: mTS(
+              size: 10,
+              color: colorWhite,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  _itemLogWidget(ItemLog itemLog, {bool stayActive = true}) {
+    return Column(
+      children: [
+        Image.asset(
+          itemLog.icon,
+          height: 40,
+          width: 40,
+          color: stayActive
+              ? null
+              : itemLog.isActive
+                  ? itemLog.color
+                  : Colors.blueGrey,
+        ),
+        Container(
+          margin: top(12),
+          child: Text(
+            itemLog.title,
+            style: mTS(
+              size: 10,
+              color: stayActive
+                  ? colorWhite
+                  : itemLog.isActive
+                      ? colorBlack
+                      : Colors.blueGrey,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

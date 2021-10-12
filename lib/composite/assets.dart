@@ -44,3 +44,28 @@ const pngQueenSwarmStatus = 'assets/image/swarm_status.png';
 const pngQueenSwarmStatusActive = 'assets/image/swarm_status_active.png';
 const pngQueenCells = 'assets/image/cells.png';
 const pngQueenCellsActive = 'assets/image/cells_active.png';
+
+// logs - harvests
+const pngHarvestsBeeswax = 'assets/image/beeswax.png';
+const pngHarvestsBeeswaxActive = 'assets/image/beeswax_active.png';
+const pngHarvestsHoneycomb = 'assets/image/honeycomb.png';
+const pngHarvestsHoneycombActive = 'assets/image/honeycomb_active.png';
+const pngHarvestsHoney = 'assets/image/h_honey.png';
+const pngHarvestsHoneyActive = 'assets/image/honey_active.png';
+const pngHarvestsPollen = 'assets/image/pollen.png';
+const pngHarvestsPropolis = 'assets/image/propolis.png';
+const pngHarvestsPropolisActive = 'assets/image/propolis_active.png';
+const pngHarvestsRoyalJelly = 'assets/image/royal_jelly.png';
+const pngHarvestsRoyalJellyActive = 'assets/image/royal_jelly_active.png';
+
+// logs - feeds
+const pngFeedSyrup = 'assets/image/syrup_feed.png';
+const pngFeedLightSyrup = 'assets/image/light_syrup.png';
+const pngFeedHeavySyrup = 'assets/image/heavy_syrup.png';
+const pngFeedHoney = 'assets/image/honey_feed.png';
+const pngFeedHoneyActive = 'assets/image/honey_feed_active.png';
+const pngFeedPatty = 'assets/image/patty.png';
+const pngFeedPattyPollen = 'assets/image/patty_pollen.png';
+const pngFeedPattyProtein = 'assets/image/patty_protein.png';
+const pngFeedProbiotics = 'assets/image/probiotic.png';
+const pngFeedProbioticsActive = 'assets/image/probiotic_active.png';
