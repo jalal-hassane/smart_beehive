@@ -21,12 +21,21 @@ class Treatment extends StatefulWidget {
   _Treatment createState() => _Treatment();
 }
 
-class _Treatment extends State<Treatment> {
+class _Treatment extends State<Treatment> with TickerProviderStateMixin {
   late LogTreatment? _logTreatment;
+
+  final _controller = ScrollController(keepScrollOffset: true);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     _logTreatment = widget.logTreatment;
+    _generateTaps();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -55,11 +64,11 @@ class _Treatment extends State<Treatment> {
           children: [
             Center(
               child: GridView.count(
-                key: UniqueKey(),
+                //key: UniqueKey(),
                 crossAxisCount: 3,
                 shrinkWrap: true,
                 padding: all(12),
-                children: _logTreatment!.logs.generateWidgets(_taps),
+                children: _logTreatment!.logs2.generateTreatmentsWidgets(_taps),
               ),
             ),
             ElevatedButton(
@@ -89,21 +98,110 @@ class _Treatment extends State<Treatment> {
   }
 
   _openAbout() => Navigator.of(context)
-      .push(enterFromRight(About(items: _logTreatment!.info)));
+      .push(enterFromRight(About(items: _logTreatment!.info,treatment: true,)));
   final _taps = <Function()>[];
 
   _generateTaps() {
-    for (int i = 0; i < _logTreatment!.logs.length; i++) {
-      final f = context.showCustomBottomSheet((p0) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              children: [],
-            );
-          },
-        );
-      });
+    for (ItemTreatment item in _logTreatment!.logs2) {
+      f() {
+        return context.showCustomBottomSheet((p0) {
+          return StatefulBuilder(
+            builder: (context, state) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        item.id!,
+                        style: bTS(size: 30, color: colorPrimary),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 7,
+                    child: Center(
+                      child: ListView.separated(
+                        //key: UniqueKey(),
+                        itemCount: item.treatments.length,
+                        shrinkWrap: true,
+                        controller: _controller,
+                        padding: all(12),
+                        itemBuilder: (context, index) {
+                          return _itemBuilder(item.treatments[index], state);
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const Divider(
+                            endIndent: 8,
+                            indent: 8,
+                            height: 1,
+                            color: colorPrimary,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        state(() {
+                          item.reset();
+                        });
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.red[200],
+                      ),
+                      child: SizedBox(
+                        width: screenWidth * 0.4,
+                        height: screenHeight * 0.056,
+                        child: Center(
+                          child: Text(
+                            textClear,
+                            style: mTS(color: colorWhite),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        });
+      }
+
       _taps.add(f);
     }
+  }
+
+  _itemBuilder(CheckableItem item, Function(void Function()) state) {
+    return Card(
+      child: ListTile(
+        title: Row(
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: item.isChecked ? colorPrimary : colorBlack,
+            ),
+            Expanded(
+              child: Container(
+                margin: left(12),
+                child: Text(item.description),
+              ),
+            ),
+          ],
+        ),
+        onTap: () {
+          state(() {
+            item.isChecked = !item.isChecked;
+            setState(() {
+
+            });
+          });
+        },
+      ),
+    );
   }
 }

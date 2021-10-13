@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
+import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
+import 'package:smart_beehive/main.dart';
 
 const _tag = 'About';
 
 class About extends StatefulWidget {
   final List<ItemAbout> items;
 
-  const About({Key? key, required this.items}) : super(key: key);
+  final bool treatment;
+
+  const About({
+    Key? key,
+    required this.items,
+    required this.treatment,
+  }) : super(key: key);
 
   @override
   _About createState() => _About();
@@ -24,7 +32,7 @@ class _About extends State<About> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           title: Text(
-            'About',
+            textAbout,
             style: mTS(),
           ),
           centerTitle: true,
@@ -42,41 +50,76 @@ class _About extends State<About> {
   _itemsBuilder() {
     if (widget.items.isEmpty) return Container();
     var _widgets = <Widget>[];
+
     for (ItemAbout itemAbout in widget.items) {
-      _widgets.add(
-        Padding(
-          padding: all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      if (widget.treatment) {
+        _widgets.add(_treatmentItem(itemAbout));
+      } else {
+        _widgets.add(_aboutItem(itemAbout));
+      }
+    }
+    return _widgets;
+  }
+
+  _aboutItem(ItemAbout itemAbout) {
+    return Padding(
+      padding: all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Image.asset(
-                    itemAbout.icon,
-                    height: 35,
-                    width: 35,
-                  ),
-                  Container(
-                    margin: left(5),
-                    child: Text(
-                      itemAbout.title,
-                      style: mTS(color: colorGreen),
-                    ),
-                  ),
-                ],
+              Image.asset(
+                itemAbout.icon,
+                height: 35,
+                width: 35,
               ),
               Container(
-                margin: left(40),
+                margin: left(5),
                 child: Text(
-                  itemAbout.description,
-                  style: rTS(),
+                  itemAbout.title,
+                  style: mTS(color: colorGreen),
                 ),
               ),
             ],
           ),
-        ),
-      );
-    }
-    return _widgets;
+          Container(
+            margin: left(40),
+            child: Text(
+              itemAbout.description,
+              style: rTS(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _treatmentItem(ItemAbout itemAbout) {
+    return Padding(
+      padding: all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            itemAbout.title,
+            style: mTS(color: colorGreen),
+          ),
+          Image.asset(
+            itemAbout.icon,
+            //height: screenHeight * 0.25,
+            width: screenWidth,
+            fit: BoxFit.fitWidth,
+          ),
+          Container(
+            margin: top(12),
+            child: Text(
+              itemAbout.description,
+              style: rTS(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

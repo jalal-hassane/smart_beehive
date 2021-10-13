@@ -91,7 +91,7 @@ class _Queen extends State<Queen> {
   }
 
   _openAbout() =>
-      Navigator.of(context).push(enterFromRight(About(items: _logQueen!.info)));
+      Navigator.of(context).push(enterFromRight(About(items: _logQueen!.info,treatment: false,)));
 
   final _taps = <Function()>[];
 

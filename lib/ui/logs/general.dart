@@ -89,7 +89,7 @@ class _General extends State<General> {
   }
 
   _openAbout() => Navigator.of(context)
-      .push(enterFromRight(About(items: _logGeneral!.info)));
+      .push(enterFromRight(About(items: _logGeneral!.info,treatment: false,)));
 
   final _taps = <Function()>[];
 

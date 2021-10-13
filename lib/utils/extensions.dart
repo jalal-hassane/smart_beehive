@@ -22,7 +22,8 @@ extension Ex on double {
 }
 
 extension ContextExtension on BuildContext {
-  showCustomBottomSheet(Widget Function(BuildContext) builder) {
+  showCustomBottomSheet(Widget Function(BuildContext) builder,
+      {Function()? onClosing}) {
     showModalBottomSheet(
       context: this,
       isScrollControlled: true,
@@ -48,7 +49,7 @@ extension ContextExtension on BuildContext {
                   topRight: Radius.circular(35),
                 ),
               ),
-              onClosing: () {},
+              onClosing: onClosing ?? () {},
               builder: builder,
             ),
           ),
@@ -111,6 +112,97 @@ String uuid() {
   final StringBuffer buffer = StringBuffer();
   buffer.writeAll(uuid);
   return buffer.toString();
+}
+
+extension TreatmentWidgetsGenerator on List<ItemTreatment> {
+  generateTreatmentsWidgets(List<Function()> taps) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+        onTap: () => taps[index].call(),
+        child: _itemLogWidget(this[index], stayActive: true),
+      );
+    });
+  }
+
+  _itemLogWidget(ItemTreatment itemLog, {bool stayActive = true}) {
+    return Column(
+      children: [
+        Image.asset(
+          itemLog.isActive2 ? itemLog.activeIcon! : itemLog.icon,
+          height: 40,
+          width: 40,
+          color: itemLog.isActive2 ? null : Colors.blueGrey,
+        ),
+        Container(
+          margin: top(12),
+          child: Text(
+            itemLog.description,
+            style: mTS(
+              size: 10,
+              color: itemLog.isActive2 ? colorBlack : Colors.blueGrey,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+extension HarvestWidgetsGenerator on List<ItemHarvest> {
+  generateHarvestsWidgets(List<Function()> taps) {
+    return List.generate(length, (index) {
+      return GestureDetector(
+        onTap: () => taps[index].call(),
+        child: Column(
+          children: [
+            Visibility(
+              visible: this[index].isActive,
+              maintainState: true,
+              maintainAnimation: true,
+              maintainSize: true,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    this[index].value?.toString() ?? '',
+                    style: sbTS(size: 12),
+                  ),
+                  Text(
+                    this[index].unit?.description ?? '',
+                    style: rTS(size: 8),
+                  ),
+                ],
+              ),
+            ),
+            _itemLogWidget(this[index], stayActive: true),
+          ],
+        ),
+      );
+    });
+  }
+
+  _itemLogWidget(ItemHarvest itemLog, {bool stayActive = true}) {
+    return Column(
+      children: [
+        Image.asset(
+          itemLog.icon,
+          height: 40,
+          width: 40,
+          color: itemLog.isActive ? null : Colors.blueGrey,
+        ),
+        Container(
+          margin: top(12),
+          child: Text(
+            itemLog.title,
+            style: mTS(
+              size: 10,
+              color: itemLog.isActive ? colorBlack : Colors.blueGrey,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 extension WidgetsGenerator on List<ItemLog> {

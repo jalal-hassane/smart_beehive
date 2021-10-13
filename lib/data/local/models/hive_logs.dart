@@ -145,9 +145,10 @@ extension Status on QueenStatus {
       case 1:
         return ItemLog(pngQueenLess, logQueenLess);
       case 2:
-        return ItemLog.colored(pngQueenLess, logTimeToReQueen,Colors.deepOrange);
+        return ItemLog.colored(
+            pngQueenLess, logTimeToReQueen, Colors.deepOrange);
       default:
-        return ItemLog.colored(pngQueenLess, logQueenReplaced,Colors.green);
+        return ItemLog.colored(pngQueenLess, logQueenReplaced, Colors.green);
     }
   }
 
@@ -357,23 +358,28 @@ extension Swarm on SwarmStatus {
 
 ///<editor-fold desc='harvests'>
 class LogHarvests {
-  ItemHarvest? beeswax;
-  ItemHarvest? honeyComb;
-  ItemHarvest? honey;
-  ItemHarvest? pollen;
-  ItemHarvest? propolis;
-  ItemHarvest? royalJelly;
+  ItemHarvest? beeswax = ItemHarvest(pngHarvestsBeeswax, logBeeswax);
+  ItemHarvest? honeyComb = ItemHarvest(pngHarvestsHoneycomb, logHoneycomb);
+  ItemHarvest? honey = ItemHarvest(pngHarvestsHoney, logHoney);
+  ItemHarvest? pollen = ItemHarvest(pngHarvestsPollen, logPollen);
+  ItemHarvest? propolis = ItemHarvest(pngHarvestsPropolis, logPropolis);
+  ItemHarvest? royalJelly = ItemHarvest(pngHarvestsRoyalJelly, logRoyalJelly);
+
+  List<ItemHarvest> harvests = [];
 
   List<ItemLog> harvestsLogs = [];
   List<ItemAbout> harvestsInfo = [];
 
   clear() {
-    beeswax = null;
+    /*beeswax = null;
     honeyComb = null;
     honey = null;
     pollen = null;
     propolis = null;
-    royalJelly = null;
+    royalJelly = null;*/
+    for (ItemHarvest l in harvests) {
+      l.reset();
+    }
     for (ItemLog l in harvestsLogs) {
       l.reset();
     }
@@ -383,6 +389,17 @@ class LogHarvests {
     if (harvestsInfo.isNotEmpty) return harvestsInfo;
 
     return harvestsInfo;
+  }
+
+  List<ItemHarvest> get logs2 {
+    if (harvests.isNotEmpty) return harvests;
+    harvests.add(beeswax!);
+    harvests.add(honeyComb!);
+    harvests.add(honey!);
+    harvests.add(pollen!);
+    harvests.add(propolis!);
+    harvests.add(royalJelly!);
+    return harvests;
   }
 
   List<ItemLog> get logs {
@@ -496,27 +513,52 @@ extension PattyTypes on PattyType {
 
 ///<editor-fold desc='treatment'>
 class LogTreatment {
+  ItemTreatment? foulBrood =
+      ItemTreatment.foulBroodTreatment(pngFoulbrood, logFoulBrood,pngFoulbroodActive);
+  ItemTreatment? hiveBeetles =
+      ItemTreatment.hiveBeetlesTreatment(pngHiveBeetles, logHiveBeetles,pngHiveBeetlesActive);
+  ItemTreatment? nosema = ItemTreatment.nosemaTreatment(pngNosema, logNosema,pngNosemaActive);
+  ItemTreatment? trachealMites =
+      ItemTreatment.trachealMitesTreatment(pngTrachealMites, logTrachealMites,pngTrachealMitesActive);
+  ItemTreatment? varroaMites =
+      ItemTreatment.varroaMitesTreatment(pngVarroaMites, logVarroaMites,pngVarroaMitesActive);
+  ItemTreatment? waxMoths =
+      ItemTreatment.waxMothsTreatment(pngWaxMoths, logWaxMoths,pngWaxMothsActive);
+
   List<ItemLog> treatmentLogs = [];
   List<ItemAbout> treatmentInfo = [];
 
   List<ItemAbout> get info {
     if (treatmentInfo.isNotEmpty) return treatmentInfo;
     treatmentInfo
-        .add(ItemAbout(pngQueenStatus, logFullBrood, logFullBroodInfo));
+        .add(ItemAbout(pngFoulbroodDisease, logFoulBrood, logFoulBroodInfo));
     treatmentInfo
-        .add(ItemAbout(pngQueenStatus, logHiveBeetles, logHiveBeetlesInfo));
-    treatmentInfo.add(ItemAbout(pngQueenStatus, logNosema, logNosemaInfo));
+        .add(ItemAbout(pngHiveBeetlesDisease, logHiveBeetles, logHiveBeetlesInfo));
+    treatmentInfo.add(ItemAbout(pngNosemaDisease, logNosema, logNosemaInfo));
     treatmentInfo
-        .add(ItemAbout(pngQueenStatus, logTrachealMites, logTrachealMitesInfo));
+        .add(ItemAbout(pngTrachealMitesDisease, logTrachealMites, logTrachealMitesInfo));
     treatmentInfo
-        .add(ItemAbout(pngQueenStatus, logVarroaMites, logVarroaMitesInfo));
-    treatmentInfo.add(ItemAbout(pngQueenStatus, logWaxMoths, logWaxMothsInfo));
+        .add(ItemAbout(pngVarroaMitesDisease, logVarroaMites, logVarroaMitesInfo));
+    treatmentInfo.add(ItemAbout(pngWaxMothsDisease, logWaxMoths, logWaxMothsInfo));
     return treatmentInfo;
+  }
+
+  List<ItemTreatment> treatmentLogs2 = [];
+
+  List<ItemTreatment> get logs2 {
+    if (treatmentLogs2.isNotEmpty) return treatmentLogs2;
+    treatmentLogs2.add(foulBrood!);
+    treatmentLogs2.add(hiveBeetles!);
+    treatmentLogs2.add(nosema!);
+    treatmentLogs2.add(trachealMites!);
+    treatmentLogs2.add(varroaMites!);
+    treatmentLogs2.add(waxMoths!);
+    return treatmentLogs2;
   }
 
   List<ItemLog> get logs {
     if (treatmentLogs.isNotEmpty) return treatmentLogs;
-    treatmentLogs.add(ItemLog(pngQueenStatus, logFullBrood));
+    treatmentLogs.add(ItemLog(pngQueenStatus, logFoulBrood));
     treatmentLogs.add(ItemLog(pngQueenStatus, logHiveBeetles));
     treatmentLogs.add(ItemLog(pngQueenStatus, logNosema));
     treatmentLogs.add(ItemLog(pngQueenStatus, logTrachealMites));
@@ -530,7 +572,7 @@ class LogTreatment {
   }
 
   clear() {
-    for (ItemLog l in treatmentLogs) {
+    for (ItemTreatment l in treatmentLogs2) {
       l.reset();
     }
   }
@@ -570,6 +612,173 @@ class LogWintering {
 
   bool get isActive {
     return false;
+  }
+}
+
+// todo implement Item class in the app instead of ItemLog/ItemAbout/ItemHarvest/ItemTreatment, new branch
+enum ItemType { log, harvest, treatment, about }
+
+class Item {
+  String? id;
+  String icon;
+  String title;
+  ItemType? type;
+  bool isActive = false;
+  String? initialIcon;
+  String? initialTitle;
+  Color? color;
+
+  /// only for type harvest
+  double? value;
+  Unit? unit;
+
+  /// only for type treatment
+  final List<CheckableItem> _treatments = [];
+
+  List<CheckableItem> get treatments => _treatments;
+
+  Item.log(this.title, this.icon, {Color? mColor})
+      : id = title,
+        color = mColor,
+        initialIcon = icon,
+        initialTitle = title,
+        type = ItemType.log;
+
+  Item.about(this.title, this.icon, {Color? mColor})
+      : id = title,
+        color = mColor,
+        initialIcon = icon,
+        initialTitle = title,
+        type = ItemType.about;
+
+  Item.harvest(this.title, this.icon, {Color? mColor})
+      : id = title,
+        color = mColor,
+        initialIcon = icon,
+        initialTitle = title,
+        type = ItemType.harvest;
+
+  Item.treatment(this.title, this.icon, {Color? mColor})
+      : id = title,
+        color = mColor,
+        initialIcon = icon,
+        initialTitle = title,
+        type = ItemType.treatment;
+
+  Item.foulBroodTreatment(this.icon, this.title) {
+    id = title;
+    type = ItemType.treatment;
+    _treatments.add(CheckableItem(logTerraPatties));
+    _treatments.add(CheckableItem(logTerraPro));
+    _treatments.add(CheckableItem(logTerramycin));
+    _treatments.add(CheckableItem(logTetraBeeMix));
+    _treatments.add(CheckableItem(logTylan));
+  }
+
+  Item.hiveBeetlesTreatment(this.icon, this.title) {
+    id = title;
+    type = ItemType.treatment;
+    _treatments.add(CheckableItem(logDiatomacsiousEarth));
+    _treatments.add(CheckableItem(logGardStar));
+    _treatments.add(CheckableItem(logPermethrinSFR));
+  }
+
+  Item.nosemaTreatment(this.icon, this.title) {
+    id = title;
+    type = ItemType.treatment;
+    _treatments.add(CheckableItem(logFumidilB));
+  }
+
+  Item.trachealMitesTreatment(this.icon, this.title) {
+    id = title;
+    type = ItemType.treatment;
+    _treatments.add(CheckableItem(logMiteAThol));
+  }
+
+  Item.varroaMitesTreatment(this.icon, this.title) {
+    id = title;
+    type = ItemType.treatment;
+    _treatments.add(CheckableItem(logAmitraz));
+    _treatments.add(CheckableItem(logApiBioxal));
+    _treatments.add(CheckableItem(logApiGuard));
+    _treatments.add(CheckableItem(logApiStan));
+    _treatments.add(CheckableItem(logApiVarStrips));
+    _treatments.add(CheckableItem(logCheckMite));
+    _treatments.add(CheckableItem(logDroneComb));
+    _treatments.add(CheckableItem(logFormicPro));
+    _treatments.add(CheckableItem(logHopGuard));
+    _treatments.add(CheckableItem(logMiteAway));
+    _treatments.add(CheckableItem(logMiteStrips));
+    _treatments.add(CheckableItem(logOxalicAcidFumigate));
+    _treatments.add(CheckableItem(logOxalicAcidDrip));
+    _treatments.add(CheckableItem(logOxalicAcidGlycerine));
+    _treatments.add(CheckableItem(logOxyBee));
+    _treatments.add(CheckableItem(logTactic));
+  }
+
+  Item.waxMothsTreatment(this.icon, this.title) {
+    id = title;
+    type = ItemType.treatment;
+    _treatments.add(CheckableItem(logB401));
+    _treatments.add(CheckableItem(logParaMoth));
+  }
+
+  setData(
+    String mIcon,
+    String mTitle,
+  ) {
+    isActive = true;
+    icon = mIcon;
+    title = mTitle;
+  }
+
+  setIcon(String mIcon, bool active) {
+    isActive = active;
+    icon = mIcon;
+  }
+
+  setColor(Color? mColor) {
+    color = mColor;
+  }
+
+  reset() {
+    if (type == null) return;
+    switch (type!) {
+      case ItemType.log:
+        resetLog();
+        break;
+      case ItemType.harvest:
+        resetHarvest();
+        break;
+      case ItemType.treatment:
+        resetTreatment();
+        break;
+      case ItemType.about:
+        break;
+    }
+    isActive = false;
+    icon = initialIcon ?? '';
+    title = initialTitle ?? '';
+  }
+
+  resetLog() {
+    isActive = false;
+    icon = initialIcon ?? '';
+    title = initialTitle ?? '';
+  }
+
+  resetHarvest() {
+    value = null;
+    unit = null;
+    icon = initialIcon ?? '';
+    isActive = false;
+  }
+
+  resetTreatment() {
+    isActive = false;
+    for (CheckableItem item in _treatments) {
+      item.isChecked = false;
+    }
   }
 }
 
@@ -631,7 +840,153 @@ class ItemLog {
 
 class ItemHarvest {
   double? value;
-  String? unit;
+  Unit? unit;
 
-  ItemHarvest(this.value, this.unit);
+  String? id;
+  String icon;
+  String title;
+  String? initialIcon;
+  bool isActive = false;
+
+  ItemHarvest(this.icon, this.title, {Key? key})
+      : id = title,
+        initialIcon = icon;
+
+  reset() {
+    value = null;
+    unit = null;
+    icon = initialIcon ?? '';
+    isActive = false;
+  }
+
+  setData(double? value, Unit? unit, String icon) {
+    isActive = true;
+    this.value = value;
+    this.unit = unit;
+    this.icon = icon;
+  }
+}
+
+enum Unit { g, kg, oz, lbs, frames }
+
+extension WeightUnit on Unit {
+  String get description {
+    switch (index) {
+      case 0:
+        return logG;
+      case 1:
+        return logKg;
+      case 2:
+        return logOz;
+      case 3:
+        return logLbs;
+      default:
+        return logFrames;
+    }
+  }
+}
+
+extension GetUnit on String {
+  Unit get unitFromString {
+    switch (this) {
+      case logG:
+        return Unit.g;
+      case logKg:
+        return Unit.kg;
+      case logOz:
+        return Unit.oz;
+      case logLbs:
+        return Unit.lbs;
+      default:
+        return Unit.frames;
+    }
+  }
+}
+
+class ItemTreatment {
+  String description;
+  String icon;
+  String? id;
+  String? activeIcon;
+  final List<CheckableItem> _treatments = [];
+
+  List<CheckableItem> get treatments => _treatments;
+
+  bool get isActive2 {
+    return _treatments.any((element) => element.isChecked);
+  }
+
+  bool isActive =false;
+  reset() {
+    isActive = false;
+    for (CheckableItem item in _treatments) {
+      item.isChecked = false;
+    }
+  }
+
+  setIcon(String icon, bool active) {
+    isActive = active;
+    this.icon = icon;
+  }
+
+  ItemTreatment(this.icon, this.description);
+
+  ItemTreatment.foulBroodTreatment(this.icon, this.description,this.activeIcon) {
+    id = description;
+    _treatments.add(CheckableItem(logTerraPatties));
+    _treatments.add(CheckableItem(logTerraPro));
+    _treatments.add(CheckableItem(logTerramycin));
+    _treatments.add(CheckableItem(logTetraBeeMix));
+    _treatments.add(CheckableItem(logTylan));
+  }
+
+  ItemTreatment.hiveBeetlesTreatment(this.icon, this.description,this.activeIcon) {
+    id = description;
+    _treatments.add(CheckableItem(logDiatomacsiousEarth));
+    _treatments.add(CheckableItem(logGardStar));
+    _treatments.add(CheckableItem(logPermethrinSFR));
+  }
+
+  ItemTreatment.nosemaTreatment(this.icon, this.description,this.activeIcon) {
+    id = description;
+    _treatments.add(CheckableItem(logFumidilB));
+  }
+
+  ItemTreatment.trachealMitesTreatment(this.icon, this.description,this.activeIcon) {
+    id = description;
+    _treatments.add(CheckableItem(logMiteAThol));
+  }
+
+  ItemTreatment.varroaMitesTreatment(this.icon, this.description,this.activeIcon) {
+    id = description;
+    _treatments.add(CheckableItem(logAmitraz));
+    _treatments.add(CheckableItem(logApiBioxal));
+    _treatments.add(CheckableItem(logApiGuard));
+    _treatments.add(CheckableItem(logApiStan));
+    _treatments.add(CheckableItem(logApiVarStrips));
+    _treatments.add(CheckableItem(logCheckMite));
+    _treatments.add(CheckableItem(logDroneComb));
+    _treatments.add(CheckableItem(logFormicPro));
+    _treatments.add(CheckableItem(logHopGuard));
+    _treatments.add(CheckableItem(logMiteAway));
+    _treatments.add(CheckableItem(logMiteStrips));
+    _treatments.add(CheckableItem(logOxalicAcidFumigate));
+    _treatments.add(CheckableItem(logOxalicAcidDrip));
+    _treatments.add(CheckableItem(logOxalicAcidGlycerine));
+    _treatments.add(CheckableItem(logOxyBee));
+    _treatments.add(CheckableItem(logTactic));
+  }
+
+  ItemTreatment.waxMothsTreatment(this.icon, this.description,this.activeIcon) {
+    id = description;
+    _treatments.add(CheckableItem(logB401));
+    _treatments.add(CheckableItem(logParaMoth));
+  }
+}
+
+class CheckableItem {
+  String description;
+  bool isChecked = false;
+
+  CheckableItem(this.description);
 }

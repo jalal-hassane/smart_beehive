@@ -11,6 +11,7 @@ const textStepTwoHint = 'Generate the QR code' /*as an identifier of the hive*/
     "\nYou're all set"*/
     ;
 
+const textAbout = 'About';
 const textCreate = 'Create';
 const textGenerateQr = 'Generate QR';
 const textClear = 'Clear';
@@ -47,7 +48,6 @@ const textColonyAge = 'Colony Age';
 const textSpecies = 'Species';
 const textLocation = 'Location';
 const textOther = 'Other';
-
 
 // textFields  hints
 const hintUsername = 'username';
@@ -87,9 +87,11 @@ const btTurnOff = 'Turn Off';
 const btRemove = 'remove';
 const btChange = 'change';
 const btClear = 'Clear';
+
 /// hive logs
-const logGeneral= 'General';
-const logTreatment= 'Treatment';
+const logGeneral = 'General';
+const logTreatment = 'Treatment';
+
 /// hive logs - queen
 //<editor-fold desc='queen'>
 const logQueen = 'Queen';
@@ -180,6 +182,12 @@ const logHoney = 'Honey';
 const logPollen = 'Pollen';
 const logPropolis = 'Propolis';
 const logRoyalJelly = 'Royal Jelly';
+const logG = 'g';
+const logKg = 'kg';
+const logOz = 'oz';
+const logLbs = 'lbs';
+const logFrames = 'frames';
+
 //</editor-fold>
 
 /// hive logs - feeds
@@ -216,7 +224,7 @@ const logProbioticsInfo =
 //</editor-fold>
 
 //<editor-fold des='treatment'>
-const logFullBrood = 'Fullbrood';
+const logFoulBrood = 'Foulbrood';
 const logTerraPatties = 'Terra-Patties';
 const logTerraPro = 'Terra-Pro';
 const logTerramycin = 'Terramycin';
@@ -239,37 +247,85 @@ const logApiStan = 'Apistan';
 const logApiVarStrips = 'Apivar Strips';
 const logCheckMite = 'Check Mite';
 const logDroneComb = 'Drone Comb';
-const logFormicPro  = 'Formic Pro';
-const logHopGuard  = 'HopGuard';
-const logMiteAway  = 'Mite Away';
-const logMiteStrips  = 'Mite Strips';
-const logOxalicAcidFumigate  = 'Oxalic Acid - Fumigate';
-const logOxalicAcidDrip  = 'Oxalic Acid - Drip';
-const logOxalicAcidGlycerine  = 'Oxalic Acid - Glycerine';
-const logOxyBee  = 'Oxybee';
-const logTactic  = 'Tactic';
+const logFormicPro = 'Formic Pro';
+const logHopGuard = 'HopGuard';
+const logMiteAway = 'Mite Away';
+const logMiteStrips = 'Mite Strips';
+const logOxalicAcidFumigate = 'Oxalic Acid - Fumigate';
+const logOxalicAcidDrip = 'Oxalic Acid - Drip';
+const logOxalicAcidGlycerine = 'Oxalic Acid - Glycerine';
+const logOxyBee = 'Oxybee';
+const logTactic = 'Tactic';
 const logWaxMoths = 'Wax Moths';
 const logB401 = 'B401';
 const logParaMoth = 'Para-Moth';
 
-const logFullBroodInfo = '';
-const logHiveBeetlesInfo = '';
+const logFoulBroodInfo =
+    'American foulbrood (AFB) is a bacterial brood disease that results'
+    ' from the infection of honey bee larvae with Paenibacillus larvae.'
+    ' While it only attacks larvae, AFB weakens the colony and can quickly'
+    ' lead to its death in only three weeks.'
+    ' AFB is most commonly transmitted through spores of the bacteria,'
+    ' which can be dormant in the colonies or used equipment for 70 or more years.'
+    ' When nurse bees feed larvae with food contaminated with spores,'
+    ' the spores turn into a vegetative stage that replicates in the larval'
+    ' tissue leading to its death.'
+    ' Larvae killed by these bacteria have a unique "foul" odor that gives'
+    ' this brood disease its name.';
+const logHiveBeetlesInfo =
+    'The small hive beetle is a beekeeping pest. It is endemic to'
+    ' sub-Saharan Africa, but has spread to many other locations,'
+    ' including North America, Australia, and the Philippines.'
+    ' The small hive beetle can be a destructive pest of honey'
+    ' bee colonies, causing damage to comb, stored honey, and'
+    ' pollen. If a beetle infestation is sufficiently heavy, they may'
+    ' cause bees to abandon their hive. Its presence can also'
+    ' be a marker in the diagnosis of colony collapse disorder'
+    ' for honey bees. The beetles can also be a pest of stored'
+    ' combs, and honey (in the comb) awaiting extraction. Beetle'
+    ' Larvae may tunnel through combs of honey, feeding and'
+    ' defecating, causing discoloration and fermentation of the'
+    ' honey.';
 const logNosemaInfo = '';
-const logTrachealMitesInfo = '';
-const logVarroaMitesInfo = '';
-const logWaxMothsInfo = '';
+const logTrachealMitesInfo =
+    'Russian stocks also have been shown to resist infection by'
+    ' tracheal mites (Acarapls woodi). This heritable trait is due to'
+    ' hygienic grooming behaviors.';
+const logVarroaMitesInfo =
+    'Varroa destructor (Varroa mite) is an external parasitic mite'
+    ' that attack and feeds on honey bees, The disease caused'
+    ' by the mites is called varroosis, The Varroa mite can only'
+    ' reproduce in a honey bee colory. It attaches to the body'
+    ' of the bee and weakens the bee by sucking fat bodies. The'
+    ' species is a vector for at least five debilitating bee viruses,'
+    ' including RNA viruses such as the deformed wing virus'
+    ' (DWV). A significant mite infestation leads to the death of'
+    ' a honey bee colony, usually in the late autumn through'
+    ' early spring. The Varroa mite is the parasite with possibly'
+    ' the most pronounced economic impact on the beekeeping'
+    ' industry. Varroa is considered to be one of multiple stress'
+    ' factors contributing to the higher levels of bee losses'
+    ' around the world.';
+const logWaxMothsInfo = 'Waxworms are the caterpillar are of mex mecs'
+    ' which belong to the family Pyralisas (smout moths). TWO'
+    ' closely related species are commercially brad - the lesser'
+    ' wax moth (Achroia grisella) and the greater wa math'
+    ' (Galleria mellonella). They belong to the unibe Galleriini'
+    ' in the snout moth subfamily Gallerinae. Another species'
+    ' whose larvae share that name is the lindiam mealmoth'
+    ' (Plodia interpunctella), though this species is not available'
+    ' commercially.';
 //</editor-fold>
-
 
 // Species
 const spMelifera = 'Apis Melifera';
-const spCaucasia ='$spMelifera caucasia';
+const spCaucasia = '$spMelifera caucasia';
 const spCamica = '$spMelifera camica';
 const spLigustica = '$spMelifera igustica';
 const spMeliferaMelifera = '$spMelifera melifera';
-const spScutellata  = '$spMelifera scutellata';
+const spScutellata = '$spMelifera scutellata';
 
 // hive types
-const htLangstroth ='Langstroth';
-const htWarre ='Warre';
-const htTopBar ='Top Bar';
+const htLangstroth = 'Langstroth';
+const htWarre = 'Warre';
+const htTopBar = 'Top Bar';

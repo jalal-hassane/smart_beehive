@@ -91,7 +91,7 @@ class _Feeds extends State<Feeds> {
   }
 
   _openAbout() =>
-      Navigator.of(context).push(enterFromRight(About(items: _logFeeds!.info)));
+      Navigator.of(context).push(enterFromRight(About(items: _logFeeds!.info, treatment: false,)));
 
   final _taps = <Function()>[];
 
