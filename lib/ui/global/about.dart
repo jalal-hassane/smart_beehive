@@ -48,8 +48,8 @@ class _About extends State<About> {
   }
 
   _itemsBuilder() {
-    if (widget.items.isEmpty) return Container();
     var _widgets = <Widget>[];
+    if (widget.items.isEmpty) return _widgets;
 
     for (ItemAbout itemAbout in widget.items) {
       if (widget.treatment) {

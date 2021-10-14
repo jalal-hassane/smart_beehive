@@ -23,7 +23,7 @@ extension Ex on double {
 
 extension ContextExtension on BuildContext {
   showCustomBottomSheet(Widget Function(BuildContext) builder,
-      {Function()? onClosing}) {
+      {Function()? onClosing, bool wrap = false}) {
     showModalBottomSheet(
       context: this,
       isScrollControlled: true,
@@ -45,8 +45,8 @@ extension ContextExtension on BuildContext {
               ),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(35),
-                  topRight: Radius.circular(35),
+                  topLeft: Radius.circular(26),
+                  topRight: Radius.circular(26),
                 ),
               ),
               onClosing: onClosing ?? () {},

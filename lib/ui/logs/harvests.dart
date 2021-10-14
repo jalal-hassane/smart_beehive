@@ -7,7 +7,7 @@ import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
-import 'package:smart_beehive/ui/global/about.dart';
+import 'package:smart_beehive/ui/global/harvest_history.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
@@ -29,6 +29,11 @@ class _Harvests extends State<Harvests> {
   Unit _unit = Unit.g;
   late TextEditingController _textController;
 
+  double get _saveOpacity {
+    if (_logHarvests?.isActive ?? false) return 1.0;
+    return 0.5;
+  }
+
   @override
   Widget build(BuildContext context) {
     _logHarvests = widget.logHarvests;
@@ -42,6 +47,18 @@ class _Harvests extends State<Harvests> {
             logHarvests,
             style: mTS(),
           ),
+          actions: [
+            Container(
+              margin: right(12),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.history,
+                  color: colorBlack,
+                ),
+                onPressed: () => _openHarvestHistory(),
+              ),
+            ),
+          ],
           centerTitle: true,
         ),
         body: Column(
@@ -56,25 +73,58 @@ class _Harvests extends State<Harvests> {
                 children: _logHarvests!.logs2.generateHarvestsWidgets(_taps),
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _logHarvests?.clear();
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red[200],
-              ),
-              child: SizedBox(
-                width: screenWidth * 0.4,
-                height: screenHeight * 0.056,
-                child: Center(
-                  child: Text(
-                    textClear,
-                    style: mTS(color: colorWhite),
+            Column(
+              children: [
+                AbsorbPointer(
+                  absorbing: _saveOpacity == 0.5,
+                  child: Opacity(
+                    opacity: _saveOpacity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _saveHarvest();
+                        });
+                      },
+                      /*style: ElevatedButton.styleFrom(
+                        primary: Colors.red[200],
+                      ),*/
+                      child: SizedBox(
+                        width: screenWidth * 0.5,
+                        height: screenHeight * 0.056,
+                        child: Center(
+                          child: Text(
+                            textSaveHarvest,
+                            style: mTS(),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                Container(
+                  margin: top(16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _logHarvests?.clear();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red[200],
+                    ),
+                    child: SizedBox(
+                      width: screenWidth * 0.35,
+                      height: screenHeight * 0.056,
+                      child: Center(
+                        child: Text(
+                          textClear,
+                          style: mTS(color: colorWhite),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -82,8 +132,13 @@ class _Harvests extends State<Harvests> {
     );
   }
 
-  _openAbout() => Navigator.of(context)
-      .push(enterFromRight(About(items: _logHarvests!.info,treatment: false,)));
+  _openHarvestHistory() => Navigator.of(context).push(
+        enterFromRight(
+          HarvestHistory(
+            history: _logHarvests!.history,
+          ),
+        ),
+      );
 
   final _taps = <Function()>[];
 
@@ -166,6 +221,21 @@ class _Harvests extends State<Harvests> {
     }
   }
 
+  _saveHarvest() {
+    final List<ItemHarvest> _history = [];
+    for (ItemHarvest item in _logHarvests!.harvests) {
+      if (item.isActive) {
+        final harv = ItemHarvest(item.icon, item.title)
+          ..value = item.value
+          ..unit = item.unit;
+        _history.add(harv);
+      }
+    }
+
+    _logHarvests!.history.add(ItemHarvestHistory(_history));
+    _logHarvests!.clear();
+  }
+
   _closeSheetAndSave(ItemHarvest item) {
     Navigator.pop(context);
     logInfo('Closing');
@@ -194,7 +264,7 @@ class _Harvests extends State<Harvests> {
           default:
             icon = pngHarvestsRoyalJellyActive;
         }
-        item.setData(dHarvest, _unit,icon);
+        item.setData(dHarvest, _unit, icon);
         //_logHarvests!.logs[index].setIcon(icon, true);
       });
 

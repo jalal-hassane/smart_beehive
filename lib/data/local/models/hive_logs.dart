@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -370,6 +371,8 @@ class LogHarvests {
   List<ItemLog> harvestsLogs = [];
   List<ItemAbout> harvestsInfo = [];
 
+  List<ItemHarvestHistory> history = [];
+
   clear() {
     /*beeswax = null;
     honeyComb = null;
@@ -414,7 +417,144 @@ class LogHarvests {
   }
 
   bool get isActive {
-    return false;
+    return harvests.any((element) => element.isActive);
+  }
+}
+
+class ItemHarvestHistory {
+  DateTime date = DateTime.now();
+  List<ItemHarvest>? history;
+
+  final mFormat = [M];
+  final yFormat = [yyyy];
+  String get month{
+    return formatDate(date, mFormat);
+  }
+
+  int get year{
+    return int.parse(formatDate(date, yFormat));
+  }
+
+  ItemHarvestHistory(this.history);
+}
+
+enum HarvestFilter {
+  all,
+  beeswax,
+  honeyComb,
+  honey,
+  pollen,
+  propolis,
+  royalJelly
+}
+
+extension Filters on HarvestFilter {
+  String get description {
+    switch (this) {
+      case HarvestFilter.all:
+        return textAll;
+      case HarvestFilter.beeswax:
+        return logBeeswax;
+      case HarvestFilter.honeyComb:
+        return logHoneycomb;
+      case HarvestFilter.honey:
+        return logHoney;
+      case HarvestFilter.pollen:
+        return logPollen;
+      case HarvestFilter.propolis:
+        return logPropolis;
+      case HarvestFilter.royalJelly:
+        return logRoyalJelly;
+    }
+  }
+}
+
+extension GetFilter on String {
+  HarvestFilter get filterFromString {
+    switch (this) {
+      case textAll:
+        return HarvestFilter.all;
+      case logBeeswax:
+        return HarvestFilter.beeswax;
+      case logHoneycomb:
+        return HarvestFilter.honeyComb;
+      case logHoney:
+        return HarvestFilter.honey;
+      case logPollen:
+        return HarvestFilter.pollen;
+      case logPropolis:
+        return HarvestFilter.propolis;
+      default:
+        return HarvestFilter.royalJelly;
+    }
+  }
+}
+
+enum MonthFilter { all, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec }
+
+extension Mon on MonthFilter {
+  String get description {
+    switch (this) {
+      case MonthFilter.all:
+        return textAll;
+      case MonthFilter.jan:
+        return textJan;
+      case MonthFilter.feb:
+        return textFeb;
+      case MonthFilter.mar:
+        return textMar;
+      case MonthFilter.apr:
+        return textApr;
+      case MonthFilter.may:
+        return textMay;
+      case MonthFilter.jun:
+        return textJun;
+      case MonthFilter.jul:
+        return textJul;
+      case MonthFilter.aug:
+        return textAug;
+      case MonthFilter.sep:
+        return textSep;
+      case MonthFilter.oct:
+        return textOct;
+      case MonthFilter.nov:
+        return textNov;
+      case MonthFilter.dec:
+        return textDec;
+    }
+  }
+}
+
+extension GetMonth on String {
+  MonthFilter get monthFromString {
+    switch (this) {
+      case textAll:
+        return MonthFilter.all;
+      case textJan:
+        return MonthFilter.jan;
+      case textFeb:
+        return MonthFilter.feb;
+      case textMar:
+        return MonthFilter.mar;
+      case textApr:
+        return MonthFilter.apr;
+      case textMay:
+        return MonthFilter.may;
+      case textJun:
+        return MonthFilter.jun;
+      case textJul:
+        return MonthFilter.jul;
+      case textAug:
+        return MonthFilter.aug;
+      case textSep:
+        return MonthFilter.sep;
+      case textOct:
+        return MonthFilter.oct;
+      case textNov:
+        return MonthFilter.nov;
+      default:
+        return MonthFilter.dec;
+    }
   }
 }
 
@@ -513,17 +653,18 @@ extension PattyTypes on PattyType {
 
 ///<editor-fold desc='treatment'>
 class LogTreatment {
-  ItemTreatment? foulBrood =
-      ItemTreatment.foulBroodTreatment(pngFoulbrood, logFoulBrood,pngFoulbroodActive);
-  ItemTreatment? hiveBeetles =
-      ItemTreatment.hiveBeetlesTreatment(pngHiveBeetles, logHiveBeetles,pngHiveBeetlesActive);
-  ItemTreatment? nosema = ItemTreatment.nosemaTreatment(pngNosema, logNosema,pngNosemaActive);
-  ItemTreatment? trachealMites =
-      ItemTreatment.trachealMitesTreatment(pngTrachealMites, logTrachealMites,pngTrachealMitesActive);
-  ItemTreatment? varroaMites =
-      ItemTreatment.varroaMitesTreatment(pngVarroaMites, logVarroaMites,pngVarroaMitesActive);
-  ItemTreatment? waxMoths =
-      ItemTreatment.waxMothsTreatment(pngWaxMoths, logWaxMoths,pngWaxMothsActive);
+  ItemTreatment? foulBrood = ItemTreatment.foulBroodTreatment(
+      pngFoulbrood, logFoulBrood, pngFoulbroodActive);
+  ItemTreatment? hiveBeetles = ItemTreatment.hiveBeetlesTreatment(
+      pngHiveBeetles, logHiveBeetles, pngHiveBeetlesActive);
+  ItemTreatment? nosema =
+      ItemTreatment.nosemaTreatment(pngNosema, logNosema, pngNosemaActive);
+  ItemTreatment? trachealMites = ItemTreatment.trachealMitesTreatment(
+      pngTrachealMites, logTrachealMites, pngTrachealMitesActive);
+  ItemTreatment? varroaMites = ItemTreatment.varroaMitesTreatment(
+      pngVarroaMites, logVarroaMites, pngVarroaMitesActive);
+  ItemTreatment? waxMoths = ItemTreatment.waxMothsTreatment(
+      pngWaxMoths, logWaxMoths, pngWaxMothsActive);
 
   List<ItemLog> treatmentLogs = [];
   List<ItemAbout> treatmentInfo = [];
@@ -532,14 +673,15 @@ class LogTreatment {
     if (treatmentInfo.isNotEmpty) return treatmentInfo;
     treatmentInfo
         .add(ItemAbout(pngFoulbroodDisease, logFoulBrood, logFoulBroodInfo));
-    treatmentInfo
-        .add(ItemAbout(pngHiveBeetlesDisease, logHiveBeetles, logHiveBeetlesInfo));
+    treatmentInfo.add(
+        ItemAbout(pngHiveBeetlesDisease, logHiveBeetles, logHiveBeetlesInfo));
     treatmentInfo.add(ItemAbout(pngNosemaDisease, logNosema, logNosemaInfo));
+    treatmentInfo.add(ItemAbout(
+        pngTrachealMitesDisease, logTrachealMites, logTrachealMitesInfo));
+    treatmentInfo.add(
+        ItemAbout(pngVarroaMitesDisease, logVarroaMites, logVarroaMitesInfo));
     treatmentInfo
-        .add(ItemAbout(pngTrachealMitesDisease, logTrachealMites, logTrachealMitesInfo));
-    treatmentInfo
-        .add(ItemAbout(pngVarroaMitesDisease, logVarroaMites, logVarroaMitesInfo));
-    treatmentInfo.add(ItemAbout(pngWaxMothsDisease, logWaxMoths, logWaxMothsInfo));
+        .add(ItemAbout(pngWaxMothsDisease, logWaxMoths, logWaxMothsInfo));
     return treatmentInfo;
   }
 
@@ -916,7 +1058,8 @@ class ItemTreatment {
     return _treatments.any((element) => element.isChecked);
   }
 
-  bool isActive =false;
+  bool isActive = false;
+
   reset() {
     isActive = false;
     for (CheckableItem item in _treatments) {
@@ -931,7 +1074,8 @@ class ItemTreatment {
 
   ItemTreatment(this.icon, this.description);
 
-  ItemTreatment.foulBroodTreatment(this.icon, this.description,this.activeIcon) {
+  ItemTreatment.foulBroodTreatment(
+      this.icon, this.description, this.activeIcon) {
     id = description;
     _treatments.add(CheckableItem(logTerraPatties));
     _treatments.add(CheckableItem(logTerraPro));
@@ -940,24 +1084,27 @@ class ItemTreatment {
     _treatments.add(CheckableItem(logTylan));
   }
 
-  ItemTreatment.hiveBeetlesTreatment(this.icon, this.description,this.activeIcon) {
+  ItemTreatment.hiveBeetlesTreatment(
+      this.icon, this.description, this.activeIcon) {
     id = description;
     _treatments.add(CheckableItem(logDiatomacsiousEarth));
     _treatments.add(CheckableItem(logGardStar));
     _treatments.add(CheckableItem(logPermethrinSFR));
   }
 
-  ItemTreatment.nosemaTreatment(this.icon, this.description,this.activeIcon) {
+  ItemTreatment.nosemaTreatment(this.icon, this.description, this.activeIcon) {
     id = description;
     _treatments.add(CheckableItem(logFumidilB));
   }
 
-  ItemTreatment.trachealMitesTreatment(this.icon, this.description,this.activeIcon) {
+  ItemTreatment.trachealMitesTreatment(
+      this.icon, this.description, this.activeIcon) {
     id = description;
     _treatments.add(CheckableItem(logMiteAThol));
   }
 
-  ItemTreatment.varroaMitesTreatment(this.icon, this.description,this.activeIcon) {
+  ItemTreatment.varroaMitesTreatment(
+      this.icon, this.description, this.activeIcon) {
     id = description;
     _treatments.add(CheckableItem(logAmitraz));
     _treatments.add(CheckableItem(logApiBioxal));
@@ -977,7 +1124,8 @@ class ItemTreatment {
     _treatments.add(CheckableItem(logTactic));
   }
 
-  ItemTreatment.waxMothsTreatment(this.icon, this.description,this.activeIcon) {
+  ItemTreatment.waxMothsTreatment(
+      this.icon, this.description, this.activeIcon) {
     id = description;
     _treatments.add(CheckableItem(logB401));
     _treatments.add(CheckableItem(logParaMoth));

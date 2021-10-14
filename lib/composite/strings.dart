@@ -12,6 +12,15 @@ const textStepTwoHint = 'Generate the QR code' /*as an identifier of the hive*/
     ;
 
 const textAbout = 'About';
+const textSaveHarvest = 'Save Harvest';
+const textHarvestHistory = 'Harvest History';
+const textApply = 'Apply';
+const textFilters = 'Filters';
+const textYear = 'Year';
+const textMonth = 'Month';
+const textDay = 'Day';
+const textAllTime = 'All Time';
+const textAll= 'All';
 const textCreate = 'Create';
 const textGenerateQr = 'Generate QR';
 const textClear = 'Clear';
@@ -329,3 +338,17 @@ const spScutellata = '$spMelifera scutellata';
 const htLangstroth = 'Langstroth';
 const htWarre = 'Warre';
 const htTopBar = 'Top Bar';
+
+// months
+const textJan = 'January';
+const textFeb = 'February';
+const textMar = 'March';
+const textApr = 'April';
+const textMay = 'May';
+const textJun = 'June';
+const textJul = 'July';
+const textAug = 'August';
+const textSep = 'September';
+const textOct = 'October';
+const textNov = 'November';
+const textDec = 'December';

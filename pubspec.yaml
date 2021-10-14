@@ -51,6 +51,7 @@ dependencies:
   flutter_slidable: ^0.6.0
   syncfusion_flutter_charts: ^19.3.43
   just_audio: ^0.9.12
+  date_format: ^2.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

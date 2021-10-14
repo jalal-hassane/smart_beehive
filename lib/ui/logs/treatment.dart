@@ -169,7 +169,7 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
               );
             },
           );
-        });
+        },wrap: true);
       }
 
       _taps.add(f);

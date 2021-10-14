@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
+import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/ui/global/loading.dart';
 import 'package:smart_beehive/ui/registration/registration_viewmodel.dart';
@@ -87,7 +88,23 @@ class _Registration extends State<Registration> {
                           absorbing: _proceedDisabled,
                           child: Opacity(
                             opacity: _proceedOpacity,
-                            child: GestureDetector(
+                            child: ElevatedButton(
+                              onPressed: () => _proceed(),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.red[200],
+                              ),
+                              child: SizedBox(
+                                width: screenWidth * 0.4,
+                                height: screenHeight * 0.056,
+                                child: Center(
+                                  child: Text(
+                                    textRegisterLogin,
+                                    style: mTS(color: colorWhite),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            /*child: GestureDetector(
                               onTap: _proceed,
                               child: proceedButton(
                                 screenWidth,
@@ -95,13 +112,13 @@ class _Registration extends State<Registration> {
                                 textRegisterLogin,
                                 showShimmer: _showShimmer,
                               ),
-                            ),
+                            ),*/
                           ),
                         ),
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
             Visibility(
