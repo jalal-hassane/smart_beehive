@@ -16,16 +16,17 @@ import '../../main.dart';
 const _tag = 'Alerts';
 
 class Alerts extends StatefulWidget {
+  final Beehive hive;
   final int index;
 
-  const Alerts({Key? key, required this.index}) : super(key: key);
+  const Alerts({Key? key, required this.hive, required this.index})
+      : super(key: key);
 
   @override
   _Alerts createState() => _Alerts();
 }
 
 class _Alerts extends State<Alerts> with TickerProviderStateMixin {
-  String _selectedHive = '';
   late Beehive _hive;
   final _typeController = TextEditingController();
   final _lowestController = TextEditingController();
@@ -39,8 +40,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _hive = beehives[widget.index];
-    _selectedHive = _hive.name ?? '';
+    _hive = widget.hive;
   }
 
   @override
@@ -59,95 +59,13 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
         floatingActionButton: FloatingActionButton(
           onPressed: _addAlert,
           child: const Icon(
-            Icons.add,
+            Icons.add_alarm,
             color: colorBlack,
           ),
           backgroundColor: colorPrimary,
         ),
         body: Column(
           children: [
-            /*Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'Hive',
-                      style: boTS(),
-                    ),
-                  ),
-                ),
-                */ /* Expanded(
-                  flex: 3,
-                  child: PopupMenuButton<String>(
-                    initialValue: _selectedHive,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                      ),
-                    ),
-                    color: Colors.black45,
-                    onSelected: (String result) {
-                      setState(() {
-                        _selectedHive = result;
-                      });
-                    },
-                    offset: Offset(0, 145),
-                    itemBuilder: (BuildContext context) {
-                      return _dropDownItems2();
-                    },
-                    child: Container(
-                      height: 45,
-                      margin: right(16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.black45,
-                      ),
-                      child: Center(
-                        child: Text(
-                          _selectedHive,
-                          style: rTS(),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),*/ /*
-                */ /*Expanded(
-                  flex: 3,
-                  child: DropdownButtonHideUnderline(
-                    child: Container(
-                      margin: right(16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.black45,
-                      ),
-                      child: Center(
-                        child: DropdownButton<String>(
-                          iconSize: 0,
-                          value: _selectedHive,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedHive = newValue!;
-                              _hive = beehives.firstWhere(
-                                  (element) => _selectedHive == element.name);
-                            });
-                          },
-                          dropdownColor: Colors.black45,
-                          isExpanded: true,
-                          borderRadius: const BorderRadius.only(
-                            bottomRight: Radius.circular(8),
-                            bottomLeft: Radius.circular(8),
-                          ),
-                          icon: const Icon(Icons.arrow_downward),
-                          items: _dropDownItems(),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),*/ /*
-              ],
-            ),*/
             Expanded(
               child: _checkAlerts(),
             ),
@@ -221,8 +139,8 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   }
 
   _alertWidget(int index) {
-    final beehive = beehives[widget.index];
-    final alert = beehive.properties.alerts![index];
+    //final beehive = beehives[widget.index];
+    final alert = _hive.properties.alerts![index];
 
     return Slidable(
       actionPane: const SlidableScrollActionPane(),
@@ -315,9 +233,23 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       return DropdownMenuItem<String>(
         alignment: Alignment.center,
         value: value.description,
-        child: Text(
-          value.description,
-          style: rTS(color: colorPrimary),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              value.icon,
+              color: value.color,
+              width: 24,
+              height: 24,
+            ),
+            Container(
+              margin: left(8),
+              child: Text(
+                value.description,
+                style: rTS(color: value.color),
+              ),
+            ),
+          ],
         ),
       );
     }).toList();
@@ -338,7 +270,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
             children: [
               Text(
                 edit ? textEditAlert : textCreateAlert,
-                style: bTS(size: 30,color: colorPrimary),
+                style: bTS(size: 30, color: colorPrimary),
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,

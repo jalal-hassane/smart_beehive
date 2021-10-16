@@ -11,14 +11,14 @@ import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../main.dart';
-
 const _tag = 'Analysis';
 
 class Analysis extends StatefulWidget {
+  final Beehive hive;
   final int index;
 
-  const Analysis({Key? key, required this.index}) : super(key: key);
+  const Analysis({Key? key, required this.hive, required this.index})
+      : super(key: key);
 
   @override
   _Analysis createState() => _Analysis();
@@ -27,7 +27,6 @@ class Analysis extends StatefulWidget {
 class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   final audioPlayer = AudioPlayer();
 
-  String _selectedHive = '';
   late Beehive _hive;
   late final TooltipBehavior _tooltipBehavior = TooltipBehavior(enable: true);
   final List<TempInfo> _temp = [];
@@ -46,8 +45,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _hive = beehives[widget.index];
-    _selectedHive = _hive.name ?? '';
+    _hive = widget.hive;
     _addValues();
     _initPlayer();
   }

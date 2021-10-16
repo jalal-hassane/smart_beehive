@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.yellow,
         ),
+        initialRoute: '/',
         home: const Splash(),
       ),
     );

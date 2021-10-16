@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:smart_beehive/composite/assets.dart';
-import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -14,8 +13,11 @@ const _tag = 'Properties';
 
 class Properties extends StatefulWidget {
   final Beehive beehive;
+  final bool showOnlyAnalysis;
 
-  const Properties({Key? key, required this.beehive}) : super(key: key);
+  const Properties(
+      {Key? key, required this.beehive, required this.showOnlyAnalysis})
+      : super(key: key);
 
   @override
   _Properties createState() => _Properties();
@@ -28,6 +30,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     _hive = widget.beehive;
     _celsiusController.forward(from: 0);
+    if (widget.showOnlyAnalysis) return _showOnlyAnalysis();
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -36,10 +39,6 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
           children: [
             _propertyItem(svgCelsius, _hive.properties.temperature),
             _propertyItem(svgScale, _hive.properties.weight),
-            GestureDetector(
-              onTap: () => _openPage(alerts, 1),
-              child: _propertyIconItem(Icons.alarm, alerts),
-            ),
           ],
         ),
         Column(
@@ -47,9 +46,39 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
           children: [
             _propertyItem(svgBees, _hive.properties.population),
             _propertyItem(svgHumidity, '${_hive.properties.humidity}%'),
+          ],
+        )
+      ],
+    );
+  }
+
+  _showOnlyAnalysis() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
             GestureDetector(
-              onTap: () => _openPage(analysis, 1),
-              child: _propertyIconItem(Icons.bar_chart, analysis),
+              onTap: () => _openPage(alerts, _hive, 1),
+              child: _propertyIconItem(
+                Icons.alarm,
+                alerts,
+                () => _openPage(alerts, _hive, 1),
+              ),
+            ),
+          ],
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            GestureDetector(
+              onTap: () => _openPage(analysis, _hive, 1),
+              child: _propertyIconItem(
+                Icons.bar_chart,
+                analysis,
+                () => _openPage(analysis, _hive, 1),
+              ),
             ),
           ],
         )
@@ -82,7 +111,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     );
   }
 
-  _propertyIconItem(IconData data, String text) {
+  _propertyIconItem(IconData data, String text, Function()? press) {
     return SlideTransition(
       position: _iconOffsetAnimation,
       //scale: _scaleAnimation,
@@ -90,16 +119,16 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
         opacity: _fadeInAnimation,
         child: Column(
           children: [
-            Container(
-              margin: bottom(10),
-              child: Icon(
-                data,
-                size: 50,
-              ),
+            Icon(
+              data,
+              size: 50,
             ),
-            Text(
-              text,
-              style: ebTS(size: 18),
+            ElevatedButton(
+              onPressed: press,
+              child: Text(
+                text,
+                style: ebTS(size: 18),
+              ),
             ),
           ],
         ),
@@ -145,12 +174,12 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  _openPage(String page, int index) {
+  _openPage(String page, Beehive hive, int index) {
     Widget _screen;
     if (page == alerts) {
-      _screen = Alerts(index: index);
+      _screen = Alerts(hive: hive, index: index);
     } else {
-      _screen = Analysis(index: index);
+      _screen = Analysis(hive: hive, index: index);
     }
     Navigator.of(context).push(enterFromRight(_screen));
   }

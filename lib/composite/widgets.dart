@@ -80,12 +80,7 @@ Widget proceedButton(double width, double height, String text,
           fit: BoxFit.cover,
         ),
       ),
-      child: Center(
-        child: Text(
-          text,
-          style: mTS(size: 18),
-        ),
-      ),
+      child: Center(child: Text(text, style: mTS(size: 18))),
     ),
   );
   return Stack(
@@ -98,9 +93,7 @@ Widget proceedButton(double width, double height, String text,
         maintainSize: true,
         child: Shimmer.fromColors(
           child: _center,
-          period: const Duration(
-            milliseconds: 2500,
-          ),
+          period: const Duration(milliseconds: 2500),
           baseColor: Colors.white10,
           highlightColor: Colors.orangeAccent.withOpacity(0.5),
         ),
@@ -118,40 +111,67 @@ Widget sheetTextField(
   bool shouldHideText = false,
   bool last = false,
   void Function(String string)? submit,
+  bool focus = true,
+  Widget? suffix,
+  ScrollController? scrollController,
+}) {
+  return Container(
+    margin: symmetric(4, 16),
+    decoration: BoxDecoration(
+      color: colorBgRegistrationTextField,
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Padding(
+      padding: left(8),
+      child: TextField(
+        enabled: focus,
+        autofocus: false,
+        controller: controller,
+        scrollController: scrollController,
+        textAlignVertical: TextAlignVertical.center,
+        textInputAction: last ? TextInputAction.done : TextInputAction.next,
+        maxLines: 1,
+        style: rTS(color: colorWhite),
+        keyboardType: type,
+        obscureText: shouldHideText ? true : false,
+        decoration: hintDecoration.copyWith(
+          hintText: hint,
+          suffixIcon: suffix,
+        ),
+        onSubmitted: last ? submit : null,
+      ),
+    ),
+  );
+}
+
+overviewSheetItemWidget(
+  TextEditingController controller,
+  double width,
+  double height,
+  String text, {
+  bool enabled = true,
+  bool isLast = false,
+      Widget? suffix,
+  ScrollController? scrollController,
 }) {
   return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
-        margin: symmetric(0, 16),
-        height: height * 0.06,
-        decoration: BoxDecoration(
-          color: colorBgRegistrationTextField,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Padding(
-          padding: left(8),
-          child: TextField(
-            textAlign: TextAlign.start,
-            textAlignVertical: TextAlignVertical.center,
-            autofocus: false,
-            controller: controller,
-            textInputAction: last ? TextInputAction.done : TextInputAction.next,
-            maxLines: 1,
-            style: rTS(color: colorWhite),
-            keyboardType: type,
-            obscureText: shouldHideText ? true : false,
-            decoration: hintDecoration
-                .copyWith(
-                  hintText: hint,
-                )
-                .copyWith(
-                    constraints: BoxConstraints(minHeight: height * 0.06)),
-            onSubmitted: last ? submit : null,
-          ),
-        ),
+        margin: left(16),
+        child: Text(text, style: boTS(color: colorPrimary)),
+      ),
+      sheetTextField(
+        width,
+        height * 0.7,
+        controller,
+        text,
+        last: isLast,
+        focus: enabled,
+        suffix: suffix,
+        scrollController: scrollController,
       ),
     ],
   );
-
 }

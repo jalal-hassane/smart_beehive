@@ -6,10 +6,9 @@ import 'package:smart_beehive/ui/hive/overview.dart';
 
 class Beehive{
   final String id; // uuid to identify each hive
-  String? name;
   HiveOverview overview = HiveOverview();
   HiveProperties properties  = HiveProperties();
   HiveLogs logs = HiveLogs();
-  bool? qrScanned;
+  bool? qrScanned = true;
   Beehive(this.id);
 }

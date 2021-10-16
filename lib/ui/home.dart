@@ -5,9 +5,11 @@ import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
+import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
 import 'package:smart_beehive/ui/home/farm.dart';
 import 'package:smart_beehive/ui/home/profile.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 
 import '../main.dart';
 import 'home/alerts.dart';
@@ -202,11 +204,13 @@ class _Home extends State<Home> {
       case 0:
         return const Farm();
       case 1:
-        return const Analysis(
+        return Analysis(
+          hive: Beehive(uuid()),
           index: 0,
         );
       case 2:
-        return const Alerts(
+        return  Alerts(
+          hive: Beehive(uuid()),
           index: 0,
         );
       default:

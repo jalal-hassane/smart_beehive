@@ -24,8 +24,9 @@ const textAll= 'All';
 const textCreate = 'Create';
 const textGenerateQr = 'Generate QR';
 const textClear = 'Clear';
-const textAddHiveHint = 'Add a hive by clicking on the + sign';
+const textAddHiveHint = 'Please scan the Qr code to add a beehive ';
 const textScan = 'Scan';
+const textScanQr = 'Scan Qr Code';
 const textShare = 'Share';
 const textHiveNotAdded =
     'This hive is not yet added into our system.\nPlease scan the qr code to start the service';
@@ -43,6 +44,9 @@ const textEditAlert = 'Edit Alert';
 const textType = 'Type';
 const textHighest = 'Highest';
 const textLowest = 'Lowest';
+const textEditHive = 'Edit Hive';
+const textNA = 'N/A';
+const textSave = 'Save';
 
 // chart titles
 const textTemperature = 'Temperature (°C)';
@@ -330,7 +334,7 @@ const logWaxMothsInfo = 'Waxworms are the caterpillar are of mex mecs'
 const spMelifera = 'Apis Melifera';
 const spCaucasia = '$spMelifera caucasia';
 const spCamica = '$spMelifera camica';
-const spLigustica = '$spMelifera igustica';
+const spIgustica = '$spMelifera igustica';
 const spMeliferaMelifera = '$spMelifera melifera';
 const spScutellata = '$spMelifera scutellata';
 
