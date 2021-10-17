@@ -39,6 +39,10 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
 
   int get _hiveCounter => beehives.length + 1;
 
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
+  int get _nextItem => beehives.length;
+
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
   @override
@@ -58,10 +62,15 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         logInfo('Result ${result!.code}');
         Navigator.popUntil(context, (route) => route.isFirst);
         setState(() {
-          beehives.add(
+          logInfo('next item $_nextItem');
+          final index = _nextItem;
+          beehives.insert(
+            index,
             Beehive(uuid())
               ..overview = HiveOverview(name: 'hive #$_hiveCounter'),
           );
+          logInfo('next item $_nextItem');
+          _listKey.currentState?.insertItem(index);
         });
       });
     });
@@ -110,24 +119,18 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   }
 
   _hiveListWidget() {
-    /*AnimatedList(
-      itemBuilder: (context, index, animation) {
-        return slideIt(context, index, animation);
-      },
-    );*/
     return Column(
       children: [
         Expanded(
           flex: 6,
           child: Container(
             margin: left(10),
-            child: ListView.builder(
+            child: AnimatedList(
+              key: _listKey,
               padding: all(6),
-              itemCount: beehives.length,
+              initialItemCount: beehives.length,
               scrollDirection: Axis.horizontal,
-              itemBuilder: (_, index) {
-                return _listItemWidget(index);
-              },
+              itemBuilder: _listItemWidget,
             ),
           ),
         ),
@@ -182,55 +185,62 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
     );
   }
 
-  _listItemWidget(int hiveIndex) {
-    return GestureDetector(
-      onTap: () => _openHiveProperties(hiveIndex),
-      child: Container(
-        width: screenWidth * 0.3,
-        margin: right(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: const DecorationImage(
-            fit: BoxFit.cover,
-            image: AssetImage(backgroundHive),
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.grey,
-              offset: Offset(2.0, 2.0), //(x,y)
-              blurRadius: 2.0,
+  Widget _listItemWidget(
+      BuildContext context, int hiveIndex, Animation<double> animation) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(-1, 0),
+        end: Offset.zero,
+      ).animate(animation),
+      child: GestureDetector(
+        onTap: () => _openHiveProperties(hiveIndex),
+        child: Container(
+          width: screenWidth * 0.3,
+          margin: right(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: const DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage(backgroundHive),
             ),
-          ],
-          border: Border.all(
-              color: Colors.green,
-              width: _selectedHiveIndex == hiveIndex ? 2 : 0),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                alignment: Alignment.center,
-                child: Visibility(
-                  visible: _selectedHiveIndex == hiveIndex ? true : false,
-                  child: Lottie.asset(
-                    lottieBee,
-                    width: 24,
-                    height: 24,
-                    repeat: true,
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.grey,
+                offset: Offset(2.0, 2.0), //(x,y)
+                blurRadius: 2.0,
+              ),
+            ],
+            border: Border.all(
+                color: Colors.green,
+                width: _selectedHiveIndex == hiveIndex ? 2 : 0),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Visibility(
+                    visible: _selectedHiveIndex == hiveIndex ? true : false,
+                    child: Lottie.asset(
+                      lottieBee,
+                      width: 24,
+                      height: 24,
+                      repeat: true,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Center(
-                  child: Text(
-                beehives[hiveIndex].overview.name!,
-                style: sbTS(),
-              )),
-            ),
-          ],
+              Expanded(
+                flex: 1,
+                child: Center(
+                    child: Text(
+                  beehives[hiveIndex].overview.name!,
+                  style: sbTS(),
+                )),
+              ),
+            ],
+          ),
         ),
       ),
     );
