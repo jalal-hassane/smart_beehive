@@ -47,6 +47,10 @@ const textLowest = 'Lowest';
 const textEditHive = 'Edit Hive';
 const textNA = 'N/A';
 const textSave = 'Save';
+const textOk = 'Ok';
+const textCancel = 'Cancel';
+const textLocationSettings = 'Location Settings';
+const textAppSettings = 'App Settings';
 
 // chart titles
 const textTemperature = 'Temperature (°C)';
@@ -356,3 +360,7 @@ const textSep = 'September';
 const textOct = 'October';
 const textNov = 'November';
 const textDec = 'December';
+
+// location
+const serviceDisabled = 'Location Service Disabled';
+const permissionDenied = 'Permission Denied';

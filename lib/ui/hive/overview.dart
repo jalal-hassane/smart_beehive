@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
@@ -11,6 +14,8 @@ import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/data/local/models/hive_overview.dart';
 import 'package:smart_beehive/main.dart';
+import 'package:smart_beehive/ui/global/map.dart';
+import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
@@ -34,6 +39,13 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   HiveType? _hiveType;
   Species? _species;
 
+  Completer<GoogleMapController> _controller = Completer();
+
+  /*static final CameraPosition _kGooglePlex = const CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
+*/
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
@@ -191,14 +203,14 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GestureDetector(
-                            onTap:() async => await _getLocationName(state),
+                            onTap: () async => await _getLocationName(state),
                             child: const Icon(
                               Icons.my_location,
                               color: colorWhite,
                             ),
                           ),
                           GestureDetector(
-                            onTap:() async => await _getLocationName(state),
+                            onTap: () async => await _showMap(state),
                             child: Container(
                               margin: left(6),
                               child: const Icon(
@@ -322,6 +334,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   @override
   void dispose() {
     _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -517,20 +530,60 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         _locationController.text = location;
         _animateScroll();
       });
-    }).catchError((error) {
-      switch (error) {
-        case LocationErrors.serviceDisabled:
-          logError('Exception $error');
-          break;
-        case LocationErrors.permissionDenied:
-          logError('Exception $error');
-          break;
-        case LocationErrors.permissionDeniedForever:
-          logError('Exception $error');
-          break;
-      }
-      logError('Exception $error');
-    });
+    }).catchError((error) => _catchLocationError(error));
+  }
+
+  _showMap(Function(void Function()) state) async {
+    _determinePosition().then((position) {
+      LocationMap(
+        initial: position,
+        getLocationCallback: () {},
+      );
+    }).catchError((error) => _catchLocationError(error));
+  }
+
+  _catchLocationError(dynamic error) {
+    switch (error) {
+      case LocationErrors.serviceDisabled:
+        showErrorPopup(LocationErrors.serviceDisabled);
+        break;
+      case LocationErrors.permissionDenied:
+        showErrorPopup(LocationErrors.permissionDenied);
+        break;
+      case LocationErrors.permissionDeniedForever:
+        showErrorPopup(LocationErrors.permissionDeniedForever);
+        break;
+    }
+    logError('Exception $error');
+  }
+
+  void showErrorPopup(LocationErrors locationErrors) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            locationErrors.description,
+            style: mTS(size: 18),
+          ),
+          content: Text(
+            locationErrors.error,
+            style: rTS(),
+          ),
+          actions: [
+            if (locationErrors.action != null) locationErrors.action!,
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Text(
+                textOk,
+                style: rTS(),
+              ),
+            ),
+          ],
+          actionsPadding: all(8),
+        );
+      },
+    );
   }
 
   _animateScroll({bool reverse = false}) {
@@ -552,4 +605,49 @@ enum LocationErrors {
   serviceDisabled,
   permissionDenied,
   permissionDeniedForever
+}
+
+extension LocationExtension on LocationErrors {
+  String get description {
+    switch (this) {
+      case LocationErrors.serviceDisabled:
+        return serviceDisabled;
+      default:
+        return permissionDenied;
+    }
+  }
+
+  String get error {
+    switch (this) {
+      case LocationErrors.serviceDisabled:
+        return errorLocationServiceDisabled;
+      case LocationErrors.permissionDenied:
+        return errorLocationPermissionDenied;
+      case LocationErrors.permissionDeniedForever:
+        return errorLocationPermissionDeniedForEver;
+    }
+  }
+
+  Widget? get action {
+    switch (this) {
+      case LocationErrors.serviceDisabled:
+        return GestureDetector(
+          onTap: () async => await Geolocator.openLocationSettings(),
+          child: Text(
+            textLocationSettings,
+            style: rTS(),
+          ),
+        );
+      case LocationErrors.permissionDeniedForever:
+        return GestureDetector(
+          onTap: () async => await Geolocator.openAppSettings(),
+          child: Text(
+            textAppSettings,
+            style: rTS(),
+          ),
+        );
+      default:
+        return null;
+    }
+  }
 }
