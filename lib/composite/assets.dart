@@ -18,6 +18,7 @@ const svgScale = 'assets/image/scale.svg';
 
 // sounds
 const soundAlert = 'assets/sound/alert.mp3';
+const soundSuccess = 'assets/sound/success-sound-effect.mp3';
 
 // logs
 const pngGeneral = 'assets/image/beehive.png';

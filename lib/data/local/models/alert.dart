@@ -51,13 +51,13 @@ extension E on AlertType {
   String get description {
     switch (index) {
       case 0:
-        return 'Temperature';
+        return typeTemperature;
       case 1:
-        return 'Humidity';
+        return typeHumidity;
       case 2:
-        return 'Population';
+        return typePopulation;
       case 3:
-        return 'Weight';
+        return typeWeight;
       default:
         return '';
     }

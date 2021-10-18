@@ -362,5 +362,7 @@ const textNov = 'November';
 const textDec = 'December';
 
 // location
+const textGetLocation = "Get Location";
+const textUseMyLocation = "Use My Location";
 const serviceDisabled = 'Location Service Disabled';
 const permissionDenied = 'Permission Denied';

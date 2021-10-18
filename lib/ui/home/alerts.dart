@@ -17,10 +17,8 @@ const _tag = 'Alerts';
 
 class Alerts extends StatefulWidget {
   final Beehive hive;
-  final int index;
 
-  const Alerts({Key? key, required this.hive, required this.index})
-      : super(key: key);
+  const Alerts({Key? key, required this.hive}) : super(key: key);
 
   @override
   _Alerts createState() => _Alerts();

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:date_format/date_format.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:geolocator/geolocator.dart';
@@ -8,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
+import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
@@ -41,11 +44,9 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
   Completer<GoogleMapController> _controller = Completer();
 
-  /*static final CameraPosition _kGooglePlex = const CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
-*/
+  String _location = '';
+  Position? _position;
+
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
@@ -122,15 +123,19 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     );
   }
 
-  _showEditModal() {
+  late Function(void Function()) locationState;
+
+  _showEditModal() async {
     _nameController.text = _hive.overview.name ?? '';
     _hiveType = _hive.overview.type;
     _species = _hive.overview.species;
     _dateController.text =
-        _hive.overview.date != null ? _hive.overview.installationDate : '';
-    _locationController.text = _hive.overview.mLocation ?? '';
+    _hive.overview.date != null ? _hive.overview.installationDate : '';
+    _locationController.text =
+    _hive.overview.position != null ? _hive.overview.location : '';
     context.showCustomBottomSheet((_) {
       return StatefulBuilder(builder: (_, state) {
+        locationState = state;
         return Column(
           children: [
             Expanded(
@@ -214,7 +219,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                             child: Container(
                               margin: left(6),
                               child: const Icon(
-                                Icons.location_on,
+                                Icons.edit_location_outlined,
                                 color: colorWhite,
                               ),
                             ),
@@ -274,7 +279,10 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
       if (_species != null) {
         _hive.overview.species = _species;
       }
-      if (location.isNotEmpty) _hive.overview.mLocation = location;
+      if (_position != null) {
+        _hive.overview.position = _position;
+        _hive.overview.mLocation = location;
+      }
       _nameController.clear();
       _dateController.clear();
       _locationController.clear();
@@ -298,13 +306,19 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: mTS(),
+            Container(
+              margin: right(8),
+              child: Text(
+                title,
+                style: mTS(),
+              ),
             ),
-            Text(
-              value!,
-              style: rTS(),
+            Flexible(
+              child: Text(
+                value!,
+                textAlign: TextAlign.end,
+                style: rTS(),
+              ),
             ),
           ],
         ),
@@ -353,13 +367,11 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }
   }
 
-  _dropDownButton(
-    Function(void Function()) state,
-    Function(String string) onChanged,
-    String current,
-    Widget hint,
-    List<DropdownMenuItem<String>> items,
-  ) {
+  _dropDownButton(Function(void Function()) state,
+      Function(String string) onChanged,
+      String current,
+      Widget hint,
+      List<DropdownMenuItem<String>> items,) {
     return DropdownButton<String>(
       iconSize: 0,
       onChanged: (value) => state(() => onChanged.call(value!)),
@@ -383,7 +395,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         child: DropdownButtonHideUnderline(
           child: _dropDownButton(
             state,
-            (s) => _hiveType = s.hiveTypeFromString,
+                (s) => _hiveType = s.hiveTypeFromString,
             _hiveType?.description ?? '',
             _hintWidget(textHiveType),
             _hiveTypesDropDownItems(),
@@ -434,7 +446,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         child: DropdownButtonHideUnderline(
           child: _dropDownButton(
             state,
-            (s) => _species = s.speciesFromString,
+                (s) => _species = s.speciesFromString,
             _species?.description ?? '',
             _hintWidget(textSpecies),
             _speciesDropDownItems(),
@@ -512,19 +524,31 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     return await Geolocator.getCurrentPosition();
   }
 
-  _getLocationName(Function(void Function()) state) async {
-    logInfo('Starting geoLocation service');
+  _getLocationName(Function(void Function()) state, {Marker? marker}) async {
+    if (marker != null) {
+      // returning from map
+      final map = {'latitude': marker.position.latitude,
+        'longitude': marker.position.longitude,};
+      _position = Position.fromMap(map);
+      String location = await _getLocationFromLatLng(
+        marker.position.latitude,
+        marker.position.longitude,
+      );
+
+      state(() {
+        _locationController.text = location;
+        _animateScroll();
+      });
+      return;
+    }
+
     _determinePosition().then((position) async {
-      List<geo_coding.Placemark> locations =
-          await geo_coding.placemarkFromCoordinates(
+      _position = position;
+
+      String location = await _getLocationFromLatLng(
         position.latitude,
         position.longitude,
       );
-      final mLocation = locations.first;
-      String location = '${mLocation.country}, '
-          '${mLocation.administrativeArea} - '
-          '${mLocation.subAdministrativeArea} - '
-          '${mLocation.name}';
 
       state(() {
         _locationController.text = location;
@@ -533,14 +557,34 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }).catchError((error) => _catchLocationError(error));
   }
 
+  _getLocationFromLatLng(double lat,
+      double long,) async {
+    List<geo_coding.Placemark> locations =
+    await geo_coding.placemarkFromCoordinates(lat, long);
+    final mLocation = locations.first;
+    return '${mLocation.country}, '
+        '${mLocation.administrativeArea} - '
+        '${mLocation.subAdministrativeArea} - '
+        '${mLocation.name}';
+  }
+
   _showMap(Function(void Function()) state) async {
     _determinePosition().then((position) {
-      LocationMap(
-        initial: position,
-        getLocationCallback: () {},
+      Navigator.of(context).push(
+        enterFromRight(
+          LocationMap(
+            initial: position,
+            getLocationCallback: _getLocationCallback,
+            myLocationCallback: _myLocationCallback,
+          ),
+        ),
       );
     }).catchError((error) => _catchLocationError(error));
   }
+
+  _myLocationCallback() => _getLocationName(locationState);
+
+  _getLocationCallback(Marker marker) => _getLocationName(locationState,marker: marker);
 
   _catchLocationError(dynamic error) {
     switch (error) {
@@ -590,12 +634,12 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     Future.delayed(const Duration(milliseconds: 500), () {
       _scrollController
           .animateTo(
-            reverse
-                ? _scrollController.position.minScrollExtent
-                : _scrollController.position.maxScrollExtent,
-            duration: const Duration(seconds: 3),
-            curve: Curves.ease,
-          )
+        reverse
+            ? _scrollController.position.minScrollExtent
+            : _scrollController.position.maxScrollExtent,
+        duration: const Duration(seconds: 3),
+        curve: Curves.ease,
+      )
           .whenComplete(() => _animateScroll(reverse: !reverse));
     });
   }

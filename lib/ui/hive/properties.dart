@@ -5,6 +5,7 @@ import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
+import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/ui/home/alerts.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
@@ -60,11 +61,25 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onTap: () => _openPage(alerts, _hive, 1),
+              onTap: () => _openAnalysis(_hive, AlertType.temperature),
+              child: _analysisItem(
+                AlertType.temperature,
+                () => _openAnalysis(_hive, AlertType.temperature),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _openAnalysis(_hive, AlertType.weight),
+              child: _analysisItem(
+                AlertType.weight,
+                () => _openAnalysis(_hive, AlertType.weight),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _openAlerts(_hive),
               child: _propertyIconItem(
                 Icons.alarm,
                 alerts,
-                () => _openPage(alerts, _hive, 1),
+                () => _openAlerts(_hive),
               ),
             ),
           ],
@@ -73,11 +88,17 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onTap: () => _openPage(analysis, _hive, 1),
-              child: _propertyIconItem(
-                Icons.bar_chart,
-                analysis,
-                () => _openPage(analysis, _hive, 1),
+              onTap: () => _openAnalysis(_hive, AlertType.humidity),
+              child: _analysisItem(
+                AlertType.humidity,
+                () => _openAnalysis(_hive, AlertType.humidity),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _openAnalysis(_hive, AlertType.population),
+              child: _analysisItem(
+                AlertType.population,
+                () => _openAnalysis(_hive, AlertType.population),
               ),
             ),
           ],
@@ -86,7 +107,10 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     );
   }
 
-  _propertyItem(String svg, dynamic text) {
+  _propertyItem(
+    String svg,
+    dynamic text,
+  ) {
     return ScaleTransition(
       scale: _scaleAnimation,
       child: FadeTransition(
@@ -127,7 +151,49 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               onPressed: press,
               child: Text(
                 text,
-                style: ebTS(size: 18),
+                style: mTS(size: 18),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _analysisItem(AlertType type, Function()? press) {
+    return SlideTransition(
+      position: _iconOffsetAnimation,
+      //scale: _scaleAnimation,
+      child: FadeTransition(
+        opacity: _fadeInAnimation,
+        child: Column(
+          children: [
+            Container(
+              margin: bottom(10),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Padding(
+                    padding: all(2),
+                    child: SvgPicture.asset(
+                      type.icon,
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                  Icon(
+                    Icons.bar_chart,
+                    size: 18,
+                    color: type.color,
+                  ),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: press,
+              child: Text(
+                type.description,
+                style: mTS(size: 18),
               ),
             ),
           ],
@@ -174,13 +240,22 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  _openPage(String page, Beehive hive, int index) {
-    Widget _screen;
-    if (page == alerts) {
-      _screen = Alerts(hive: hive, index: index);
-    } else {
-      _screen = Analysis(hive: hive, index: index);
-    }
-    Navigator.of(context).push(enterFromRight(_screen));
+  _openAlerts(Beehive hive) {
+    Navigator.of(context).push(
+      enterFromRight(
+        Alerts(hive: hive),
+      ),
+    );
+  }
+
+  _openAnalysis(Beehive hive, AlertType type) {
+    Navigator.of(context).push(
+      enterFromRight(
+        Analysis(
+          hive: hive,
+          type: type,
+        ),
+      ),
+    );
   }
 }

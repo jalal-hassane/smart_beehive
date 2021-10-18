@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:smart_beehive/composite/assets.dart';
@@ -43,6 +44,8 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
 
   int get _nextItem => beehives.length;
 
+  final audioPlayer = AudioPlayer();
+
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
   @override
@@ -71,15 +74,31 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
           );
           logInfo('next item $_nextItem');
           _listKey.currentState?.insertItem(index);
+          audioPlayer.seek(const Duration(milliseconds: 0));
+          audioPlayer.play();
         });
       });
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _initPlayer();
+  }
+
+  @override
   void dispose() {
     controller?.dispose();
+    audioPlayer.dispose();
     super.dispose();
+  }
+
+  _initPlayer() async {
+    await audioPlayer.setAsset(soundSuccess);
+    await audioPlayer.setLoopMode(LoopMode.off);
+    await audioPlayer.setVolume(0.05);
+    await audioPlayer.load();
   }
 
   @override

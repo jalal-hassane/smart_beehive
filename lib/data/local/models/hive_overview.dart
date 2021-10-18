@@ -1,4 +1,5 @@
 import 'package:date_format/date_format.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:smart_beehive/composite/strings.dart';
 
 class HiveOverview {
@@ -7,6 +8,8 @@ class HiveOverview {
   Species? species;
   String? mLocation; // todo add location in app
   DateTime? date;
+
+  Position? position;
 
   HiveOverview({this.name});
 
@@ -34,7 +37,7 @@ class HiveOverview {
   }
 
   String get location {
-    if (mLocation == null) return textNA;
+    if (position == null) return textNA;
     return mLocation!;
   }
 }

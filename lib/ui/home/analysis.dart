@@ -7,6 +7,7 @@ import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
+import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -15,10 +16,13 @@ const _tag = 'Analysis';
 
 class Analysis extends StatefulWidget {
   final Beehive hive;
-  final int index;
+  final AlertType type;
 
-  const Analysis({Key? key, required this.hive, required this.index})
-      : super(key: key);
+  const Analysis({
+    Key? key,
+    required this.hive,
+    required this.type,
+  }) : super(key: key);
 
   @override
   _Analysis createState() => _Analysis();
