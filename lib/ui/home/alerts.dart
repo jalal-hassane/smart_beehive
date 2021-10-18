@@ -287,11 +287,18 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              _sheetItemWidget(_lowestController, textLowest),
-              _sheetItemWidget(
-                _highestController,
-                textHighest,
-                isLast: true,
+              Column(
+                children: [
+                  _sheetItemWidget(_lowestController, textLowest),
+                  Container(
+                    margin: top(16),
+                    child: _sheetItemWidget(
+                      _highestController,
+                      textHighest,
+                      isLast: true,
+                    ),
+                  ),
+                ],
               ),
               ElevatedButton(
                 onPressed: () => _createAlert(edit: edit, alert: alert),
@@ -357,7 +364,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
         ),
         sheetTextField(
           screenWidth,
-          screenHeight * 0.7,
+          screenHeight,
           controller,
           text,
           type: type,

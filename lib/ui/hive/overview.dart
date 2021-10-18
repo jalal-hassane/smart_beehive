@@ -228,6 +228,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                       ),
                     ),
                     scrollController: _scrollController,
+                    alignVertical: true,
                   ),
                 ],
               ),

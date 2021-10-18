@@ -112,6 +112,7 @@ Widget sheetTextField(
   bool last = false,
   void Function(String string)? submit,
   bool focus = true,
+  bool alignVertical = false,
   Widget? suffix,
   ScrollController? scrollController,
 }) {
@@ -128,7 +129,7 @@ Widget sheetTextField(
         autofocus: false,
         controller: controller,
         scrollController: scrollController,
-        textAlignVertical: TextAlignVertical.center,
+        textAlignVertical: alignVertical?TextAlignVertical.center:null,
         textInputAction: last ? TextInputAction.done : TextInputAction.next,
         maxLines: 1,
         style: rTS(color: colorWhite),
@@ -150,8 +151,9 @@ overviewSheetItemWidget(
   double height,
   String text, {
   bool enabled = true,
+  bool alignVertical = false,
   bool isLast = false,
-      Widget? suffix,
+  Widget? suffix,
   ScrollController? scrollController,
 }) {
   return Column(
@@ -171,6 +173,7 @@ overviewSheetItemWidget(
         focus: enabled,
         suffix: suffix,
         scrollController: scrollController,
+        alignVertical:alignVertical
       ),
     ],
   );
