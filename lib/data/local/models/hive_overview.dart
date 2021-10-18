@@ -7,7 +7,7 @@ class HiveOverview {
   HiveType? type;
   Species? species;
   String? mLocation; // todo add location in app
-  DateTime? date;
+  DateTime? date = DateTime.now();
 
   Position? position;
 
@@ -22,7 +22,19 @@ class HiveOverview {
     if (date == null) return textNA;
     final now = DateTime.now();
     final difference = now.difference(date!).inDays ~/ 365;
-    if (difference < 1) return '${now.difference(date!).inDays} Days';
+    if (difference < 1) {
+      /*final dayDifference = now.difference(date!).inDays;
+      if(dayDifference<1){
+        final hoursDifference = now.difference(date!).inHours;
+        if(hoursDifference<1){
+          final minutesDifference = now.difference(date!).inMinutes;
+          if(minutesDifference<1){
+            final secDifference = now.difference(date!).inSeconds;
+          }
+        }
+      }*/
+      return '${now.difference(date!).inDays} Days';
+    }
     return '$difference Years';
   }
 

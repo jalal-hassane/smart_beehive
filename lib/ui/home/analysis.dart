@@ -299,12 +299,12 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                 _showCurrentAlert,
               ),
               _cartesianChartWidget(
-                'Last Five Minutes (testing:10 seconds)',
+                'Last Five Minutes (testing: 10 seconds)',
                 _last5DataSource,
                 _showLast5Alert,
               ),
               _cartesianChartWidget(
-                'Daily (testing:15 seconds)',
+                'Daily (testing: 15 seconds)',
                 _dailyDataSource,
                 _showDailyAlert,
               ),
