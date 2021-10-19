@@ -48,7 +48,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             _propertyItem(svgBees, _hive.properties.population),
             _propertyItem(svgHumidity, '${_hive.properties.humidity}%'),
           ],
-        )
+        ),
       ],
     );
   }
@@ -60,6 +60,14 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            GestureDetector(
+              onTap: () => _openAlerts(_hive),
+              child: _propertyIconItem(
+                Icons.alarm,
+                alerts,
+                () => _openAlerts(_hive),
+              ),
+            ),
             GestureDetector(
               onTap: () => _openAnalysis(_hive, AlertType.temperature),
               child: _analysisItem(
@@ -74,19 +82,18 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                 () => _openAnalysis(_hive, AlertType.weight),
               ),
             ),
-            GestureDetector(
-              onTap: () => _openAlerts(_hive),
-              child: _propertyIconItem(
-                Icons.alarm,
-                alerts,
-                () => _openAlerts(_hive),
-              ),
-            ),
           ],
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            GestureDetector(
+              onTap: () => _openAnalysis(_hive, AlertType.swarming),
+              child: _analysisItem(
+                AlertType.swarming,
+                () => _openAnalysis(_hive, AlertType.swarming),
+              ),
+            ),
             GestureDetector(
               onTap: () => _openAnalysis(_hive, AlertType.humidity),
               child: _analysisItem(
@@ -102,7 +109,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -143,9 +150,15 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
         opacity: _fadeInAnimation,
         child: Column(
           children: [
-            Icon(
-              data,
-              size: 50,
+            Container(
+              margin: bottom(10),
+              child: Padding(
+                padding: all(2),
+                child: Icon(
+                  data,
+                  size: 50,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: press,
@@ -175,11 +188,17 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                 children: [
                   Padding(
                     padding: all(2),
-                    child: SvgPicture.asset(
-                      type.icon,
-                      width: 50,
-                      height: 50,
-                    ),
+                    child: type != AlertType.swarming
+                        ? SvgPicture.asset(
+                            type.icon,
+                            width: 50,
+                            height: 50,
+                          )
+                        : Image.asset(
+                            type.icon,
+                            width: 50,
+                            height: 50,
+                          ),
                   ),
                   Icon(
                     Icons.bar_chart,
@@ -208,6 +227,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     lowerBound: 0.0,
     upperBound: 1.0,
   );
+
   late final Animation<Offset> _iconOffsetAnimation = Tween<Offset>(
     begin: const Offset(0.0, 2.0),
     end: Offset.zero,
@@ -215,6 +235,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     parent: _celsiusController,
     curve: Curves.ease,
   ));
+
   late final Animation<double> _fadeInAnimation = Tween<double>(
     begin: 0.0,
     end: 1.0,
@@ -224,6 +245,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
       curve: Curves.ease,
     ),
   );
+
   late final Animation<double> _scaleAnimation = Tween<double>(
     begin: 0.0,
     end: 1.0,

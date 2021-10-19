@@ -36,6 +36,7 @@ enum AlertType {
   humidity,
   population,
   weight,
+  swarming,
 }
 extension GetType on String{
   AlertType get alertFromString{
@@ -43,6 +44,7 @@ extension GetType on String{
       case typeTemperature: return AlertType.temperature;
       case typeWeight: return AlertType.weight;
       case typePopulation: return AlertType.population;
+      case typeSwarming: return AlertType.swarming;
       default: return AlertType.humidity;
     }
   }
@@ -58,6 +60,8 @@ extension E on AlertType {
         return typePopulation;
       case 3:
         return typeWeight;
+      case 4:
+        return typeSwarming;
       default:
         return '';
     }
@@ -73,6 +77,8 @@ extension E on AlertType {
         return svgBees;
       case 3:
         return svgScale;
+      case 4:
+        return pngQueenSwarmStatus;
       default:
         return '';
     }
@@ -88,6 +94,8 @@ extension E on AlertType {
         return colorPrimary;
       case 3:
         return Colors.lightGreen;
+      case 4:
+        return Colors.deepPurpleAccent;
       default:
         return colorWhite;
     }

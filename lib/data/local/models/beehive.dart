@@ -10,5 +10,6 @@ class Beehive{
   HiveProperties properties  = HiveProperties();
   HiveLogs logs = HiveLogs();
   bool? qrScanned = true;
+  bool hiveIsSwarming = false;
   Beehive(this.id);
 }

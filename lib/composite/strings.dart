@@ -20,7 +20,7 @@ const textYear = 'Year';
 const textMonth = 'Month';
 const textDay = 'Day';
 const textAllTime = 'All Time';
-const textAll= 'All';
+const textAll = 'All';
 const textCreate = 'Create';
 const textGenerateQr = 'Generate QR';
 const textClear = 'Clear';
@@ -88,6 +88,7 @@ const notifications = 'Notifications';
 const typeTemperature = 'Temperature';
 const typeHumidity = 'Humidity';
 const typePopulation = 'Population';
+const typeSwarming = 'Swarming';
 const typeWeight = 'Weight';
 
 // alerts message
@@ -366,3 +367,71 @@ const textGetLocation = "Get Location";
 const textUseMyLocation = "Use My Location";
 const serviceDisabled = 'Location Service Disabled';
 const permissionDenied = 'Permission Denied';
+
+// swarming tips
+const textHiveNotSwarming = 'Hive is not swarming. All good';
+const textHiveSwarming = 'Hive is swarming!!';
+const textBeekeeperTips = 'Beekeeper Tips';
+const textReasons = 'Primary reasons for swarming';
+const textReasons1 = 'Reproduction.';
+const textReasons2 = 'Space problems.';
+const textReasons3 = 'Poor performing queen.';
+const textReasonsExplanation =
+    'A poor performing queen might contribute to the urge of swarming, '
+    'but the most pressing reasons are space issues and overcrowding leading '
+    'to congestion and poor ventilation.';
+const textAvoidCongestion = 'How to avoid congestion?';
+const textAvoidCongestion1 =
+    'Anticipate the needs of the colony and provide them with more room before the need it.';
+const textAvoidCongestion2 =
+    'Add honey supers before the first nectar flow in early spring.';
+const textGoodVentilation = 'How to help bees to have a good ventilation?';
+const textGoodVentilation1 =
+    'Keep the ventilation hole in the front of the inner cover open.';
+const textGoodVentilation2 =
+    'Drill some holes in the upper deep and in the honey supers.';
+const textGoodVentilation3 = 'In case of hot weather:';
+const textHotWeather1 =
+    'Make sure to have a nearby water source, where bees can easily access water. '
+    'Bees need water to monitor the temperature in the hive.';
+const textHotWeather2 =
+    'If the hive is completely exposed to sunlight, help bees to get some shadow on hot days by providing a shield.';
+const textRecommendations = 'Additional recommendations to prevent swarming';
+const textDo = 'Do';
+const textDoNot = 'Do Not';
+const textDo1 =
+    'If you don’t rely on local bees and want to choose a particular bee race, '
+    'then you can choose a race that is less inclined to swarming. '
+    'Keep in mind the downsides of these races, though. Read also our Guide to bee races.';
+const textDo2 =
+    'Create new appealing homes close to the original hive by placing for example '
+    'empty hives in the surrounding environment. In this way, swarming colonies might just move '
+    'to another hive and you don’t lose them.';
+const textDo3 =
+    'Make a split yourself. Leave the queen cells in the original hive and put '
+    'the old queen and half of the colony in a new hive5.';
+const textDoNot1 = 'Do not cut the internal wings of the queen bee. '
+    'The queen, when walking out of the hive to start the swarm, '
+    'falls on the ground and dies as she is unable to fly. '
+    'Some beekeepers do this to keep the colony in the hive. '
+    'We don’t consider it an ethical solution for queen bees.';
+const textDoNot2 = 'If possible try to avoid crush barriers. '
+    'These are grids made of metal or plastic with holes that allow '
+    'only the smaller worker bees to pass through. Drones and queens '
+    'cannot pass these grids. This significantly restricts the queen’s '
+    'movements and leads to unnatural behaviour that can be harmful to the whole colony.';
+const textDoNot3 = 'If possible due to local and personal conditions, '
+    'try not to destroy the queen cells. We know that this sounds like '
+    'a simple way to prevent swarming, but it does not reduce the urge '
+    'to swarm in general. Bees just build more queen cells and sooner '
+    'or later you might miss one and the bees swarm out.';
+const textRaces =
+    'Are there bee races that are more inclined to swarming than others?';
+const textRaces1 =
+    'Races with low inclination to swarming: Caucasian and Buckfast';
+const textRaces2 =
+    'Races with medium inclination to swarming: Italian, German, Cordovan and Russian';
+const textRaces3 =
+    'Races with excessive inclination to swarming: Carniolan, African and Africanized.';
+const textLess = 'Less';
+const textMore = 'More';

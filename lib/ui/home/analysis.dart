@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
@@ -9,6 +10,7 @@ import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
+import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -49,6 +51,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   bool _showDailyAlert = false;
   bool _showTempAlert = false;
   bool _highTemp = false;
+  bool stateExpanded = false;
 
   @override
   void initState() {
@@ -260,11 +263,15 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
       case AlertType.weight:
         _addWeightValues();
         break;
+      case AlertType.swarming:
+        // TODO: Handle this case.
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    _hive.hiveIsSwarming = Random().nextBool();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -275,43 +282,343 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
             style: mTS(),
           ),
           centerTitle: true,
-          actions: [
-            Container(
-              margin: right(12),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.date_range,
-                  color: colorBlack,
+        ),
+        body: SingleChildScrollView(
+          child: widget.type == AlertType.swarming
+              ? _swarmingWidget()
+              : Column(
+                  children: [
+                    _cartesianChartWidget(
+                      'Current',
+                      _dataSource,
+                      _showCurrentAlert,
+                    ),
+                    _cartesianChartWidget(
+                      'Last Five Minutes (testing: 10 seconds)',
+                      _last5DataSource,
+                      _showLast5Alert,
+                    ),
+                    _cartesianChartWidget(
+                      'Daily (testing: 15 seconds)',
+                      _dailyDataSource,
+                      _showDailyAlert,
+                    ),
+                  ],
                 ),
-                onPressed: () {
-                  // show previous tests
-                },
-              ),
+        ),
+      ),
+    );
+  }
+
+  _swarmingWidget() {
+    if (_hive.hiveIsSwarming) {
+      // vibrate
+      _vibrate();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Image.asset(
+                    _hive.hiveIsSwarming
+                        ? pngQueenSwarmStatus
+                        : pngQueenSwarmStatusActive,
+                    height: screenHeight * 0.2,
+                    width: double.maxFinite,
+                    color: _hive.hiveIsSwarming ? Colors.red : null,
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Visibility(
+                        visible: _hive.hiveIsSwarming,
+                        child: Container(
+                          margin: bottom(6),
+                          child: const Icon(
+                            Icons.warning_rounded,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        _hive.hiveIsSwarming
+                            ? textHiveSwarming
+                            : textHiveNotSwarming,
+                        style: sbTS(
+                          color:
+                              _hive.hiveIsSwarming ? Colors.red : Colors.green,
+                        ),
+                      ),
+                      Visibility(
+                        visible: _hive.hiveIsSwarming,
+                        child: Container(
+                          margin: top(6),
+                          child: Text(
+                            'date: 2021 Oct 19',
+                            style: sbTS(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: _hive.hiveIsSwarming,
+                        child: Container(
+                          margin: top(6),
+                          child: Text(
+                            'time: 4:06 pm',
+                            style: sbTS(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              _cartesianChartWidget(
-                'Current',
-                _dataSource,
-                _showCurrentAlert,
-              ),
-              _cartesianChartWidget(
-                'Last Five Minutes (testing: 10 seconds)',
-                _last5DataSource,
-                _showLast5Alert,
-              ),
-              _cartesianChartWidget(
-                'Daily (testing: 15 seconds)',
-                _dailyDataSource,
-                _showDailyAlert,
-              ),
-            ],
+        Container(
+          margin: top(10),
+          child: Padding(
+            padding: all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      textBeekeeperTips,
+                      style: bTS(size: 24),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        if (stateExpanded) {
+                          _analysisScaleController.reverse();
+                          _analysisFadeController.forward().whenComplete(() {
+                            setState(() => stateExpanded = false);
+                            _analysisFadeController.reverse();
+                          });
+                        } else {
+                          _analysisScaleController.forward();
+                          _analysisFadeController.forward().whenComplete(() {
+                            setState(() => stateExpanded = true);
+                            _analysisFadeController.reverse();
+                          });
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.black12),
+                        padding: all(4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FadeTransition(
+                              opacity: _analysisFadeAnimation,
+                              child: Text(
+                                stateExpanded ? textLess : textMore,
+                                style: rTS(),
+                              ),
+                            ),
+                            RotationTransition(
+                              turns: _analysisRotationAnimation,
+                              child: const Icon(Icons.arrow_drop_down_sharp),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizeTransition(
+                  sizeFactor: _analysisScaleAnimation,
+                  child: Padding(
+                    padding: all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          textReasons,
+                          style: sbTS(color: colorGreen),
+                        ),
+                        Padding(
+                          padding: all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _bulletPointWidget(textReasons1, null),
+                              _bulletPointWidget(textReasons2, top(6)),
+                              _bulletPointWidget(textReasons3, top(6)),
+                              Container(
+                                margin: top(10),
+                                child: Text(
+                                  textReasonsExplanation,
+                                  style: rTS(),
+                                ),
+                              ),
+                              Container(
+                                margin: top(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      textAvoidCongestion,
+                                      style: mTS(),
+                                    ),
+                                    Padding(
+                                      padding: all(8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _bulletPointWidget(
+                                              textAvoidCongestion1, null),
+                                          _bulletPointWidget(
+                                              textAvoidCongestion2, top(6)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                margin: top(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      textGoodVentilation,
+                                      style: mTS(),
+                                    ),
+                                    Padding(
+                                      padding: all(8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _bulletPointWidget(
+                                              textGoodVentilation1, null),
+                                          _bulletPointWidget(
+                                              textGoodVentilation2, top(6)),
+                                          _bulletPointWidget(
+                                              textGoodVentilation3, top(6)),
+                                          Padding(
+                                            padding: all(16),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                _bulletPointWidget(
+                                                    textHotWeather1, null),
+                                                _bulletPointWidget(
+                                                    textHotWeather2, top(6)),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: top(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                textRecommendations,
+                                style: sbTS(color: colorGreen),
+                              ),
+                              Padding(
+                                padding: all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      textDo,
+                                      style: mTS(),
+                                    ),
+                                    Padding(
+                                      padding: all(8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _bulletPointWidget(textDo1, null),
+                                          _bulletPointWidget(textDo2, top(6)),
+                                          _bulletPointWidget(textDo3, top(6)),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      textDoNot,
+                                      style: mTS(),
+                                    ),
+                                    Padding(
+                                      padding: all(8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _bulletPointWidget(textDoNot1, null),
+                                          _bulletPointWidget(
+                                              textDoNot2, top(6)),
+                                          _bulletPointWidget(
+                                              textDoNot3, top(6)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: top(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                textRaces,
+                                style: sbTS(color: colorGreen),
+                              ),
+                              Padding(
+                                padding: all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _bulletPointWidget(textRaces1, null),
+                                    _bulletPointWidget(textRaces2, top(6)),
+                                    _bulletPointWidget(textRaces3, top(6)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -408,6 +715,30 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     await audioPlayer.stop();
   }
 
+  _bulletPointWidget(String text, EdgeInsetsGeometry? margin) {
+    return Container(
+      margin: margin,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: trbl(2, 8, 0, 0),
+            child: const Icon(
+              Icons.brightness_1,
+              size: 8,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              text,
+              style: rTS(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   _alertWidget(bool show) {
     if (show) raiseAlert();
     return Visibility(
@@ -496,6 +827,16 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     );
   }
 
+  _vibrate() async {
+    bool canVibrate = await Vibrate.canVibrate;
+    if (canVibrate) {
+      Vibrate.vibrateWithPauses(const [
+        Duration(milliseconds: 500),
+        Duration(seconds: 1),
+      ]);
+    }
+  }
+
   late final AnimationController _scaleController = AnimationController(
     duration: const Duration(seconds: 1),
     vsync: this,
@@ -513,9 +854,55 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     ),
   );
 
+  late final AnimationController _analysisScaleController = AnimationController(
+    duration: const Duration(seconds: 1),
+    vsync: this,
+    lowerBound: 0.0,
+    upperBound: 1.0,
+  );
+
+  late final Animation<double> _analysisRotationAnimation = Tween<double>(
+    begin: 1.0,
+    end: 0.5,
+  ).animate(
+    CurvedAnimation(
+      parent: _analysisScaleController,
+      curve: Curves.ease,
+    ),
+  );
+
+  late final AnimationController _analysisFadeController = AnimationController(
+    duration: const Duration(milliseconds: 500),
+    vsync: this,
+    lowerBound: 0.0,
+    upperBound: 1.0,
+  );
+
+  late final Animation<double> _analysisFadeAnimation = Tween<double>(
+    begin: 1.0,
+    end: 0.1,
+  ).animate(
+    CurvedAnimation(
+      parent: _analysisFadeController,
+      curve: Curves.ease,
+    ),
+  );
+
+  late final Animation<double> _analysisScaleAnimation = Tween<double>(
+    begin: 0.0,
+    end: 1.0,
+  ).animate(
+    CurvedAnimation(
+      parent: _analysisScaleController,
+      curve: Curves.ease,
+    ),
+  );
+
   @override
   void dispose() {
     _scaleController.dispose();
+    _analysisScaleController.dispose();
+    _analysisFadeController.dispose();
     audioPlayer.dispose();
     super.dispose();
   }
