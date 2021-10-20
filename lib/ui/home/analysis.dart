@@ -832,8 +832,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     if (canVibrate) {
       Vibrate.vibrateWithPauses(const [
         Duration(milliseconds: 500),
-        Duration(seconds: 1),
-      ]);
+      ]).whenComplete(() => _vibrate());
     }
   }
 
