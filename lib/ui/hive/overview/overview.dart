@@ -398,11 +398,27 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     String current,
     Widget hint,
     List<DropdownMenuItem<String>> items,
+    List<String> options,
   ) {
     return DropdownButton<String>(
       iconSize: 0,
       onChanged: (value) => state(() => onChanged.call(value!)),
       dropdownColor: Colors.black87,
+      selectedItemBuilder: (BuildContext context) {
+        return options.map((String value) {
+          return DropdownMenuItem<String>(
+            alignment: Alignment.centerLeft,
+            value: value,
+            child: Container(
+              margin: left(8),
+              child: Text(
+                value,
+                style: rTS(),
+              ),
+            ),
+          );
+        }).toList();
+      },
       isExpanded: true,
       borderRadius: BorderRadius.circular(8),
       hint: hint,
@@ -426,6 +442,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
             _hiveType?.description ?? '',
             _hintWidget(textHiveType),
             _hiveTypesDropDownItems(),
+            HiveType.values.map((e) => e.description).toList(),
           ),
         ),
       ),
@@ -453,11 +470,14 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   }
 
   _hintWidget(String text) {
-    return Padding(
-      padding: left(8),
-      child: Text(
-        text,
-        style: rTS(color: colorHint),
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: left(8),
+        child: Text(
+          text,
+          style: rTS(color: colorHint),
+        ),
       ),
     );
   }
@@ -477,6 +497,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
             _species?.description ?? '',
             _hintWidget(textSpecies),
             _speciesDropDownItems(),
+            Species.values.map((e) => e.description).toList(),
           ),
         ),
       ),

@@ -69,17 +69,19 @@ class HiveOverview {
   }
 
   static HiveOverview fromMap(Map<String, dynamic> map) {
-    final geo = map[fieldPosition] as GeoPoint;
+    final geo = map[fieldPosition] as GeoPoint?;
     return HiveOverview()
       ..name = map[fieldName].toString()
       ..mLocation = map[fieldLocation].toString()
       ..date = (map[fieldDate] as Timestamp).toDate()
       ..type = map[fieldType].toString().hiveTypeFromString
       ..species = map[fieldSpecies].toString().speciesFromString
-      ..position = Position.fromMap({
-        'latitude': geo.latitude,
-        'longitude': geo.longitude,
-      });
+      ..position = geo != null
+          ? Position.fromMap({
+              'latitude': geo.latitude,
+              'longitude': geo.longitude,
+            })
+          : null;
   }
 }
 

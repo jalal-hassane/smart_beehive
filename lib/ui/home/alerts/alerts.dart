@@ -210,12 +210,21 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   _alertLeadingIcon(Alert alert) {
     Widget _icon;
     if (alert.svg != null) {
-      _icon = SvgPicture.asset(
-        alert.svg!,
-        width: 24,
-        height: 24,
-        color: alert.color,
-      );
+      if (alert.svg!.isPng()) {
+        _icon = Image.asset(
+          alert.svg!,
+          width: 24,
+          height: 24,
+          color: alert.color,
+        );
+      } else {
+        _icon = SvgPicture.asset(
+          alert.svg!,
+          width: 24,
+          height: 24,
+          color: alert.color,
+        );
+      }
     } else {
       _icon = Icon(
         Icons.notifications_active,
@@ -227,19 +236,33 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   }
 
   _dropDownItems() {
-    return AlertType.values.map<DropdownMenuItem<String>>((AlertType value) {
+    final alerts =<AlertType>[];
+    alerts.addAll(AlertType.values);
+    alerts.removeLast();
+    return alerts.map<DropdownMenuItem<String>>((AlertType value) {
+      Widget icon;
+      if (value.icon.isPng()) {
+        icon = Image.asset(
+          value.icon,
+          color: value.color,
+          width: 24,
+          height: 24,
+        );
+      } else {
+        icon = SvgPicture.asset(
+          value.icon,
+          color: value.color,
+          width: 24,
+          height: 24,
+        );
+      }
       return DropdownMenuItem<String>(
         alignment: Alignment.center,
         value: value.description,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              value.icon,
-              color: value.color,
-              width: 24,
-              height: 24,
-            ),
+            icon,
             Container(
               margin: left(8),
               child: Text(
@@ -260,7 +283,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       _highestController.text = alert.upperBound!.toString();
       setState(() {});
     }
-    context.showCustomBottomSheet((_) {
+    context.showCustomScaffoldBottomSheet((_) {
       return StatefulBuilder(
         builder: (_, setState) {
           return Column(

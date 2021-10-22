@@ -15,9 +15,10 @@ class FarmViewModel extends ChangeNotifier {
   /// add hive to firestore db
   updateHives(Beehive beehive) async {
     final authToken = await PrefUtils.authToken;
-    final hives = me?.beehives;
-    hives?.add(beehive);
-    if (hives != null) {
+    final hives = <Beehive>[];
+    hives.addAll(beehives);
+    hives.add(beehive);
+    if (hives.isNotEmpty) {
       final data = {fieldHives: hives.map((e) => e.toMap()).toList()};
       return beekeepers.doc(authToken).update(data).then((value) {
         helper._success();

@@ -9,6 +9,7 @@ import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/ui/home/alerts/alerts.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 
 const _tag = 'Properties';
 
@@ -30,6 +31,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
+    _hive.properties.generateNewProperties();
     _celsiusController.forward(from: 0);
     if (widget.showOnlyAnalysis) return _showOnlyAnalysis();
     return Row(
@@ -38,15 +40,15 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _propertyItem(svgCelsius, _hive.properties.temperature),
-            _propertyItem(svgScale, _hive.properties.weight),
+            _propertyItem(svgCelsius, _hive.properties.temperature?.toPrecision(1)),
+            _propertyItem(svgScale, _hive.properties.weight?.toPrecision(1)),
           ],
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _propertyItem(svgBees, _hive.properties.population),
-            _propertyItem(svgHumidity, '${_hive.properties.humidity}%'),
+            _propertyItem(svgHumidity, '${_hive.properties.humidity?.toPrecision(1)}%'),
           ],
         ),
       ],

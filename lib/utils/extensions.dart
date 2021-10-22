@@ -9,12 +9,14 @@ import 'package:smart_beehive/data/local/models/hive_logs.dart';
 
 import '../main.dart';
 
-extension IsNullOrEmpty on String? {
+extension StringExtensions on String? {
   bool get isNullOrEmpty => this == null || this!.isEmpty;
 
   String capitalize() {
     return "${this![0].toUpperCase()}${this!.substring(1)}";
   }
+
+  bool isPng() => this!.endsWith('.png');
 }
 
 extension Ex on double {
@@ -51,6 +53,44 @@ extension ContextExtension on BuildContext {
               ),
               onClosing: onClosing ?? () {},
               builder: builder,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  showCustomScaffoldBottomSheet(Widget Function(BuildContext) builder,
+      {Function()? onClosing, bool wrap = false}) {
+    showModalBottomSheet(
+      context: this,
+      isScrollControlled: true,
+      barrierColor: Colors.transparent,
+      enableDrag: false,
+      builder: (_) {
+        return GestureDetector(
+          onVerticalDragUpdate: (details) {
+            if (details.delta.dy > 1) Navigator.pop(_);
+          },
+          child: FractionallySizedBox(
+            heightFactor: 0.9,
+            child: Scaffold(
+              body: BottomSheet(
+                backgroundColor: colorBlack.withOpacity(0.7),
+                enableDrag: false,
+                constraints: BoxConstraints(
+                  maxHeight: screenHeight * 0.9,
+                  minHeight: screenHeight * 0.9,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(26),
+                    topRight: Radius.circular(26),
+                  ),
+                ),
+                onClosing: onClosing ?? () {},
+                builder: builder,
+              ),
             ),
           ),
         );
