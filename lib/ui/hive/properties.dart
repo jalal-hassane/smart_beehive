@@ -7,7 +7,7 @@ import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
-import 'package:smart_beehive/ui/home/alerts.dart';
+import 'package:smart_beehive/ui/home/alerts/alerts.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
 
 const _tag = 'Properties';

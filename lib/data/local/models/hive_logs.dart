@@ -12,6 +12,11 @@ class HiveLogs {
   LogTreatment? treatment = LogTreatment();
   LogGeneral? general = LogGeneral();
   LogWintering? wintering;
+
+  toMap(){}
+  static HiveLogs fromMap(Map<String,dynamic> map){
+    return HiveLogs();
+  }
 }
 
 ///<editor-fold desc='queen'>

@@ -59,6 +59,7 @@ Widget registrationTextField(
         style: rTS(),
         keyboardType: type,
         obscureText: shouldHideText ? true : false,
+        cursorColor: colorBlack,
         decoration: horizontalPaddingDecoration.copyWith(hintText: hint),
         onSubmitted: last ? submit : null,
       ),

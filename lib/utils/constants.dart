@@ -1,3 +1,50 @@
 const errorLocationServiceDisabled = 'Location services are disabled.';
 const errorLocationPermissionDenied = 'Location permissions are denied';
-const errorLocationPermissionDeniedForEver = 'Location permissions are permanently denied, we cannot request permissions.';
+const errorLocationPermissionDeniedForEver =
+    'Location permissions are permanently denied, we cannot request permissions.';
+
+// firestore collections
+const collectionBeekeeper = 'Beekeeper';
+const collectionHives = 'Hives';
+const collectionOverview = 'Overview';
+const collectionProperties = 'Properties';
+const collectionLogs = 'Logs';
+
+// firestore - Beekeeper
+const fieldId = 'id';
+const fieldUsername = 'username';
+const fieldPassword = 'password';
+const fieldImage = 'image';
+const fieldHives = 'hives';
+
+// firestore - Beehive
+const fieldOverview = 'overview';
+const fieldProperties = 'properties';
+const fieldLogs = 'logs';
+const fieldSwarming = 'swarming';
+
+// firestore - overview
+const fieldName = 'name';
+const fieldType = 'type';
+const fieldSpecies = 'species';
+const fieldLocation = 'mLocation';
+const fieldDate = 'date';
+const fieldPosition = 'position';
+
+// firestore - properties
+const fieldTemperature = 'temperature';
+const fieldHumidity = 'humidity';
+const fieldWeight = 'weight';
+const fieldPopulation = 'population';
+const fieldAlerts = 'alerts';
+
+// firestore - alert
+const fieldLowerBound = 'lowerBound';
+const fieldUpperBound = 'upperBound';
+
+
+// errors
+const errorUsernameNotAvailable = 'Username not available!';
+const errorSomethingWrong = 'Something went wrong!';
+const errorWrongCredentials = 'Wrong Credentials!';
+const errorNoAuthToken = 'Auth Token Error';

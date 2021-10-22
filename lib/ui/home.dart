@@ -8,12 +8,12 @@ import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
-import 'package:smart_beehive/ui/home/farm.dart';
+import 'package:smart_beehive/ui/home/farm/farm.dart';
 import 'package:smart_beehive/ui/home/profile.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 
 import '../main.dart';
-import 'home/alerts.dart';
+import 'home/alerts/alerts.dart';
 import 'settings/notifications.dart';
 import 'settings/settings.dart';
 
@@ -117,7 +117,7 @@ class _Home extends State<Home> {
                 Container(
                   margin: top(24),
                   child: Text(
-                    'Welcome, Jalal',
+                    'Welcome, ${me?.username}',
                     style: sbTS(color: colorPrimary),
                   ),
                 ),

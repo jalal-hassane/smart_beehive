@@ -5,6 +5,7 @@ import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
+import 'package:smart_beehive/data/local/models/beekeeper.dart';
 import 'package:smart_beehive/ui/global/loading.dart';
 import 'package:smart_beehive/ui/registration/registration_viewmodel.dart';
 import 'package:smart_beehive/utils/extensions.dart';
@@ -139,9 +140,10 @@ class _Registration extends State<Registration> {
     );
   }
 
-  _success() {
+  _success(Beekeeper beekeeper) {
     _load(false);
     PrefUtils.setLoggedIn(true);
+    me = beekeeper;
     _openHome();
   }
 

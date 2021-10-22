@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/strings.dart';
+import 'package:smart_beehive/utils/constants.dart';
 
 class Alert {
   AlertType? type; // ex: humidity/temperature
   double? lowerBound;
   double? upperBound;
-  IconData? iconData;
-  String? svg;
-  Color? color;
+
+  String? get svg => type?.icon;
+
+  Color? get color => type?.color;
 
   String get description {
     return '$_type should be between $lowerBound and $upperBound';
@@ -21,13 +23,25 @@ class Alert {
     return type!.description;
   }
 
-  Alert({AlertType? t, double? lb, double? ub, IconData? id, String? sv,Color? c}) {
+  Alert({AlertType? t, double? lb, double? ub}) {
     type = t;
     lowerBound = lb;
     upperBound = ub;
-    iconData = id;
-    svg = sv;
-    color = c;
+  }
+
+  toMap() {
+    return {
+      fieldType: type?.description,
+      fieldLowerBound: lowerBound,
+      fieldUpperBound: upperBound,
+    };
+  }
+
+  static Alert fromMap(Map<String, dynamic> map) {
+    return Alert()
+      ..type = map[fieldType].toString().alertFromString
+      ..lowerBound = map[fieldLowerBound] as double
+      ..upperBound = map[fieldUpperBound] as double;
   }
 }
 
@@ -38,17 +52,24 @@ enum AlertType {
   weight,
   swarming,
 }
-extension GetType on String{
-  AlertType get alertFromString{
-    switch(this){
-      case typeTemperature: return AlertType.temperature;
-      case typeWeight: return AlertType.weight;
-      case typePopulation: return AlertType.population;
-      case typeSwarming: return AlertType.swarming;
-      default: return AlertType.humidity;
+
+extension GetType on String {
+  AlertType get alertFromString {
+    switch (this) {
+      case typeTemperature:
+        return AlertType.temperature;
+      case typeWeight:
+        return AlertType.weight;
+      case typePopulation:
+        return AlertType.population;
+      case typeSwarming:
+        return AlertType.swarming;
+      default:
+        return AlertType.humidity;
     }
   }
 }
+
 extension E on AlertType {
   String get description {
     switch (index) {
@@ -67,7 +88,7 @@ extension E on AlertType {
     }
   }
 
-  String get icon{
+  String get icon {
     switch (index) {
       case 0:
         return svgCelsius;
@@ -84,7 +105,7 @@ extension E on AlertType {
     }
   }
 
-  Color get color{
+  Color get color {
     switch (index) {
       case 0:
         return Colors.red;

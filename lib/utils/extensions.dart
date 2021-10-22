@@ -86,6 +86,7 @@ showSnackBar(BuildContext context, String text, {SnackBarAction? action}) {
         text,
       ),
       action: action,
+      behavior: SnackBarBehavior.floating,
     ),
   );
 }

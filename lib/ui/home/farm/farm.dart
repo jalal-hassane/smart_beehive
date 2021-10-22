@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
@@ -12,9 +13,10 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/data/local/models/hive_overview.dart';
 import 'package:smart_beehive/main.dart';
-import 'package:smart_beehive/ui/hive/logs.dart';
-import 'package:smart_beehive/ui/hive/overview.dart';
+import 'package:smart_beehive/ui/hive/logs/logs.dart';
+import 'package:smart_beehive/ui/hive/overview/overview.dart';
 import 'package:smart_beehive/ui/hive/properties.dart';
+import 'package:smart_beehive/ui/home/farm/farm_viewmodel.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
@@ -35,6 +37,8 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
 
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   void Function(void Function())? _bottomState;
+  BuildContext? _bottomContext;
+  Beehive? insertedHive;
   Barcode? result;
   QRViewController? controller;
 
@@ -45,6 +49,8 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   int get _nextItem => beehives.length;
 
   final audioPlayer = AudioPlayer();
+
+  late FarmViewModel _farmViewModel;
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -60,25 +66,50 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   void _onQRViewCreated(QRViewController controller) async {
     _bottomState!(() => this.controller = controller);
     controller.scannedDataStream.take(1).listen((data) {
-      _bottomState!(() {
-        result = data;
-        logInfo('Result ${result!.code}');
-        Navigator.popUntil(context, (route) => route.isFirst);
-        setState(() {
-          logInfo('next item $_nextItem');
-          final index = _nextItem;
-          beehives.insert(
-            index,
-            Beehive(uuid())
-              ..overview = HiveOverview(name: 'hive #$_hiveCounter'),
-          );
-          logInfo('next item $_nextItem');
-          _listKey.currentState?.insertItem(index);
-          audioPlayer.seek(const Duration(milliseconds: 0));
-          audioPlayer.play();
-        });
-      });
+      if (!mounted) return;
+      result = data;
+      logInfo('' + result!.code.toString());
+      if (result == null) return;
+      final uuid = result!.code;
+      logInfo(uuid);
+      if (!validateUUID(uuid)) {
+        showDialog<void>(
+          context: _bottomContext!,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                'Scan Error',
+                style: mTS(size: 18),
+              ),
+              content: Text(
+                'Qr code info is not valid.',
+                style: rTS(),
+              ),
+            );
+          },
+        );
+        return;
+      }
+      insertedHive = Beehive(uuid)
+        ..overview = HiveOverview(name: 'hive #$_hiveCounter');
+      //me!.beehives?.add(insertedHive!);
+      _farmViewModel.updateHives(insertedHive!);
     });
+  }
+
+  bool validateUUID(String uuid) {
+    try {
+      assert(uuid.length == 37);
+      assert(uuid[8] == '-');
+      assert(uuid[13] == '-');
+      assert(uuid[18] == '-');
+      assert(uuid[23] == '-');
+      logInfo('true');
+      return true;
+    } catch (ex) {
+      logError(ex.toString());
+      return false;
+    }
   }
 
   @override
@@ -94,6 +125,34 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  _initViewModel() {
+    _farmViewModel = Provider.of<FarmViewModel>(context);
+    _farmViewModel.helper = FarmHelper(
+      success: _success,
+      failure: _failure,
+    );
+  }
+
+  _success() {
+    _bottomState!(() {
+      logInfo('Result ${result!.code}');
+      Navigator.popUntil(context, (route) => route.isFirst);
+      setState(() {
+        logInfo('next item $_nextItem');
+        final index = _nextItem;
+        beehives.insert(index, insertedHive!);
+        logInfo('next item $_nextItem');
+        _listKey.currentState?.insertItem(index);
+        audioPlayer.seek(const Duration(milliseconds: 0));
+        audioPlayer.play();
+      });
+    });
+  }
+
+  _failure(String error) {
+    logError(error);
+  }
+
   _initPlayer() async {
     await audioPlayer.setAsset(soundSuccess);
     await audioPlayer.setLoopMode(LoopMode.off);
@@ -103,6 +162,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    _initViewModel();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: _addHive,
@@ -279,8 +339,9 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
     context.showCustomBottomSheet(
       (mContext) {
         return StatefulBuilder(
-          builder: (_, state) {
+          builder: (con, state) {
             _bottomState = state;
+            _bottomContext = con;
             return Column(
               children: [
                 Expanded(

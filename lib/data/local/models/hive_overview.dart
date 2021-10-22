@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_format/date_format.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:smart_beehive/composite/strings.dart';
+import 'package:smart_beehive/utils/constants.dart';
 
 class HiveOverview {
   String? name = 'hive #1';
@@ -52,6 +54,33 @@ class HiveOverview {
     if (position == null) return textNA;
     return mLocation!;
   }
+
+  toMap() {
+    return {
+      fieldName: name,
+      fieldType: type?.description,
+      fieldSpecies: species?.description,
+      fieldDate: Timestamp.fromDate(date ?? DateTime.now()),
+      fieldLocation: mLocation,
+      fieldPosition: position == null
+          ? null
+          : GeoPoint(position!.latitude, position!.longitude),
+    };
+  }
+
+  static HiveOverview fromMap(Map<String, dynamic> map) {
+    final geo = map[fieldPosition] as GeoPoint;
+    return HiveOverview()
+      ..name = map[fieldName].toString()
+      ..mLocation = map[fieldLocation].toString()
+      ..date = (map[fieldDate] as Timestamp).toDate()
+      ..type = map[fieldType].toString().hiveTypeFromString
+      ..species = map[fieldSpecies].toString().speciesFromString
+      ..position = Position.fromMap({
+        'latitude': geo.latitude,
+        'longitude': geo.longitude,
+      });
+  }
 }
 
 enum Species {
@@ -64,7 +93,7 @@ enum Species {
 }
 
 extension Sps on String {
-  Species get speciesFromString {
+  Species? get speciesFromString {
     switch (this) {
       case spMelifera:
         return Species.melifera;
@@ -76,8 +105,10 @@ extension Sps on String {
         return Species.meliferaLigustica;
       case spMeliferaMelifera:
         return Species.meliferaMelifera;
-      default:
+      case spScutellata:
         return Species.meliferaScutellata;
+      default:
+        return null;
     }
   }
 }
@@ -104,14 +135,16 @@ extension Sp on Species {
 enum HiveType { langstroth, warre, topBar }
 
 extension Hts on String {
-  HiveType get hiveTypeFromString {
+  HiveType? get hiveTypeFromString {
     switch (this) {
       case htLangstroth:
         return HiveType.langstroth;
       case htWarre:
         return HiveType.warre;
-      default:
+      case htTopBar:
         return HiveType.topBar;
+      default:
+        return null;
     }
   }
 }

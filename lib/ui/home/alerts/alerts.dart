@@ -11,7 +11,7 @@ import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
-import '../../main.dart';
+import '../../../main.dart';
 
 const _tag = 'Alerts';
 
@@ -218,7 +218,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       );
     } else {
       _icon = Icon(
-        alert.iconData,
+        Icons.notifications_active,
         size: 24,
         color: alert.color,
       );
@@ -386,8 +386,6 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       alert!.type = _alertType;
       alert.lowerBound = lb;
       alert.upperBound = ub;
-      alert.svg = _alertType.icon;
-      alert.color = _alertType.color;
       Navigator.pop(context);
     } else {
       _hive.properties.alerts?.insert(
@@ -396,8 +394,6 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           t: _alertType,
           lb: lb,
           ub: ub,
-          sv: _alertType.icon,
-          c: _alertType.color,
         ),
       );
 

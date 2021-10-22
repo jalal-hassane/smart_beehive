@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +7,7 @@ import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
@@ -18,6 +18,7 @@ import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/data/local/models/hive_overview.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/global/map.dart';
+import 'package:smart_beehive/ui/hive/overview/overview_viewmodel.dart';
 import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
@@ -42,14 +43,30 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   HiveType? _hiveType;
   Species? _species;
 
-  Completer<GoogleMapController> _controller = Completer();
-
-  String _location = '';
   Position? _position;
+
+  late OverviewViewModel _overviewViewModel;
+
+  _initViewModel() {
+    _overviewViewModel = Provider.of<OverviewViewModel>(context);
+    _overviewViewModel.helper = OverviewHelper(
+      success: _success,
+      failure: _failure,
+    );
+  }
+
+  _success() {
+    logInfo('Success');
+  }
+
+  _failure(String error) {
+    logError(error);
+  }
 
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
+    _initViewModel();
     _animationController.forward(from: 0);
     return Padding(
       padding: all(16),
@@ -130,13 +147,14 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     _hiveType = _hive.overview.type;
     _species = _hive.overview.species;
     _dateController.text =
-    _hive.overview.date != null ? _hive.overview.installationDate : '';
+        _hive.overview.date != null ? _hive.overview.installationDate : '';
     _locationController.text =
-    _hive.overview.position != null ? _hive.overview.location : '';
+        _hive.overview.position != null ? _hive.overview.location : '';
+
     context.showCustomBottomSheet((_) {
       return StatefulBuilder(builder: (_, state) {
         locationState = state;
-        return Column(
+        final column = Column(
           children: [
             Expanded(
               flex: 2,
@@ -259,6 +277,10 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
             ),
           ],
         );
+        if (_locationController.text.isNotEmpty) {
+          _animateScroll();
+        }
+        return column;
       });
     });
   }
@@ -284,6 +306,8 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         _hive.overview.position = _position;
         _hive.overview.mLocation = location;
       }
+
+      _overviewViewModel.updateHives();
       _nameController.clear();
       _dateController.clear();
       _locationController.clear();
@@ -368,11 +392,13 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }
   }
 
-  _dropDownButton(Function(void Function()) state,
-      Function(String string) onChanged,
-      String current,
-      Widget hint,
-      List<DropdownMenuItem<String>> items,) {
+  _dropDownButton(
+    Function(void Function()) state,
+    Function(String string) onChanged,
+    String current,
+    Widget hint,
+    List<DropdownMenuItem<String>> items,
+  ) {
     return DropdownButton<String>(
       iconSize: 0,
       onChanged: (value) => state(() => onChanged.call(value!)),
@@ -396,7 +422,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         child: DropdownButtonHideUnderline(
           child: _dropDownButton(
             state,
-                (s) => _hiveType = s.hiveTypeFromString,
+            (s) => _hiveType = s.hiveTypeFromString,
             _hiveType?.description ?? '',
             _hintWidget(textHiveType),
             _hiveTypesDropDownItems(),
@@ -447,7 +473,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         child: DropdownButtonHideUnderline(
           child: _dropDownButton(
             state,
-                (s) => _species = s.speciesFromString,
+            (s) => _species = s.speciesFromString,
             _species?.description ?? '',
             _hintWidget(textSpecies),
             _speciesDropDownItems(),
@@ -528,8 +554,10 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   _getLocationName(Function(void Function()) state, {Marker? marker}) async {
     if (marker != null) {
       // returning from map
-      final map = {'latitude': marker.position.latitude,
-        'longitude': marker.position.longitude,};
+      final map = {
+        'latitude': marker.position.latitude,
+        'longitude': marker.position.longitude,
+      };
       _position = Position.fromMap(map);
       String location = await _getLocationFromLatLng(
         marker.position.latitude,
@@ -538,7 +566,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
       state(() {
         _locationController.text = location;
-        _animateScroll();
+        _animateScroll(shouldStop: true);
       });
       return;
     }
@@ -553,15 +581,17 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
       state(() {
         _locationController.text = location;
-        _animateScroll();
+        _animateScroll(shouldStop: true);
       });
     }).catchError((error) => _catchLocationError(error));
   }
 
-  _getLocationFromLatLng(double lat,
-      double long,) async {
+  _getLocationFromLatLng(
+    double lat,
+    double long,
+  ) async {
     List<geo_coding.Placemark> locations =
-    await geo_coding.placemarkFromCoordinates(lat, long);
+        await geo_coding.placemarkFromCoordinates(lat, long);
     final mLocation = locations.first;
     return '${mLocation.country}, '
         '${mLocation.administrativeArea} - '
@@ -585,7 +615,8 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
   _myLocationCallback() => _getLocationName(locationState);
 
-  _getLocationCallback(Marker marker) => _getLocationName(locationState,marker: marker);
+  _getLocationCallback(Marker marker) =>
+      _getLocationName(locationState, marker: marker);
 
   _catchLocationError(dynamic error) {
     switch (error) {
@@ -631,9 +662,20 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     );
   }
 
-  _animateScroll({bool reverse = false}) {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _scrollController
+  late ScrollPosition _scrollPosition;
+  late Timer _timer;
+  late Future _scrollFuture;
+
+  _animateScroll({bool reverse = false, bool shouldStop = false}) {
+    logInfo('Should stop $shouldStop');
+    if (shouldStop) {
+      _timer.cancel();
+      _scrollFuture.ignore();
+      //_animateScroll(reverse: reverse);
+      return;
+    }
+    _timer = Timer(const Duration(milliseconds: 500), () {
+      _scrollFuture = _scrollController
           .animateTo(
         reverse
             ? _scrollController.position.minScrollExtent
@@ -641,7 +683,11 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         duration: const Duration(seconds: 3),
         curve: Curves.ease,
       )
-          .whenComplete(() => _animateScroll(reverse: !reverse));
+          .whenComplete(() {
+        if (!shouldStop) {
+          _animateScroll(reverse: !reverse);
+        }
+      });
     });
   }
 }
