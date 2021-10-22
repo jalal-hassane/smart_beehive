@@ -116,6 +116,7 @@ Widget sheetTextField(
   bool alignVertical = false,
   Widget? suffix,
   ScrollController? scrollController,
+  int? max,
 }) {
   return Container(
     margin: symmetric(4, 16),
@@ -130,7 +131,7 @@ Widget sheetTextField(
         autofocus: false,
         controller: controller,
         scrollController: scrollController,
-        textAlignVertical: alignVertical?TextAlignVertical.center:null,
+        textAlignVertical: alignVertical ? TextAlignVertical.center : null,
         textInputAction: last ? TextInputAction.done : TextInputAction.next,
         maxLines: 1,
         style: rTS(),
@@ -141,6 +142,9 @@ Widget sheetTextField(
           hintText: hint,
           suffixIcon: suffix,
         ),
+        inputFormatters: [
+          LengthLimitingTextInputFormatter(max),
+        ],
         onSubmitted: last ? submit : null,
       ),
     ),
@@ -157,6 +161,7 @@ overviewSheetItemWidget(
   bool isLast = false,
   Widget? suffix,
   ScrollController? scrollController,
+  int? max,
 }) {
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -175,7 +180,8 @@ overviewSheetItemWidget(
         focus: enabled,
         suffix: suffix,
         scrollController: scrollController,
-        alignVertical:alignVertical
+        alignVertical: alignVertical,
+        max: max,
       ),
     ],
   );

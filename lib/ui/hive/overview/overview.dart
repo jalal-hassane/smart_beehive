@@ -28,7 +28,14 @@ const _tag = 'Overview';
 class Overview extends StatefulWidget {
   final Beehive beehive;
 
-  const Overview({Key? key, required this.beehive}) : super(key: key);
+  //final void Function(void Function()) farmState;
+  final void Function() farmState;
+
+  const Overview({
+    Key? key,
+    required this.beehive,
+    required this.farmState,
+  }) : super(key: key);
 
   @override
   _Overview createState() => _Overview();
@@ -56,6 +63,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   }
 
   _success() {
+    widget.farmState.call();
     logInfo('Success');
   }
 
@@ -175,6 +183,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                     screenWidth,
                     screenHeight,
                     textName,
+                    max: 20
                   ),
                   Column(
                     mainAxisSize: MainAxisSize.min,

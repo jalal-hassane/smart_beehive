@@ -313,11 +313,14 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
               ),
               Expanded(
                 flex: 1,
-                child: Center(
-                    child: Text(
-                  beehives[hiveIndex].overview.name!,
-                  style: sbTS(),
-                )),
+                child: Padding(
+                  padding: all(8),
+                  child: Center(
+                      child: Text(
+                    beehives[hiveIndex].overview.name!,
+                    style: sbTS(),
+                  )),
+                ),
               ),
             ],
           ),
@@ -326,13 +329,18 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
     );
   }
 
+  listStater() => _listKey.currentState?.setState(() {});
+
   _openHiveProperties(int index) {
     if (index == _selectedHiveIndex) return;
     _selectedHiveIndex = index;
     final hive = beehives[index];
     setState(() {
       _propertyTitleVisibility = true;
-      _properties = Details(beehive: hive);
+      _properties = Details(
+        beehive: hive,
+        farmState: listStater,
+      );
     });
   }
 
@@ -379,8 +387,13 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
 // todo finish details page
 class Details extends StatefulWidget {
   final Beehive beehive;
+  final void Function() farmState;
 
-  const Details({Key? key, required this.beehive}) : super(key: key);
+  const Details({
+    Key? key,
+    required this.beehive,
+    required this.farmState,
+  }) : super(key: key);
 
   @override
   _Details createState() => _Details();
@@ -432,7 +445,10 @@ class _Details extends State<Details> with TickerProviderStateMixin {
           child: PageView(
             controller: _tabsPageController,
             children: [
-              Overview(beehive: _hive),
+              Overview(
+                beehive: _hive,
+                farmState: stater,
+              ),
               Properties(
                 beehive: _hive,
                 showOnlyAnalysis: false,
@@ -453,6 +469,8 @@ class _Details extends State<Details> with TickerProviderStateMixin {
       ],
     );
   }
+
+  stater() => widget.farmState.call(); //PASSING SET STATE
 
   _tabWidget(IconData iconData, String text) {
     return Tab(
