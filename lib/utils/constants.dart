@@ -38,6 +38,46 @@ const fieldWeight = 'weight';
 const fieldPopulation = 'population';
 const fieldAlerts = 'alerts';
 
+// firestore - logs
+const fieldQueen = 'queen';
+const fieldHarvest = 'harvests';
+const fieldFeeds = 'feeds';
+const fieldTreatment = 'treatment';
+
+// firestore - logs - queen
+const fieldStatus = 'status';
+const fieldWingsClipped = 'wingsClipped';
+const fieldMarking = 'marking';
+const fieldSwarmStatus = 'swarmStatus';
+const fieldQueenExcluder = 'excluder';
+
+// firestore - harvests
+const fieldHistory = 'history';
+const fieldValue = 'value';
+const fieldUnit = 'unit';
+const fieldBeeswax = 'beeswax';
+const fieldHoneyComb = 'honeyComb';
+const fieldHoney = 'honey';
+const fieldPollen = 'pollen';
+const fieldPropolis = 'propolis';
+const fieldRoyalJelly = 'royalJelly';
+
+// firestore - feeds
+const fieldSyrup = 'syrup';
+const fieldPatty = 'patty';
+const fieldProbiotics = 'probiotics';
+
+//firestore - treatment
+const fieldTreatments = 'treatments';
+const fieldFoulBrood = 'foulBrood';
+const fieldHiveBeetles = 'hiveBeetles';
+const fieldNosema = 'nosema';
+const fieldTrachealMites = 'trachealMites';
+const fieldVarroaMites = 'varroaMites';
+const fieldWaxMoths = 'waxMoths';
+const fieldDescription = 'description';
+const fieldChecked = 'isChecked';
+
 // firestore - alert
 const fieldLowerBound = 'lowerBound';
 const fieldUpperBound = 'upperBound';

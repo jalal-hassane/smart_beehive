@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
@@ -7,7 +8,9 @@ import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
 import 'package:smart_beehive/ui/global/about.dart';
+import 'package:smart_beehive/ui/hive/logs/logs_viewmodel.dart';
 import 'package:smart_beehive/utils/extensions.dart';
+import 'package:smart_beehive/utils/log_utils.dart';
 
 import '../../main.dart';
 
@@ -25,9 +28,25 @@ class Queen extends StatefulWidget {
 class _Queen extends State<Queen> {
   late LogQueen? _logQueen;
 
+  late LogsViewModel _logsViewModel;
+
+  _initViewModel(){
+    _logsViewModel = Provider.of<LogsViewModel>(context);
+    _logsViewModel.helper = LogsHelper(success: _success, failure: _failure);
+  }
+
+  _success(){
+    logInfo('success');
+  }
+
+  _failure(String error){
+    logError('Error $error');
+  }
+
   @override
   Widget build(BuildContext context) {
     _logQueen = widget.logQueen;
+    _initViewModel();
     _generateTaps();
     return SafeArea(
       child: Scaffold(

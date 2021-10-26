@@ -267,6 +267,8 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   Widget _listItemWidget(
       BuildContext context, int hiveIndex, Animation<double> animation) {
     logInfo('beehive ${beehives[hiveIndex].toMap()}');
+    logInfo('beehive ${beehives[hiveIndex].logs.feeds?.toMap()}');
+    logInfo('beehive ${beehives[hiveIndex].logs.harvests?.toMap()}');
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(-1, 0),

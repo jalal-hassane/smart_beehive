@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
@@ -6,11 +7,13 @@ import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
+import 'package:smart_beehive/ui/hive/logs/logs_viewmodel.dart';
 import 'package:smart_beehive/ui/logs/feeds.dart';
 import 'package:smart_beehive/ui/logs/general.dart';
 import 'package:smart_beehive/ui/logs/harvests.dart';
 import 'package:smart_beehive/ui/logs/queen.dart';
 import 'package:smart_beehive/ui/logs/treatment.dart';
+import 'package:smart_beehive/utils/log_utils.dart';
 
 const _tag = 'Logs';
 
@@ -26,9 +29,25 @@ class Logs extends StatefulWidget {
 class _Logs extends State<Logs> {
   late Beehive _hive;
 
+  late LogsViewModel _logsViewModel;
+
+  _initViewModel(){
+    _logsViewModel = Provider.of<LogsViewModel>(context);
+    _logsViewModel.helper = LogsHelper(success: _success, failure: _failure);
+  }
+
+  _success(){
+    logInfo('success');
+  }
+
+  _failure(String error){
+    logError('Error $error');
+  }
+
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
+    _initViewModel();
     return Padding(
       padding: all(8),
       child: Column(

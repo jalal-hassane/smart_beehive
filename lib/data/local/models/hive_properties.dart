@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:smart_beehive/utils/constants.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
 import 'alert.dart';
@@ -13,14 +14,14 @@ class HiveProperties {
   List<Alert>? alerts = [];
 
   generateNewProperties() {
-    temperature = Random().nextDouble()* 3 + 37;
+    temperature = (Random().nextDouble() * 3 + 37).toPrecision(2);
 
-    logInfo('Floor ${temperature!.floorToDouble()}');
+    logInfo('Floor ${temperature!.toPrecision(1)}');
     logInfo('Ceil ${temperature!.ceilToDouble()}');
     logInfo('Round ${temperature!.roundToDouble()}');
-    humidity = Random().nextDouble() * 20 + 80;
-    weight = Random().nextDouble() * 5 + 5;
-    population = population!+3;
+    humidity = (Random().nextDouble() * 20 + 80).toPrecision(1);
+    weight = (Random().nextDouble() * 5 + 5).toPrecision(1);
+    population = population! + 3;
   }
 
   toMap() {

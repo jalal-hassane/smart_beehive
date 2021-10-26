@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -12,6 +13,7 @@ import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
 import '../../../main.dart';
+import 'alerts_viewmodel.dart';
 
 const _tag = 'Alerts';
 
@@ -26,14 +28,11 @@ class Alerts extends StatefulWidget {
 
 class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   late Beehive _hive;
-  final _typeController = TextEditingController();
   final _lowestController = TextEditingController();
   final _highestController = TextEditingController();
   AlertType _alertType = AlertType.temperature;
 
-  final _listKey = GlobalKey<AnimatedListState>();
-
-  //String _alertType = AlertType.TEMPERATURE.description;
+  late AlertsViewModel _alertsViewModel;
 
   @override
   void initState() {
@@ -43,6 +42,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    _initViewModel();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -73,37 +73,9 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     );
   }
 
-  late final AnimationController _animationController = AnimationController(
-    duration: const Duration(seconds: 1),
-    vsync: this,
-    lowerBound: 0.0,
-    upperBound: 1.0,
-  );
-
-  Animation<Offset> _offsetAnimation(double dx, Animation<double> animation) {
-    return Tween<Offset>(
-      begin: Offset(dx, 0.0),
-      end: Offset.zero,
-    ).animate(animation);
-  }
-
   _checkAlerts() {
     if (_hive.properties.alerts!.isNotEmpty) {
       logInfo("Alerts ${_hive.properties.alerts!.length}");
-      //_animationController.forward(from: 0);
-      /*return AnimatedList(
-        key: _listKey,
-        padding: all(8),
-        initialItemCount: _hive.properties.alerts!.length,
-        itemBuilder:
-            (BuildContext context, int index, Animation<double> animation) {
-          return SlideTransition(
-            position: _offsetAnimation(-1, animation),
-            child: _alertWidget(index),
-          );
-          //return _alertWidget(index);
-        },
-      );*/
       return ListView.builder(
         itemCount: _hive.properties.alerts!.length,
         shrinkWrap: true,
@@ -144,11 +116,11 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       actionPane: const SlidableScrollActionPane(),
       closeOnScroll: true,
       secondaryActions: [
-        _secondaryActionWidget(
+        /*_secondaryActionWidget(
           Icons.volume_up_rounded,
           btChange,
           () => _changeSound(index),
-        ),
+        ),*/
         _secondaryActionWidget(
           Icons.delete_forever,
           btRemove,
@@ -202,7 +174,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
   _removeAlert(int index) {
     _hive.properties.alerts?.removeAt(index);
-    setState(() {});
+    _alertsViewModel.updateHives();
   }
 
   _changeSound(int index) {}
@@ -236,7 +208,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   }
 
   _dropDownItems() {
-    final alerts =<AlertType>[];
+    final alerts = <AlertType>[];
     alerts.addAll(AlertType.values);
     alerts.removeLast();
     return alerts.map<DropdownMenuItem<String>>((AlertType value) {
@@ -426,8 +398,21 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
     //_listKey.currentState?.insertItem(0);
 
-    setState(() {});
+    _alertsViewModel.updateHives();
   }
 
-  _proceed() {}
+  _initViewModel() {
+    _alertsViewModel = Provider.of<AlertsViewModel>(context);
+    _alertsViewModel.helper =
+        AlertsHelper(success: _success, failure: _failure);
+  }
+
+  _success() {
+    setState(() {});
+    logInfo('alert: added successfully');
+  }
+
+  _failure(String error) {
+    logError('alert: $error');
+  }
 }

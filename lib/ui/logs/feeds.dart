@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
@@ -7,7 +8,9 @@ import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
 import 'package:smart_beehive/ui/global/about.dart';
+import 'package:smart_beehive/ui/hive/logs/logs_viewmodel.dart';
 import 'package:smart_beehive/utils/extensions.dart';
+import 'package:smart_beehive/utils/log_utils.dart';
 
 import '../../main.dart';
 
@@ -25,9 +28,26 @@ class Feeds extends StatefulWidget {
 class _Feeds extends State<Feeds> {
   late LogFeeds? _logFeeds;
 
+  late LogsViewModel _logsViewModel;
+
+  _initViewModel() {
+    _logsViewModel = Provider.of<LogsViewModel>(context);
+    _logsViewModel.helper = LogsHelper(success: _success, failure: _failure);
+  }
+
+  _success() {
+    setState(() {});
+    logInfo('success');
+  }
+
+  _failure(String error) {
+    logError('Error $error');
+  }
+
   @override
   Widget build(BuildContext context) {
     _logFeeds = widget.logFeeds;
+    _initViewModel();
     _generateTaps();
     return SafeArea(
       child: Scaffold(
@@ -68,6 +88,7 @@ class _Feeds extends State<Feeds> {
               onPressed: () {
                 setState(() {
                   _logFeeds?.clear();
+                  _logsViewModel.updateHives();
                 });
               },
               style: ElevatedButton.styleFrom(
@@ -90,8 +111,10 @@ class _Feeds extends State<Feeds> {
     );
   }
 
-  _openAbout() =>
-      Navigator.of(context).push(enterFromRight(About(items: _logFeeds!.info, treatment: false,)));
+  _openAbout() => Navigator.of(context).push(enterFromRight(About(
+        items: _logFeeds!.info,
+        treatment: false,
+      )));
 
   final _taps = <Function()>[];
 
@@ -108,6 +131,7 @@ class _Feeds extends State<Feeds> {
             }
             String icon = _logFeeds!.honey! ? pngFeedHoneyActive : pngFeedHoney;
             _logFeeds!.logs[1].setIcon(icon, _logFeeds!.honey!);
+            _logsViewModel.updateHives();
             setState(() {});
           };
           break;
@@ -122,6 +146,7 @@ class _Feeds extends State<Feeds> {
                 ? pngFeedProbioticsActive
                 : pngFeedProbiotics;
             _logFeeds!.logs.last.setIcon(icon, _logFeeds!.probiotics!);
+            _logsViewModel.updateHives();
             setState(() {});
           };
           break;
@@ -206,6 +231,7 @@ class _Feeds extends State<Feeds> {
         it.isActive = false;
       }
       Navigator.pop(context);
+      _logsViewModel.updateHives();
       setState(() {
         _logFeeds!.syrup = syrup;
         itemLog.setData(icon, title);
@@ -221,6 +247,7 @@ class _Feeds extends State<Feeds> {
         it.isActive = false;
       }
       Navigator.pop(context);
+      _logsViewModel.updateHives();
       setState(() {
         _logFeeds!.patty = pattyType;
         itemLog.setData(icon, title);

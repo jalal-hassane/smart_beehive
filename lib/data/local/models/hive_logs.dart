@@ -1,9 +1,12 @@
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/strings.dart';
+import 'package:smart_beehive/utils/constants.dart';
+import 'package:smart_beehive/utils/log_utils.dart';
 
 class HiveLogs {
   LogQueen? queen = LogQueen();
@@ -13,9 +16,25 @@ class HiveLogs {
   LogGeneral? general = LogGeneral();
   LogWintering? wintering;
 
-  toMap(){}
-  static HiveLogs fromMap(Map<String,dynamic> map){
-    return HiveLogs();
+  toMap() {
+    return {
+      fieldQueen: queen?.toMap(),
+      fieldHarvest: harvests?.toMap(),
+      fieldFeeds: feeds?.toMap(),
+      fieldTreatment: treatment?.toMap(),
+    };
+  }
+
+  static HiveLogs fromMap(Map<String, dynamic> map) {
+    return HiveLogs()
+          ..queen = LogQueen.fromMap(map[fieldQueen] as Map<String, dynamic>)
+          ..harvests =
+              LogHarvests.fromMap(map[fieldHarvest] as Map<String, dynamic>)
+          ..feeds = LogFeeds.fromMap(map[fieldFeeds] as Map<String, dynamic>)
+          // todo fix casting problem
+         ..treatment =
+          LogTreatment.fromMap(map[fieldTreatment] as Map<String, dynamic>)
+        ;
   }
 }
 
@@ -82,21 +101,18 @@ class LogQueen {
       ItemLog(
         pngQueenStatus,
         logQueenStatus,
-        //key: const ValueKey(logQueenStatus),
       ),
     );
     queenLogs.add(
       ItemLog(
         pngQueenWings,
         logQueenWings,
-        //key: const ValueKey(logQueenWings),
       ),
     );
     queenLogs.add(
       ItemLog(
         pngQueenMarkerNone,
         logQueenMarking,
-        //key: const ValueKey(logQueenMarking),
       ),
     );
     // todo add cells
@@ -111,17 +127,34 @@ class LogQueen {
       ItemLog(
         pngQueenSwarmStatus,
         logSwarmStatus,
-        //key: const ValueKey(logSwarmStatus),
       ),
     );
     queenLogs.add(
       ItemLog(
         pngQueenExcluder,
         logQueenExcluder,
-        //key: const ValueKey(logQueenExcluder),
       ),
     );
     return queenLogs;
+  }
+
+  toMap() {
+    return {
+      fieldStatus: status?.description,
+      fieldWingsClipped: wingsClipped,
+      fieldMarking: marking?.description,
+      fieldSwarmStatus: swarmStatus?.description,
+      fieldQueenExcluder: queenExcluder,
+    };
+  }
+
+  static LogQueen fromMap(Map<String, dynamic> map) {
+    return LogQueen()
+      ..status = map[fieldStatus].toString().queenStatusFromString
+      ..marking = map[fieldMarking].toString().markingFromString
+      ..swarmStatus = map[fieldSwarmStatus].toString().swarmStatusFromString
+      ..wingsClipped = map[fieldWingsClipped] as bool?
+      ..queenExcluder = map[fieldQueenExcluder] as bool?;
   }
 }
 
@@ -364,12 +397,12 @@ extension Swarm on SwarmStatus {
 
 ///<editor-fold desc='harvests'>
 class LogHarvests {
-  ItemHarvest? beeswax = ItemHarvest(pngHarvestsBeeswax, logBeeswax);
-  ItemHarvest? honeyComb = ItemHarvest(pngHarvestsHoneycomb, logHoneycomb);
-  ItemHarvest? honey = ItemHarvest(pngHarvestsHoney, logHoney);
-  ItemHarvest? pollen = ItemHarvest(pngHarvestsPollen, logPollen);
-  ItemHarvest? propolis = ItemHarvest(pngHarvestsPropolis, logPropolis);
-  ItemHarvest? royalJelly = ItemHarvest(pngHarvestsRoyalJelly, logRoyalJelly);
+  ItemHarvest? beeswax;
+  ItemHarvest? honeyComb;
+  ItemHarvest? honey;
+  ItemHarvest? pollen;
+  ItemHarvest? propolis;
+  ItemHarvest? royalJelly;
 
   List<ItemHarvest> harvests = [];
 
@@ -401,12 +434,64 @@ class LogHarvests {
 
   List<ItemHarvest> get logs2 {
     if (harvests.isNotEmpty) return harvests;
+
+    final h1 = ItemHarvest(pngHarvestsBeeswax, logBeeswax);
+    final h2 = ItemHarvest(pngHarvestsHoneycomb, logHoneycomb);
+    final h3 = ItemHarvest(pngHarvestsHoney, logHoney);
+    final h4 = ItemHarvest(pngHarvestsPollen, logPollen);
+    final h5 = ItemHarvest(pngHarvestsPropolis, logPropolis);
+    final h6 = ItemHarvest(pngHarvestsRoyalJelly, logRoyalJelly);
+
+    if (beeswax != null) {
+      if (beeswax!.value != null) {
+        h1.setData(beeswax!.value, beeswax!.unit, pngHarvestsBeeswaxActive);
+      }
+    }
+    beeswax = h1;
     harvests.add(beeswax!);
+
+    if (honeyComb != null) {
+      if (honeyComb!.value != null) {
+        h2.setData(
+            honeyComb!.value, honeyComb!.unit, pngHarvestsHoneycombActive);
+      }
+    }
+    honeyComb = h2;
     harvests.add(honeyComb!);
+
+    if (honey != null) {
+      if (honey!.value != null) {
+        h3.setData(honey!.value, honey!.unit, pngHarvestsHoneyActive);
+      }
+    }
+    honey = h3;
     harvests.add(honey!);
+
+    if (pollen != null) {
+      if (pollen!.value != null) {
+        h4.setData(pollen!.value, pollen!.unit, pngHarvestsPollenActive);
+      }
+    }
+    pollen = h4;
     harvests.add(pollen!);
+
+    if (propolis != null) {
+      if (propolis!.value != null) {
+        h5.setData(propolis!.value, propolis!.unit, pngHarvestsPropolisActive);
+      }
+    }
+    propolis = h5;
     harvests.add(propolis!);
+
+    if (royalJelly != null) {
+      if (royalJelly!.value != null) {
+        h6.setData(
+            royalJelly!.value, royalJelly!.unit, pngHarvestsRoyalJellyActive);
+      }
+    }
+    royalJelly = h6;
     harvests.add(royalJelly!);
+
     return harvests;
   }
 
@@ -424,6 +509,37 @@ class LogHarvests {
   bool get isActive {
     return harvests.any((element) => element.isActive);
   }
+
+  toMap() {
+    return {
+      fieldBeeswax: beeswax?.toMap(),
+      fieldHoneyComb: honeyComb?.toMap(),
+      fieldHoney: honey?.toMap(),
+      fieldPollen: pollen?.toMap(),
+      fieldPropolis: propolis?.toMap(),
+      fieldRoyalJelly: royalJelly?.toMap(),
+      fieldHistory: history.map((e)=>e.toMap()).toList()
+    };
+  }
+
+  static LogHarvests fromMap(Map<String, dynamic> map) {
+    return LogHarvests()
+      ..beeswax =
+          ItemHarvest.beeswaxFromMap(map[fieldBeeswax] as Map<String, dynamic>)
+      ..honeyComb = ItemHarvest.honeyCombFromMap(
+          map[fieldHoneyComb] as Map<String, dynamic>)
+      ..honey =
+          ItemHarvest.honeyFromMap(map[fieldHoney] as Map<String, dynamic>)
+      ..pollen =
+          ItemHarvest.pollenFromMap(map[fieldPollen] as Map<String, dynamic>)
+      ..propolis = ItemHarvest.propolisFromMap(
+          map[fieldPropolis] as Map<String, dynamic>)
+      ..royalJelly = ItemHarvest.royalJellyFrom(
+          map[fieldRoyalJelly] as Map<String, dynamic>)
+      ..history = (map[fieldHistory] as List<dynamic>)
+          .map((e) => ItemHarvestHistory.fromMap(e as Map<String, dynamic>))
+          .toList();
+  }
 }
 
 class ItemHarvestHistory {
@@ -432,15 +548,32 @@ class ItemHarvestHistory {
 
   final mFormat = [M];
   final yFormat = [yyyy];
-  String get month{
+
+  String get month {
     return formatDate(date, mFormat);
   }
 
-  int get year{
+  int get year {
     return int.parse(formatDate(date, yFormat));
   }
 
   ItemHarvestHistory(this.history);
+
+  toMap() {
+    return {
+      fieldDate: Timestamp.fromDate(date),
+      fieldHarvest: history?.map((e) => e.toMapWithName()).toList()
+    };
+  }
+
+  static ItemHarvestHistory fromMap(Map<String, dynamic> map) {
+    final harvest = (map[fieldHarvest] as List<dynamic>)
+        .map((e) => ItemHarvest.fromMapWithName(e))
+        .toList();
+
+    final time = (map[fieldDate] as Timestamp).toDate();
+    return ItemHarvestHistory(harvest)..date = time;
+  }
 }
 
 enum HarvestFilter {
@@ -495,7 +628,21 @@ extension GetFilter on String {
   }
 }
 
-enum MonthFilter { all, jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec }
+enum MonthFilter {
+  all,
+  jan,
+  feb,
+  mar,
+  apr,
+  may,
+  jun,
+  jul,
+  aug,
+  sep,
+  oct,
+  nov,
+  dec
+}
 
 extension Mon on MonthFilter {
   String get description {
@@ -577,25 +724,77 @@ class LogFeeds {
 
   List<ItemAbout> get info {
     if (feedsInfo.isNotEmpty) return feedsInfo;
-    feedsInfo.add(ItemAbout(
-        pngFeedHeavySyrup, '$logSyrupHeavy $logSyrup', logSyrupHeavyInfo));
-    feedsInfo.add(ItemAbout(
-        pngFeedLightSyrup, '$logSyrupLight $logSyrup', logSyrupLightInfo));
-    feedsInfo.add(ItemAbout(
-        pngFeedPattyPollen, '$logPollen $logPatty', logPattyPollenInfo));
-    feedsInfo.add(ItemAbout(
-        pngFeedPattyProtein, '$logProtein $logPatty', logPattyProteinInfo));
     feedsInfo.add(
-        ItemAbout(pngFeedProbioticsActive, logProbiotics, logProbioticsInfo));
+      ItemAbout(
+        pngFeedHeavySyrup,
+        '$logSyrupHeavy $logSyrup',
+        logSyrupHeavyInfo,
+      ),
+    );
+    feedsInfo.add(
+      ItemAbout(
+        pngFeedLightSyrup,
+        '$logSyrupLight $logSyrup',
+        logSyrupLightInfo,
+      ),
+    );
+    feedsInfo.add(
+      ItemAbout(
+        pngFeedPattyPollen,
+        '$logPollen $logPatty',
+        logPattyPollenInfo,
+      ),
+    );
+    feedsInfo.add(
+      ItemAbout(
+        pngFeedPattyProtein,
+        '$logProtein $logPatty',
+        logPattyProteinInfo,
+      ),
+    );
+    feedsInfo.add(
+      ItemAbout(
+        pngFeedProbioticsActive,
+        logProbiotics,
+        logProbioticsInfo,
+      ),
+    );
     return feedsInfo;
   }
 
   List<ItemLog> get logs {
     if (feedsLogs.isNotEmpty) return feedsLogs;
-    feedsLogs.add(ItemLog(pngFeedSyrup, logSyrup));
-    feedsLogs.add(ItemLog(pngFeedHoney, logHoney));
-    feedsLogs.add(ItemLog(pngFeedPatty, logPatty));
-    feedsLogs.add(ItemLog(pngFeedProbiotics, logProbiotics));
+    final l1 = ItemLog(pngFeedSyrup, logSyrup);
+    final l2 = ItemLog(pngFeedHoney, logHoney);
+    final l3 = ItemLog(pngFeedPatty, logPatty);
+    final l4 = ItemLog(pngFeedProbiotics, logProbiotics);
+
+    if (syrup != null) {
+      if (syrup == SyrupType.light) {
+        l1.setData(pngFeedLightSyrup, syrup!.description);
+      }
+      if (syrup == SyrupType.heavy) {
+        l1.setData(pngFeedHeavySyrup, syrup!.description);
+      }
+    }
+    if (honey != null && honey!) {
+      l2.setIcon(pngFeedHoneyActive, true);
+    }
+    if (patty != null) {
+      if (patty == PattyType.pollen) {
+        l3.setData(pngFeedPattyPollen, patty!.description);
+      }
+      if (patty == PattyType.protein) {
+        l3.setData(pngFeedPattyProtein, patty!.description);
+      }
+    }
+    if (probiotics != null && probiotics!) {
+      l4.setIcon(pngFeedProbioticsActive, true);
+    }
+    feedsLogs.add(l1);
+    feedsLogs.add(l2);
+    feedsLogs.add(l3);
+    feedsLogs.add(l4);
     return feedsLogs;
   }
 
@@ -612,17 +811,44 @@ class LogFeeds {
       l.reset();
     }
   }
+
+  toMap() {
+    return {
+      fieldSyrup: syrup?.description,
+      fieldHoney: honey,
+      fieldPatty: patty?.description,
+      fieldProbiotics: probiotics,
+    };
+  }
+
+  static LogFeeds fromMap(Map<String, dynamic> map) {
+    logInfo('Map $map');
+    return LogFeeds()
+      ..syrup = map[fieldSyrup].toString().syrupTypeFromString
+      ..honey = map[fieldHoney] as bool?
+      ..patty = map[fieldPatty].toString().pattyTypeFromString
+      ..probiotics = map[fieldProbiotics] as bool?;
+  }
 }
 
 enum SyrupType { light, heavy }
 
 extension SyrupTypes on SyrupType {
+  String get description {
+    switch (index) {
+      case 0:
+        return '$logSyrupLight $logSyrup';
+      default:
+        return '$logSyrupHeavy $logSyrup';
+    }
+  }
+
   ItemLog get log {
     switch (index) {
       case 0:
-        return ItemLog(pngFeedLightSyrup, '$logSyrupLight $logSyrup');
+        return ItemLog(pngFeedLightSyrup, description);
       default:
-        return ItemLog(pngFeedHeavySyrup, '$logSyrupHeavy $logSyrup');
+        return ItemLog(pngFeedHeavySyrup, description);
     }
   }
 
@@ -637,12 +863,21 @@ extension SyrupTypes on SyrupType {
 enum PattyType { pollen, protein }
 
 extension PattyTypes on PattyType {
+  String get description {
+    switch (index) {
+      case 0:
+        return logPollen;
+      default:
+        return logProtein;
+    }
+  }
+
   ItemLog get log {
     switch (index) {
       case 0:
-        return ItemLog(pngFeedPattyPollen, logPollen);
+        return ItemLog(pngFeedPattyPollen, description);
       default:
-        return ItemLog(pngFeedPattyProtein, logProtein);
+        return ItemLog(pngFeedPattyProtein, description);
     }
   }
 
@@ -659,17 +894,35 @@ extension PattyTypes on PattyType {
 ///<editor-fold desc='treatment'>
 class LogTreatment {
   ItemTreatment? foulBrood = ItemTreatment.foulBroodTreatment(
-      pngFoulbrood, logFoulBrood, pngFoulbroodActive);
+    pngFoulbrood,
+    logFoulBrood,
+    pngFoulbroodActive,
+  );
   ItemTreatment? hiveBeetles = ItemTreatment.hiveBeetlesTreatment(
-      pngHiveBeetles, logHiveBeetles, pngHiveBeetlesActive);
-  ItemTreatment? nosema =
-      ItemTreatment.nosemaTreatment(pngNosema, logNosema, pngNosemaActive);
+    pngHiveBeetles,
+    logHiveBeetles,
+    pngHiveBeetlesActive,
+  );
+  ItemTreatment? nosema = ItemTreatment.nosemaTreatment(
+    pngNosema,
+    logNosema,
+    pngNosemaActive,
+  );
   ItemTreatment? trachealMites = ItemTreatment.trachealMitesTreatment(
-      pngTrachealMites, logTrachealMites, pngTrachealMitesActive);
+    pngTrachealMites,
+    logTrachealMites,
+    pngTrachealMitesActive,
+  );
   ItemTreatment? varroaMites = ItemTreatment.varroaMitesTreatment(
-      pngVarroaMites, logVarroaMites, pngVarroaMitesActive);
+    pngVarroaMites,
+    logVarroaMites,
+    pngVarroaMitesActive,
+  );
   ItemTreatment? waxMoths = ItemTreatment.waxMothsTreatment(
-      pngWaxMoths, logWaxMoths, pngWaxMothsActive);
+    pngWaxMoths,
+    logWaxMoths,
+    pngWaxMothsActive,
+  );
 
   List<ItemLog> treatmentLogs = [];
   List<ItemAbout> treatmentInfo = [];
@@ -722,6 +975,33 @@ class LogTreatment {
     for (ItemTreatment l in treatmentLogs2) {
       l.reset();
     }
+  }
+
+  toMap() {
+    return {
+      fieldFoulBrood: foulBrood?.toMap(),
+      fieldHiveBeetles: hiveBeetles?.toMap(),
+      fieldNosema: nosema?.toMap(),
+      fieldTrachealMites: trachealMites?.toMap(),
+      fieldVarroaMites: varroaMites?.toMap(),
+      fieldWaxMoths: waxMoths?.toMap(),
+    };
+  }
+
+  static LogTreatment fromMap(Map<String, dynamic> map) {
+    return LogTreatment()
+      ..foulBrood = ItemTreatment.foulBroodFromMap(
+          map[fieldFoulBrood] as Map<String, dynamic>)
+      ..hiveBeetles = ItemTreatment.hiveBeetlesFromMap(
+          map[fieldHiveBeetles] as Map<String, dynamic>)
+      ..nosema =
+          ItemTreatment.nosemaFromMap(map[fieldNosema] as Map<String, dynamic>)
+      ..trachealMites = ItemTreatment.trachealMitesFromMap(
+          map[fieldTrachealMites] as Map<String, dynamic>)
+      ..varroaMites = ItemTreatment.varroaMitesFromMap(
+          map[fieldVarroaMites] as Map<String, dynamic>)
+      ..waxMoths = ItemTreatment.waxMothsFromMap(
+          map[fieldWaxMoths] as Map<String, dynamic>);
   }
 }
 
@@ -1012,6 +1292,68 @@ class ItemHarvest {
     this.unit = unit;
     this.icon = icon;
   }
+
+  toMap() => {fieldValue: value, fieldUnit: unit?.description};
+
+  toMapWithName() => {
+        fieldName: title,
+        fieldValue: value,
+        fieldUnit: unit?.description,
+      };
+
+  static ItemHarvest fromMapWithName(Map<String, dynamic> map) {
+    final name = map[fieldName].toString();
+    switch (name) {
+      case logBeeswax:
+        return beeswaxFromMap(map);
+      case logHoneycomb:
+        return honeyCombFromMap(map);
+      case logHoney:
+        return honeyFromMap(map);
+      case logPollen:
+        return pollenFromMap(map);
+      case logPropolis:
+        return propolisFromMap(map);
+      default:
+        return royalJellyFrom(map);
+    }
+  }
+
+  static ItemHarvest beeswaxFromMap(Map<String, dynamic> map) {
+    return ItemHarvest(pngHarvestsBeeswax, logBeeswax)
+      ..value = map[fieldValue] as double?
+      ..unit = map[fieldUnit].toString().unitFromString;
+  }
+
+  static ItemHarvest honeyCombFromMap(Map<String, dynamic> map) {
+    return ItemHarvest(pngHarvestsHoneycomb, logHoneycomb)
+      ..value = map[fieldValue] as double?
+      ..unit = map[fieldUnit].toString().unitFromString;
+  }
+
+  static ItemHarvest honeyFromMap(Map<String, dynamic> map) {
+    return ItemHarvest(pngHarvestsHoney, logHoney)
+      ..value = map[fieldValue] as double?
+      ..unit = map[fieldUnit].toString().unitFromString;
+  }
+
+  static ItemHarvest pollenFromMap(Map<String, dynamic> map) {
+    return ItemHarvest(pngHarvestsPollen, logPollen)
+      ..value = map[fieldValue] as double?
+      ..unit = map[fieldUnit].toString().unitFromString;
+  }
+
+  static ItemHarvest propolisFromMap(Map<String, dynamic> map) {
+    return ItemHarvest(pngHarvestsPropolis, logPropolis)
+      ..value = map[fieldValue] as double?
+      ..unit = map[fieldUnit].toString().unitFromString;
+  }
+
+  static ItemHarvest royalJellyFrom(Map<String, dynamic> map) {
+    return ItemHarvest(pngHarvestsRoyalJelly, logRoyalJelly)
+      ..value = map[fieldValue] as double?
+      ..unit = map[fieldUnit].toString().unitFromString;
+  }
 }
 
 enum Unit { g, kg, oz, lbs, frames }
@@ -1033,8 +1375,53 @@ extension WeightUnit on Unit {
   }
 }
 
-extension GetUnit on String {
-  Unit get unitFromString {
+extension Conversions on String {
+  QueenStatus? get queenStatusFromString {
+    switch (this) {
+      case logQueenRight:
+        return QueenStatus.queenRight;
+      case logQueenLess:
+        return QueenStatus.queenLess;
+      case logQueenReplaced:
+        return QueenStatus.queenReplaced;
+      case logTimeToReQueen:
+        return QueenStatus.timeToReQueen;
+      default:
+        return null;
+    }
+  }
+
+  QueenMarking? get markingFromString {
+    switch (this) {
+      case logOneSix:
+        return QueenMarking.white;
+      case logTwoSeven:
+        return QueenMarking.yellow;
+      case logThreeEight:
+        return QueenMarking.red;
+      case logFourNine:
+        return QueenMarking.green;
+      case logFiveZero:
+        return QueenMarking.blue;
+      default:
+        return null;
+    }
+  }
+
+  SwarmStatus? get swarmStatusFromString {
+    switch (this) {
+      case logNotSwarming:
+        return SwarmStatus.notSwarming;
+      case logPreSwarming:
+        return SwarmStatus.preSwarming;
+      case logSwarming:
+        return SwarmStatus.swarming;
+      default:
+        return null;
+    }
+  }
+
+  Unit? get unitFromString {
     switch (this) {
       case logG:
         return Unit.g;
@@ -1044,8 +1431,32 @@ extension GetUnit on String {
         return Unit.oz;
       case logLbs:
         return Unit.lbs;
-      default:
+      case logFrames:
         return Unit.frames;
+      default:
+        return null;
+    }
+  }
+
+  SyrupType? get syrupTypeFromString {
+    switch (this) {
+      case '$logSyrupLight $logSyrup':
+        return SyrupType.light;
+      case '$logSyrupHeavy $logSyrup':
+        return SyrupType.heavy;
+      default:
+        return null;
+    }
+  }
+
+  PattyType? get pattyTypeFromString {
+    switch (this) {
+      case logPollen:
+        return PattyType.pollen;
+      case logProtein:
+        return PattyType.protein;
+      default:
+        return null;
     }
   }
 }
@@ -1135,6 +1546,93 @@ class ItemTreatment {
     _treatments.add(CheckableItem(logB401));
     _treatments.add(CheckableItem(logParaMoth));
   }
+
+  toMap() => {fieldTreatments: _treatments.map((e) => e.toMap()).toList()};
+
+  /*foulBroodToMap() {
+    return {fieldTreatments: _treatments.map((e) => e.toMap()).toList()};
+  }
+
+  hiveBeetlesToMap() {}
+
+  nosemaToMap() {}
+
+  trachealMitesToMap() {}
+
+  varroaMitesToMap() {}
+
+  waxMothsToMap() {}*/
+
+  static ItemTreatment foulBroodFromMap(Map<String, dynamic> map) {
+    try {
+      map[fieldTreatments] as List<dynamic>;
+    } catch (ex) {
+      logError('exception in foulbrood map $ex');
+    }
+    final list = _getTreatments(map[fieldTreatments] as List<dynamic>);
+    return ItemTreatment.foulBroodTreatment(
+      pngFoulbrood,
+      logFoulBrood,
+      pngFoulbroodActive,
+    ).._treatments.addAll(list);
+  }
+
+  static ItemTreatment hiveBeetlesFromMap(Map<String, dynamic> map) {
+    final list = _getTreatments(map[fieldHiveBeetles] as List<dynamic>);
+    return ItemTreatment.hiveBeetlesTreatment(
+      pngHiveBeetles,
+      logHiveBeetles,
+      pngHiveBeetlesActive,
+    ).._treatments.addAll(list);
+  }
+
+  static ItemTreatment nosemaFromMap(Map<String, dynamic> map) {
+    final list = _getTreatments(map[fieldNosema] as List<Map<String, dynamic>>);
+    return ItemTreatment.nosemaTreatment(
+      pngNosema,
+      logNosema,
+      pngNosemaActive,
+    ).._treatments.addAll(list);
+  }
+
+  static ItemTreatment trachealMitesFromMap(Map<String, dynamic> map) {
+    final list =
+        _getTreatments(map[fieldTrachealMites] as List<Map<String, dynamic>>);
+    return ItemTreatment.trachealMitesTreatment(
+      pngTrachealMites,
+      logTrachealMites,
+      pngTrachealMitesActive,
+    ).._treatments.addAll(list);
+  }
+
+  static ItemTreatment varroaMitesFromMap(Map<String, dynamic> map) {
+    final list =
+        _getTreatments(map[fieldVarroaMites] as List<Map<String, dynamic>>);
+    return ItemTreatment.varroaMitesTreatment(
+      pngVarroaMites,
+      logVarroaMites,
+      pngVarroaMitesActive,
+    ).._treatments.addAll(list);
+  }
+
+  static ItemTreatment waxMothsFromMap(Map<String, dynamic> map) {
+    final list =
+        _getTreatments(map[fieldWaxMoths] as List<Map<String, dynamic>>);
+    return ItemTreatment.waxMothsTreatment(
+      pngWaxMoths,
+      logWaxMoths,
+      pngWaxMothsActive,
+    ).._treatments.addAll(list);
+  }
+
+  static _getTreatments(List<dynamic> list) {
+    try {
+      list.map((e) => CheckableItem.fromMap(e)).toList();
+    } catch (ex) {
+      logError('exception in logs: $ex');
+    }
+    return list.map((e) => CheckableItem.fromMap(e)).toList();
+  }
 }
 
 class CheckableItem {
@@ -1142,4 +1640,16 @@ class CheckableItem {
   bool isChecked = false;
 
   CheckableItem(this.description);
+
+  toMap() {
+    return {
+      fieldDescription: description,
+      fieldChecked: isChecked,
+    };
+  }
+
+  static CheckableItem fromMap(Map<String, dynamic> map) {
+    return CheckableItem(map[fieldDescription].toString())
+      ..isChecked = map[fieldChecked] as bool;
+  }
 }

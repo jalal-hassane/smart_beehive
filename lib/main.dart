@@ -9,6 +9,8 @@ import 'package:smart_beehive/ui/splash/splash.dart';
 import 'package:smart_beehive/ui/splash/splash_viewmodel.dart';
 
 import 'data/local/models/beehive.dart';
+import 'ui/hive/logs/logs_viewmodel.dart';
+import 'ui/home/alerts/alerts_viewmodel.dart';
 import 'utils/extensions.dart';
 import 'utils/log_utils.dart';
 
@@ -43,6 +45,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: RegistrationViewModel()),
         ChangeNotifierProvider.value(value: FarmViewModel()),
         ChangeNotifierProvider.value(value: OverviewViewModel()),
+        ChangeNotifierProvider.value(value: AlertsViewModel()),
+        ChangeNotifierProvider.value(value: LogsViewModel()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

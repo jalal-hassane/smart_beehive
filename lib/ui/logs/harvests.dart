@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
@@ -8,6 +9,7 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
 import 'package:smart_beehive/ui/global/harvest_history.dart';
+import 'package:smart_beehive/ui/hive/logs/logs_viewmodel.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 
@@ -34,9 +36,25 @@ class _Harvests extends State<Harvests> {
     return 0.5;
   }
 
+  late LogsViewModel _logsViewModel;
+
+  _initViewModel(){
+    _logsViewModel = Provider.of<LogsViewModel>(context);
+    _logsViewModel.helper = LogsHelper(success: _success, failure: _failure);
+  }
+
+  _success(){
+    logInfo('success');
+  }
+
+  _failure(String error){
+    logError('Error $error');
+  }
+
   @override
   Widget build(BuildContext context) {
     _logHarvests = widget.logHarvests;
+    _initViewModel();
     _generateTaps();
     return SafeArea(
       child: Scaffold(
@@ -107,6 +125,7 @@ class _Harvests extends State<Harvests> {
                     onPressed: () {
                       setState(() {
                         _logHarvests?.clear();
+                        _logsViewModel.updateHives();
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -221,7 +240,7 @@ class _Harvests extends State<Harvests> {
     }
   }
 
-  _saveHarvest() {
+  _saveHarvest() async{
     final List<ItemHarvest> _history = [];
     for (ItemHarvest item in _logHarvests!.harvests) {
       if (item.isActive) {
@@ -234,6 +253,7 @@ class _Harvests extends State<Harvests> {
 
     _logHarvests!.history.add(ItemHarvestHistory(_history));
     _logHarvests!.clear();
+    _logsViewModel.updateHives();
   }
 
   _closeSheetAndSave(ItemHarvest item) {
@@ -269,6 +289,8 @@ class _Harvests extends State<Harvests> {
       });
 
       _textController.clear();
+      logInfo('harvests ${_logHarvests?.toMap()}');
+      _logsViewModel.updateHives();
     } catch (e) {
       showSnackBar(context, 'Value entered is malformed!');
     }
@@ -283,7 +305,7 @@ class _Harvests extends State<Harvests> {
           value: _unit.description,
           onChanged: (String? newValue) {
             state(() {
-              _unit = newValue!.unitFromString;
+              _unit = newValue!.unitFromString!;
             });
           },
           dropdownColor: Colors.black87,
