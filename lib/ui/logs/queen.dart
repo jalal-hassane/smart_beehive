@@ -36,6 +36,7 @@ class _Queen extends State<Queen> {
   }
 
   _success(){
+    setState(() {});
     logInfo('success');
   }
 
@@ -85,9 +86,11 @@ class _Queen extends State<Queen> {
             ),
             ElevatedButton(
               onPressed: () {
-                setState(() {
+                _logQueen?.clear();
+                _logsViewModel.updateHives();
+                /*setState(() {
                   _logQueen?.clear();
-                });
+                });*/
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.red[200],
@@ -132,7 +135,7 @@ class _Queen extends State<Queen> {
                 : logQueenWingsNotClipped;
             _logQueen!.logs[1].setData(icon, title);
 
-            setState(() {});
+            _logsViewModel.updateHives();
           };
           break;
         case logQueenExcluder:
@@ -148,7 +151,7 @@ class _Queen extends State<Queen> {
             String title =
                 _logQueen!.queenExcluder! ? logExcluder : logNoExcluder;
             _logQueen!.logs.last.setData(icon, title);
-            setState(() {});
+            _logsViewModel.updateHives();
           };
           break;
         default:
@@ -174,9 +177,10 @@ class _Queen extends State<Queen> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          state(() {
+                          _resetItem(item);
+                          /*state(() {
                             _resetItem(item);
-                          });
+                          });*/
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
@@ -221,6 +225,7 @@ class _Queen extends State<Queen> {
           _logQueen?.swarmStatus = null;
       }
     });
+    _logsViewModel.updateHives();
   }
 
   _processItem(ItemLog itemLog, Function(void Function()) setState) {
@@ -244,11 +249,10 @@ class _Queen extends State<Queen> {
         it.isActive = false;
       }
       Navigator.pop(context);
-      setState(() {
         _logQueen!.status = status;
         itemLog.setData(icon, title);
         itemLog.setColor(color);
-      });
+        _logsViewModel.updateHives();
     }
 
     return Status.logs.generateQueenStatusWidgets(f);
@@ -261,10 +265,9 @@ class _Queen extends State<Queen> {
       }
 
       Navigator.pop(context);
-      setState(() {
         _logQueen!.marking = marking;
         itemLog.setData(icon, title);
-      });
+        _logsViewModel.updateHives();
     }
 
     return Marking.logs.generateMarkingWidgets(f);
@@ -276,10 +279,9 @@ class _Queen extends State<Queen> {
         it.isActive = false;
       }
       Navigator.pop(context);
-      setState(() {
         _logQueen!.cells = cells;
         itemLog.setData(icon, title);
-      });
+        _logsViewModel.updateHives();
     }
 
     return Cells.logs.generateCellsWidgets(f);
@@ -291,11 +293,10 @@ class _Queen extends State<Queen> {
         it.isActive = false;
       }
       Navigator.pop(context);
-      setState(() {
         _logQueen!.swarmStatus = status;
         itemLog.setData(icon, title);
         itemLog.setColor(color);
-      });
+        _logsViewModel.updateHives();
     }
 
     return Swarm.logs.generateSwarmStatusWidgets(f);

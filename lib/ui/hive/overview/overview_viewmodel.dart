@@ -9,8 +9,7 @@ import '../../../main.dart';
 class OverviewViewModel extends ChangeNotifier {
   late OverviewHelper helper;
 
-  CollectionReference beekeepers =
-  FirebaseFirestore.instance.collection(collectionBeekeeper);
+  CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
 
   /// add hive to firestore db
   updateHives() async {

@@ -52,6 +52,8 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
 
   late FarmViewModel _farmViewModel;
 
+  late Widget listWidget;
+
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
   @override
@@ -134,19 +136,30 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   }
 
   _success() {
-    _bottomState!(() {
-      logInfo('Result ${result!.code}');
-      Navigator.popUntil(context, (route) => route.isFirst);
-      setState(() {
-        logInfo('next item $_nextItem');
-        final index = _nextItem;
-        beehives.insert(index, insertedHive!);
-        logInfo('next item $_nextItem');
-        _listKey.currentState?.insertItem(index);
-        audioPlayer.seek(const Duration(milliseconds: 0));
-        audioPlayer.play();
-      });
+    Navigator.popUntil(context, (route) => route.isFirst);
+    setState(() {
+      logInfo('next item $_nextItem');
+      final index = _nextItem;
+      me?.beehives?.insert(index,insertedHive!);
+      logInfo('next item $_nextItem');
+      _listKey.currentState?.insertItem(index);
+      audioPlayer.seek(const Duration(milliseconds: 0));
+      audioPlayer.play();
     });
+    /*_bottomState!(() {
+      logInfo('Result ${result!.code}');
+Navigator.popUntil(context, (route) => route.isFirst);
+    setState(() {
+      logInfo('next item $_nextItem');
+      final index = _nextItem;
+      beehives.insert(index, insertedHive!);
+      logInfo('next item $_nextItem');
+      logInfo('next item ${_listKey.currentState == null}');
+      _listKey.currentState?.insertItem(index);
+      audioPlayer.seek(const Duration(milliseconds: 0));
+      audioPlayer.play();
+    });
+    });*/
   }
 
   _failure(String error) {
@@ -163,6 +176,16 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     _initViewModel();
+    listWidget = Container(
+      margin: left(10),
+      child: AnimatedList(
+        key: _listKey,
+        padding: all(6),
+        initialItemCount: beehives.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: _listItemWidget,
+      ),
+    );
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: _addHive,
@@ -183,6 +206,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Visibility(visible: false, child: listWidget),
             Icon(
               Icons.qr_code_2_rounded,
               size: screenWidth * 0.5,
@@ -202,16 +226,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
       children: [
         Expanded(
           flex: 6,
-          child: Container(
-            margin: left(10),
-            child: AnimatedList(
-              key: _listKey,
-              padding: all(6),
-              initialItemCount: beehives.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: _listItemWidget,
-            ),
-          ),
+          child: listWidget,
         ),
         Expanded(
           child: Container(),
@@ -266,9 +281,6 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
 
   Widget _listItemWidget(
       BuildContext context, int hiveIndex, Animation<double> animation) {
-    logInfo('beehive ${beehives[hiveIndex].toMap()}');
-    logInfo('beehive ${beehives[hiveIndex].logs.feeds?.toMap()}');
-    logInfo('beehive ${beehives[hiveIndex].logs.harvests?.toMap()}');
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(-1, 0),

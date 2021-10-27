@@ -10,8 +10,7 @@ import '../../../main.dart';
 class LogsViewModel extends ChangeNotifier {
   late LogsHelper helper;
 
-  CollectionReference beekeepers =
-      FirebaseFirestore.instance.collection(collectionBeekeeper);
+  CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
 
   /// add hive to firestore db
   updateHives() async {

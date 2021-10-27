@@ -15,10 +15,6 @@ class HiveProperties {
 
   generateNewProperties() {
     temperature = (Random().nextDouble() * 3 + 37).toPrecision(2);
-
-    logInfo('Floor ${temperature!.toPrecision(1)}');
-    logInfo('Ceil ${temperature!.ceilToDouble()}');
-    logInfo('Round ${temperature!.roundToDouble()}');
     humidity = (Random().nextDouble() * 20 + 80).toPrecision(1);
     weight = (Random().nextDouble() * 5 + 5).toPrecision(1);
     population = population! + 3;

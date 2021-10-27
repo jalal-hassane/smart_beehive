@@ -9,11 +9,12 @@ import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 import 'package:smart_beehive/utils/pref_utils.dart';
 
+import '../../main.dart';
+
 class SplashViewModel extends ChangeNotifier {
   late SplashHelper helper;
 
-  CollectionReference beekeepers =
-      FirebaseFirestore.instance.collection(collectionBeekeeper);
+  CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
 
   checkIn() async {
     final authToken = await PrefUtils.authToken;

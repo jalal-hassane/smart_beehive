@@ -27,14 +27,12 @@ class HiveLogs {
 
   static HiveLogs fromMap(Map<String, dynamic> map) {
     return HiveLogs()
-          ..queen = LogQueen.fromMap(map[fieldQueen] as Map<String, dynamic>)
-          ..harvests =
-              LogHarvests.fromMap(map[fieldHarvest] as Map<String, dynamic>)
-          ..feeds = LogFeeds.fromMap(map[fieldFeeds] as Map<String, dynamic>)
-          // todo fix casting problem
-         ..treatment =
-          LogTreatment.fromMap(map[fieldTreatment] as Map<String, dynamic>)
-        ;
+      ..queen = LogQueen.fromMap(map[fieldQueen] as Map<String, dynamic>)
+      ..harvests =
+          LogHarvests.fromMap(map[fieldHarvest] as Map<String, dynamic>)
+      ..feeds = LogFeeds.fromMap(map[fieldFeeds] as Map<String, dynamic>)
+      ..treatment =
+          LogTreatment.fromMap(map[fieldTreatment] as Map<String, dynamic>);
   }
 }
 
@@ -97,24 +95,44 @@ class LogQueen {
 
   List<ItemLog> get logs {
     if (queenLogs.isNotEmpty) return queenLogs;
-    queenLogs.add(
-      ItemLog(
-        pngQueenStatus,
-        logQueenStatus,
-      ),
-    );
-    queenLogs.add(
-      ItemLog(
-        pngQueenWings,
-        logQueenWings,
-      ),
-    );
-    queenLogs.add(
-      ItemLog(
-        pngQueenMarkerNone,
-        logQueenMarking,
-      ),
-    );
+
+    final itemLog1 = ItemLog(pngQueenStatus, logQueenStatus);
+    final itemLog2 = ItemLog(pngQueenWings, logQueenWings);
+    final itemLog3 = ItemLog(pngQueenMarkerNone, logQueenMarking);
+    final itemLog4 = ItemLog(pngQueenSwarmStatus, logSwarmStatus);
+    final itemLog5 = ItemLog(pngQueenExcluder, logQueenExcluder);
+
+    if (status != null) {
+      itemLog1.setData(status!.icon, status!.description);
+      itemLog1.setColor(status!.color);
+    }
+
+    if (wingsClipped != null) {
+      String icon = wingsClipped! ? pngQueenWingsClipped : pngQueenWings;
+      String title =
+          wingsClipped! ? logQueenWingsClipped : logQueenWingsNotClipped;
+      itemLog2.setData(icon, title);
+    }
+
+    if (marking != null) {
+      itemLog3.setData(marking!.icon, marking!.text);
+      itemLog3.setColor(marking!.color);
+    }
+
+    if (swarmStatus != null) {
+      itemLog4.setData(pngQueenSwarmStatus, swarmStatus!.description);
+      itemLog4.setColor(swarmStatus!.color);
+    }
+
+    if (queenExcluder != null) {
+      String icon = queenExcluder! ? pngQueenExcluderActive : pngQueenExcluder;
+      String title = queenExcluder! ? logExcluder : logNoExcluder;
+      itemLog5.setData(icon, title);
+    }
+
+    queenLogs.add(itemLog1);
+    queenLogs.add(itemLog2);
+    queenLogs.add(itemLog3);
     // todo add cells
     /*queenLogs.add(
       ItemLog(
@@ -123,18 +141,8 @@ class LogQueen {
         //key: const ValueKey(logQueenMarking),
       ),
     );*/
-    queenLogs.add(
-      ItemLog(
-        pngQueenSwarmStatus,
-        logSwarmStatus,
-      ),
-    );
-    queenLogs.add(
-      ItemLog(
-        pngQueenExcluder,
-        logQueenExcluder,
-      ),
-    );
+    queenLogs.add(itemLog4);
+    queenLogs.add(itemLog5);
     return queenLogs;
   }
 
@@ -171,6 +179,26 @@ extension Status on QueenStatus {
         return logTimeToReQueen;
       default:
         return logQueenReplaced;
+    }
+  }
+
+  String get icon {
+    switch (index) {
+      case 0:
+        return pngQueenRight;
+      default:
+        return pngQueenLess;
+    }
+  }
+
+  Color? get color {
+    switch (index) {
+      case 2:
+        return Colors.deepOrange;
+      case 3:
+        return Colors.green;
+      default:
+        return null;
     }
   }
 
@@ -231,6 +259,21 @@ extension Marking on QueenMarking {
         return 'Green';
       default:
         return 'Blue';
+    }
+  }
+
+  String get icon {
+    switch (index) {
+      case 0:
+        return pngQueenMarkerWhite;
+      case 1:
+        return pngQueenMarkerYellow;
+      case 2:
+        return pngQueenMarkerRed;
+      case 3:
+        return pngQueenMarkerGreen;
+      default:
+        return pngQueenMarkerBlue;
     }
   }
 
@@ -366,6 +409,19 @@ extension Swarm on SwarmStatus {
         return logPreSwarming;
       default:
         return logSwarming;
+    }
+  }
+
+  Color? get color {
+    switch (index) {
+      case 0:
+        return Colors.red;
+      case 1:
+        return Colors.orange;
+      case 2:
+        return Colors.green;
+      default:
+        return null;
     }
   }
 
@@ -518,33 +574,34 @@ class LogHarvests {
       fieldPollen: pollen?.toMap(),
       fieldPropolis: propolis?.toMap(),
       fieldRoyalJelly: royalJelly?.toMap(),
-      fieldHistory: history.map((e)=>e.toMap()).toList()
+      fieldHistory: history.map((e) => e.toMap()).toList()
     };
   }
 
   static LogHarvests fromMap(Map<String, dynamic> map) {
     return LogHarvests()
       ..beeswax =
-          ItemHarvest.beeswaxFromMap(map[fieldBeeswax] as Map<String, dynamic>)
+          ItemHarvest.beeswaxFromMap(map[fieldBeeswax] as Map<String, dynamic>?)
       ..honeyComb = ItemHarvest.honeyCombFromMap(
-          map[fieldHoneyComb] as Map<String, dynamic>)
+          map[fieldHoneyComb] as Map<String, dynamic>?)
       ..honey =
-          ItemHarvest.honeyFromMap(map[fieldHoney] as Map<String, dynamic>)
+          ItemHarvest.honeyFromMap(map[fieldHoney] as Map<String, dynamic>?)
       ..pollen =
-          ItemHarvest.pollenFromMap(map[fieldPollen] as Map<String, dynamic>)
+          ItemHarvest.pollenFromMap(map[fieldPollen] as Map<String, dynamic>?)
       ..propolis = ItemHarvest.propolisFromMap(
-          map[fieldPropolis] as Map<String, dynamic>)
+          map[fieldPropolis] as Map<String, dynamic>?)
       ..royalJelly = ItemHarvest.royalJellyFrom(
-          map[fieldRoyalJelly] as Map<String, dynamic>)
-      ..history = (map[fieldHistory] as List<dynamic>)
-          .map((e) => ItemHarvestHistory.fromMap(e as Map<String, dynamic>))
-          .toList();
+          map[fieldRoyalJelly] as Map<String, dynamic>?)
+      ..history =
+          ((map[fieldHistory] as List<dynamic>?) ?? <ItemHarvestHistory>[])
+              .map((e) => ItemHarvestHistory.fromMap(e as Map<String, dynamic>))
+              .toList();
   }
 }
 
 class ItemHarvestHistory {
   DateTime date = DateTime.now();
-  List<ItemHarvest>? history;
+  List<ItemHarvest?>? history;
 
   final mFormat = [M];
   final yFormat = [yyyy];
@@ -562,14 +619,16 @@ class ItemHarvestHistory {
   toMap() {
     return {
       fieldDate: Timestamp.fromDate(date),
-      fieldHarvest: history?.map((e) => e.toMapWithName()).toList()
+      fieldHarvest: history?.map((e) => e?.toMapWithName()).toList()
     };
   }
 
   static ItemHarvestHistory fromMap(Map<String, dynamic> map) {
-    final harvest = (map[fieldHarvest] as List<dynamic>)
-        .map((e) => ItemHarvest.fromMapWithName(e))
-        .toList();
+    final harvest = (map[fieldHarvest] as List<dynamic>).map((e) {
+      if (e != null) {
+        return ItemHarvest.fromMapWithName(e)!;
+      }
+    }).toList();
 
     final time = (map[fieldDate] as Timestamp).toDate();
     return ItemHarvestHistory(harvest)..date = time;
@@ -822,7 +881,6 @@ class LogFeeds {
   }
 
   static LogFeeds fromMap(Map<String, dynamic> map) {
-    logInfo('Map $map');
     return LogFeeds()
       ..syrup = map[fieldSyrup].toString().syrupTypeFromString
       ..honey = map[fieldHoney] as bool?
@@ -947,11 +1005,29 @@ class LogTreatment {
 
   List<ItemTreatment> get logs2 {
     if (treatmentLogs2.isNotEmpty) return treatmentLogs2;
+    if (foulBrood!._treatments.isNotEmpty) {
+      foulBrood!.isActive = true;
+    }
     treatmentLogs2.add(foulBrood!);
+    if (hiveBeetles!._treatments.isNotEmpty) {
+      hiveBeetles!.isActive = true;
+    }
     treatmentLogs2.add(hiveBeetles!);
+    if (nosema!._treatments.isNotEmpty) {
+      nosema!.isActive = true;
+    }
     treatmentLogs2.add(nosema!);
+    if (trachealMites!._treatments.isNotEmpty) {
+      trachealMites!.isActive = true;
+    }
     treatmentLogs2.add(trachealMites!);
+    if (varroaMites!._treatments.isNotEmpty) {
+      varroaMites!.isActive = true;
+    }
     treatmentLogs2.add(varroaMites!);
+    if (waxMoths!._treatments.isNotEmpty) {
+      waxMoths!.isActive = true;
+    }
     treatmentLogs2.add(waxMoths!);
     return treatmentLogs2;
   }
@@ -1301,7 +1377,8 @@ class ItemHarvest {
         fieldUnit: unit?.description,
       };
 
-  static ItemHarvest fromMapWithName(Map<String, dynamic> map) {
+  static ItemHarvest? fromMapWithName(Map<String, dynamic>? map) {
+    if (map == null) return null;
     final name = map[fieldName].toString();
     switch (name) {
       case logBeeswax:
@@ -1319,37 +1396,43 @@ class ItemHarvest {
     }
   }
 
-  static ItemHarvest beeswaxFromMap(Map<String, dynamic> map) {
+  static ItemHarvest? beeswaxFromMap(Map<String, dynamic>? map) {
+    if (map == null) return null;
     return ItemHarvest(pngHarvestsBeeswax, logBeeswax)
       ..value = map[fieldValue] as double?
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
-  static ItemHarvest honeyCombFromMap(Map<String, dynamic> map) {
+  static ItemHarvest? honeyCombFromMap(Map<String, dynamic>? map) {
+    if (map == null) return null;
     return ItemHarvest(pngHarvestsHoneycomb, logHoneycomb)
       ..value = map[fieldValue] as double?
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
-  static ItemHarvest honeyFromMap(Map<String, dynamic> map) {
+  static ItemHarvest? honeyFromMap(Map<String, dynamic>? map) {
+    if (map == null) return null;
     return ItemHarvest(pngHarvestsHoney, logHoney)
       ..value = map[fieldValue] as double?
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
-  static ItemHarvest pollenFromMap(Map<String, dynamic> map) {
+  static ItemHarvest? pollenFromMap(Map<String, dynamic>? map) {
+    if (map == null) return null;
     return ItemHarvest(pngHarvestsPollen, logPollen)
       ..value = map[fieldValue] as double?
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
-  static ItemHarvest propolisFromMap(Map<String, dynamic> map) {
+  static ItemHarvest? propolisFromMap(Map<String, dynamic>? map) {
+    if (map == null) return null;
     return ItemHarvest(pngHarvestsPropolis, logPropolis)
       ..value = map[fieldValue] as double?
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
-  static ItemHarvest royalJellyFrom(Map<String, dynamic> map) {
+  static ItemHarvest? royalJellyFrom(Map<String, dynamic>? map) {
+    if (map == null) return null;
     return ItemHarvest(pngHarvestsRoyalJelly, logRoyalJelly)
       ..value = map[fieldValue] as double?
       ..unit = map[fieldUnit].toString().unitFromString;
@@ -1490,148 +1573,146 @@ class ItemTreatment {
 
   ItemTreatment(this.icon, this.description);
 
-  ItemTreatment.foulBroodTreatment(
-      this.icon, this.description, this.activeIcon) {
+  ItemTreatment.foulBroodTreatment(this.icon, this.description, this.activeIcon,
+      {bool fill = true}) {
     id = description;
-    _treatments.add(CheckableItem(logTerraPatties));
-    _treatments.add(CheckableItem(logTerraPro));
-    _treatments.add(CheckableItem(logTerramycin));
-    _treatments.add(CheckableItem(logTetraBeeMix));
-    _treatments.add(CheckableItem(logTylan));
+    if (fill) {
+      _treatments.add(CheckableItem(logTerraPatties));
+      _treatments.add(CheckableItem(logTerraPro));
+      _treatments.add(CheckableItem(logTerramycin));
+      _treatments.add(CheckableItem(logTetraBeeMix));
+      _treatments.add(CheckableItem(logTylan));
+    }
   }
 
   ItemTreatment.hiveBeetlesTreatment(
-      this.icon, this.description, this.activeIcon) {
+      this.icon, this.description, this.activeIcon,
+      {bool fill = true}) {
     id = description;
-    _treatments.add(CheckableItem(logDiatomacsiousEarth));
-    _treatments.add(CheckableItem(logGardStar));
-    _treatments.add(CheckableItem(logPermethrinSFR));
+    if (fill) {
+      _treatments.add(CheckableItem(logDiatomacsiousEarth));
+      _treatments.add(CheckableItem(logGardStar));
+      _treatments.add(CheckableItem(logPermethrinSFR));
+    }
   }
 
-  ItemTreatment.nosemaTreatment(this.icon, this.description, this.activeIcon) {
+  ItemTreatment.nosemaTreatment(this.icon, this.description, this.activeIcon,
+      {bool fill = true}) {
     id = description;
-    _treatments.add(CheckableItem(logFumidilB));
+    if (fill) {
+      _treatments.add(CheckableItem(logFumidilB));
+    }
   }
 
   ItemTreatment.trachealMitesTreatment(
-      this.icon, this.description, this.activeIcon) {
+      this.icon, this.description, this.activeIcon,
+      {bool fill = true}) {
     id = description;
-    _treatments.add(CheckableItem(logMiteAThol));
+    if (fill) {
+      _treatments.add(CheckableItem(logMiteAThol));
+    }
   }
 
   ItemTreatment.varroaMitesTreatment(
-      this.icon, this.description, this.activeIcon) {
+      this.icon, this.description, this.activeIcon,
+      {bool fill = true}) {
     id = description;
-    _treatments.add(CheckableItem(logAmitraz));
-    _treatments.add(CheckableItem(logApiBioxal));
-    _treatments.add(CheckableItem(logApiGuard));
-    _treatments.add(CheckableItem(logApiStan));
-    _treatments.add(CheckableItem(logApiVarStrips));
-    _treatments.add(CheckableItem(logCheckMite));
-    _treatments.add(CheckableItem(logDroneComb));
-    _treatments.add(CheckableItem(logFormicPro));
-    _treatments.add(CheckableItem(logHopGuard));
-    _treatments.add(CheckableItem(logMiteAway));
-    _treatments.add(CheckableItem(logMiteStrips));
-    _treatments.add(CheckableItem(logOxalicAcidFumigate));
-    _treatments.add(CheckableItem(logOxalicAcidDrip));
-    _treatments.add(CheckableItem(logOxalicAcidGlycerine));
-    _treatments.add(CheckableItem(logOxyBee));
-    _treatments.add(CheckableItem(logTactic));
+    if (fill) {
+      _treatments.add(CheckableItem(logAmitraz));
+      _treatments.add(CheckableItem(logApiBioxal));
+      _treatments.add(CheckableItem(logApiGuard));
+      _treatments.add(CheckableItem(logApiStan));
+      _treatments.add(CheckableItem(logApiVarStrips));
+      _treatments.add(CheckableItem(logCheckMite));
+      _treatments.add(CheckableItem(logDroneComb));
+      _treatments.add(CheckableItem(logFormicPro));
+      _treatments.add(CheckableItem(logHopGuard));
+      _treatments.add(CheckableItem(logMiteAway));
+      _treatments.add(CheckableItem(logMiteStrips));
+      _treatments.add(CheckableItem(logOxalicAcidFumigate));
+      _treatments.add(CheckableItem(logOxalicAcidDrip));
+      _treatments.add(CheckableItem(logOxalicAcidGlycerine));
+      _treatments.add(CheckableItem(logOxyBee));
+      _treatments.add(CheckableItem(logTactic));
+    }
   }
 
-  ItemTreatment.waxMothsTreatment(
-      this.icon, this.description, this.activeIcon) {
+  ItemTreatment.waxMothsTreatment(this.icon, this.description, this.activeIcon,
+      {bool fill = true}) {
     id = description;
-    _treatments.add(CheckableItem(logB401));
-    _treatments.add(CheckableItem(logParaMoth));
+    if (fill) {
+      _treatments.add(CheckableItem(logB401));
+      _treatments.add(CheckableItem(logParaMoth));
+    }
   }
 
   toMap() => {fieldTreatments: _treatments.map((e) => e.toMap()).toList()};
 
-  /*foulBroodToMap() {
-    return {fieldTreatments: _treatments.map((e) => e.toMap()).toList()};
-  }
-
-  hiveBeetlesToMap() {}
-
-  nosemaToMap() {}
-
-  trachealMitesToMap() {}
-
-  varroaMitesToMap() {}
-
-  waxMothsToMap() {}*/
-
   static ItemTreatment foulBroodFromMap(Map<String, dynamic> map) {
-    try {
-      map[fieldTreatments] as List<dynamic>;
-    } catch (ex) {
-      logError('exception in foulbrood map $ex');
-    }
     final list = _getTreatments(map[fieldTreatments] as List<dynamic>);
     return ItemTreatment.foulBroodTreatment(
       pngFoulbrood,
       logFoulBrood,
       pngFoulbroodActive,
+      fill: false,
     ).._treatments.addAll(list);
   }
 
   static ItemTreatment hiveBeetlesFromMap(Map<String, dynamic> map) {
-    final list = _getTreatments(map[fieldHiveBeetles] as List<dynamic>);
+    final list = _getTreatments(map[fieldTreatments] as List<dynamic>);
     return ItemTreatment.hiveBeetlesTreatment(
       pngHiveBeetles,
       logHiveBeetles,
       pngHiveBeetlesActive,
+      fill: false,
     ).._treatments.addAll(list);
   }
 
   static ItemTreatment nosemaFromMap(Map<String, dynamic> map) {
-    final list = _getTreatments(map[fieldNosema] as List<Map<String, dynamic>>);
+    final list = _getTreatments(map[fieldTreatments] as List<dynamic>);
     return ItemTreatment.nosemaTreatment(
       pngNosema,
       logNosema,
       pngNosemaActive,
+      fill: false,
     ).._treatments.addAll(list);
   }
 
   static ItemTreatment trachealMitesFromMap(Map<String, dynamic> map) {
-    final list =
-        _getTreatments(map[fieldTrachealMites] as List<Map<String, dynamic>>);
+    final list = _getTreatments(map[fieldTreatments] as List<dynamic>);
     return ItemTreatment.trachealMitesTreatment(
       pngTrachealMites,
       logTrachealMites,
       pngTrachealMitesActive,
+      fill: false,
     ).._treatments.addAll(list);
   }
 
   static ItemTreatment varroaMitesFromMap(Map<String, dynamic> map) {
-    final list =
-        _getTreatments(map[fieldVarroaMites] as List<Map<String, dynamic>>);
+    logInfo('treat:' + map[fieldTreatments].toString());
+    final list = _getTreatments(map[fieldTreatments] as List<dynamic>);
     return ItemTreatment.varroaMitesTreatment(
       pngVarroaMites,
       logVarroaMites,
       pngVarroaMitesActive,
+      fill: false,
     ).._treatments.addAll(list);
   }
 
   static ItemTreatment waxMothsFromMap(Map<String, dynamic> map) {
-    final list =
-        _getTreatments(map[fieldWaxMoths] as List<Map<String, dynamic>>);
+    final list = _getTreatments(map[fieldTreatments] as List<dynamic>);
     return ItemTreatment.waxMothsTreatment(
       pngWaxMoths,
       logWaxMoths,
       pngWaxMothsActive,
+      fill: false,
     ).._treatments.addAll(list);
   }
 
-  static _getTreatments(List<dynamic> list) {
-    try {
-      list.map((e) => CheckableItem.fromMap(e)).toList();
-    } catch (ex) {
-      logError('exception in logs: $ex');
-    }
-    return list.map((e) => CheckableItem.fromMap(e)).toList();
+  static List<CheckableItem> _getTreatments(List<dynamic> list) {
+    return list
+        .map((e) => CheckableItem.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 }
 

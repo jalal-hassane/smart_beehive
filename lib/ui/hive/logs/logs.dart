@@ -29,7 +29,7 @@ class Logs extends StatefulWidget {
 class _Logs extends State<Logs> {
   late Beehive _hive;
 
-  late LogsViewModel _logsViewModel;
+  /*late LogsViewModel _logsViewModel;
 
   _initViewModel(){
     _logsViewModel = Provider.of<LogsViewModel>(context);
@@ -42,12 +42,12 @@ class _Logs extends State<Logs> {
 
   _failure(String error){
     logError('Error $error');
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
-    _initViewModel();
+    //_initViewModel();
     return Padding(
       padding: all(8),
       child: Column(

@@ -46,8 +46,6 @@ class _HarvestHistory extends State<HarvestHistory> {
 
   @override
   Widget build(BuildContext context) {
-    logInfo(widget.history.first.history!.first.title);
-    logInfo(widget.history.first.history!.first.value.toString());
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -224,13 +222,13 @@ class _HarvestHistory extends State<HarvestHistory> {
             ),
             primaryXAxis: CategoryAxis(labelRotation: 45),
             tooltipBehavior: _tooltipBehavior,
-            series: <ColumnSeries<ItemHarvest, String>>[
-              ColumnSeries<ItemHarvest, String>(
+            series: <ColumnSeries<ItemHarvest?, String>>[
+              ColumnSeries<ItemHarvest?, String>(
                 name: logHarvests,
                 dataSource: item.history ?? [],
                 xValueMapper: (datum, index) =>
-                    datum.title + '\n(${datum.unit!.description})',
-                yValueMapper: (datum, index) => datum.value,
+                    '${datum?.title}' '\n(${datum?.unit!.description})',
+                yValueMapper: (datum, index) => datum?.value,
                 // Enable data label
                 dataLabelSettings: const DataLabelSettings(
                   isVisible: true,
@@ -266,8 +264,8 @@ class _HarvestHistory extends State<HarvestHistory> {
     final List<ItemHarvestHistory> _filteredHistory = [];
     for (ItemHarvestHistory item in widget.history) {
       if (item.history == null) continue;
-      for (ItemHarvest harvest in item.history!) {
-        if (harvest.title == _filter.description) {
+      for (ItemHarvest? harvest in item.history!) {
+        if (harvest?.title == _filter.description) {
           _filteredHistory.add(item);
         }
       }
@@ -279,8 +277,8 @@ class _HarvestHistory extends State<HarvestHistory> {
     final List<ItemHarvestHistory> _filteredHistory = [];
     for (ItemHarvestHistory item in widget.history) {
       if (item.history == null) continue;
-      for (ItemHarvest harvest in item.history!) {
-        if (harvest.title == _filter.description) {
+      for (ItemHarvest? harvest in item.history!) {
+        if (harvest?.title == _filter.description) {
           _filteredHistory.add(item);
         }
       }

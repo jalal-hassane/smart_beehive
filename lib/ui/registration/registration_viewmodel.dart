@@ -12,13 +12,14 @@ import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 import 'package:smart_beehive/utils/pref_utils.dart';
 
+import '../../main.dart';
+
 const _tag = 'RegistrationViewModel';
 
 class RegistrationViewModel extends ChangeNotifier {
   late RegistrationHelper helper;
 
-  CollectionReference beekeepers =
-      FirebaseFirestore.instance.collection(collectionBeekeeper);
+  CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
 
   checkUsernameAvailability(String username, String password) {
     bool usernameIsAvailable = true;
@@ -126,7 +127,12 @@ class RegistrationViewModel extends ChangeNotifier {
       fieldPassword: password,
     });
     return beekeepers.add(map).then((docRef) {
-      helper._success(Beekeeper(id)..firebaseId = docRef.id);
+      helper._success(
+        Beekeeper(id)
+          ..username = username
+          ..password = password
+          ..firebaseId = docRef.id,
+      );
       PrefUtils.setAuthToken(docRef.id);
     }).catchError((error) {
       helper._failure(errorSomethingWrong);
