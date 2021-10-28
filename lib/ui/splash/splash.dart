@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ class _Splash extends State<Splash> {
   @override
   void initState() {
     super.initState();
+    _handleFcmMessage();
   }
 
   @override
@@ -129,5 +131,35 @@ class _Splash extends State<Splash> {
       // handle more errors later
       logInfo(error);
     }
+  }
+
+  _handleFcmMessage() async {
+    await initializeSecondaryApp();
+    await messaging.getToken();
+
+    /**
+     * todo If the application has been opened from a terminated state via a [RemoteMessage]
+     * (containing a [Notification]), it will be returned, otherwise it will be `null`.
+     */
+    messaging.getInitialMessage().then((RemoteMessage? message) {
+      logInfo('getInitialMessage', tag: _tag);
+      logInfo("Remote ${message?.data}", tag: _tag);
+      logInfo("Remote ${message?.notification}", tag: _tag);
+      if (message != null) {
+        logInfo('getInitialMessage', tag: _tag);
+        logInfo("Remote " + message.data.toString(), tag: _tag);
+        logInfo("Remote " + message.notification.toString(), tag: _tag);
+      }
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
+      if (message != null) {
+        handleRemoteMessage(message);
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      logInfo('onMessageOpenedApp', tag: _tag);
+    });
   }
 }

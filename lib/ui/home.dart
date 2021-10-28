@@ -1,4 +1,11 @@
+import 'dart:io';
+
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
@@ -11,6 +18,7 @@ import 'package:smart_beehive/ui/home/analysis.dart';
 import 'package:smart_beehive/ui/home/farm/farm.dart';
 import 'package:smart_beehive/ui/home/profile.dart';
 import 'package:smart_beehive/utils/extensions.dart';
+import 'package:smart_beehive/utils/log_utils.dart';
 
 import '../main.dart';
 import 'home/alerts/alerts.dart';
@@ -26,16 +34,50 @@ class Home extends StatefulWidget {
   _Home createState() => _Home();
 }
 
-class _Home extends State<Home> {
+class _Home extends State<Home> with WidgetsBindingObserver {
   int _selectedIndex = 0;
   String _selectedPage = farm;
   bool bottomNavigationVisibility = true;
 
   @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+    _configureDidReceiveLocalNotificationSubject();
+    _configureSelectNotificationSubject();
+
+    if (Platform.isIOS) {
+      messaging.requestPermission(
+        sound: true,
+        badge: true,
+        alert: true,
+      );
+    }
+
+    _handleFcmMessage();
+
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      final PendingDynamicLinkData? data =
+      await FirebaseDynamicLinks.instance.getInitialLink();
+      logInfo("Data link ${data?.link}", tag: _tag);
+
+      FirebaseDynamicLinks.instance.onLink(
+          onSuccess: (PendingDynamicLinkData? dynamicLink) async {
+            final Uri? deepLink = dynamicLink?.link;
+            logInfo("DataLink $deepLink", tag: _tag);
+          }, onError: (OnLinkErrorException e) async {
+        logError('onLinkError ${e.message}', tag: _tag);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
-    screenBottomPadding = MediaQuery.of(context).padding.bottom;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -210,7 +252,7 @@ class _Home extends State<Home> {
           type: AlertType.humidity,
         );
       case 2:
-        return  Alerts(
+        return Alerts(
           hive: Beehive(uuid()),
         );
       default:
@@ -244,5 +286,90 @@ class _Home extends State<Home> {
     Navigator.of(context).push(
       enterFromBottom(_screen),
     );
+  }
+
+  void _requestPermissions() {
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+  }
+
+  void _configureDidReceiveLocalNotificationSubject() {
+    didReceiveLocalNotificationSubject.stream
+        .listen((ReceivedNotification receivedNotification) async {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+          title: receivedNotification.title != null
+              ? Text(receivedNotification.title!)
+              : null,
+          content: receivedNotification.body != null
+              ? Text(receivedNotification.body!)
+              : null,
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () async {
+                logInfo("notification pressed", tag: _tag);
+              },
+              child: const Text('Ok'),
+            )
+          ],
+        ),
+      );
+    });
+  }
+
+  Future<void> _cancelAllNotifications() async {
+    await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  void _configureSelectNotificationSubject() {
+    selectNotificationSubject.stream.listen((String? payload) async {
+      logInfo("select $payload", tag: _tag);
+    });
+  }
+
+  _handleFcmMessage() async {
+    await initializeSecondaryApp();
+    await messaging.getToken();
+
+    /**
+     * todo If the application has been opened from a terminated state via a [RemoteMessage]
+     * (containing a [Notification]), it will be returned, otherwise it will be `null`.
+     */
+    messaging.getInitialMessage().then((RemoteMessage? message) {
+      logInfo('getInitialMessage', tag: _tag);
+      logInfo("Remote ${message?.data}", tag: _tag);
+      logInfo("Remote ${message?.notification}", tag: _tag);
+      if (message != null) {
+        logInfo('getInitialMessage', tag: _tag);
+        logInfo("Remote " + message.data.toString(), tag: _tag);
+        logInfo("Remote " + message.notification.toString(), tag: _tag);
+      }
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
+      if (message != null) {
+        handleRemoteMessage(message);
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      logInfo('onMessageOpenedApp', tag: _tag);
+    });
   }
 }

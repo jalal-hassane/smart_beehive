@@ -1,20 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:smart_beehive/data/local/models/beekeeper.dart';
 import 'package:smart_beehive/ui/hive/overview/overview_viewmodel.dart';
 import 'package:smart_beehive/ui/home/farm/farm_viewmodel.dart';
 import 'package:smart_beehive/ui/registration/registration_viewmodel.dart';
 import 'package:smart_beehive/ui/splash/splash.dart';
 import 'package:smart_beehive/ui/splash/splash_viewmodel.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'data/local/models/beehive.dart';
 import 'ui/hive/logs/logs_viewmodel.dart';
 import 'ui/home/alerts/alerts_viewmodel.dart';
-import 'utils/extensions.dart';
+import 'utils/constants.dart';
 import 'utils/log_utils.dart';
+import 'utils/pref_utils.dart';
 
+const _tag = 'main';
 // top-level variables
 double screenHeight = 0;
 double screenWidth = 0;
@@ -29,22 +39,221 @@ List<Beehive> get beehives {
   return <Beehive>[];
 }
 
+/// Streams are created so that app can respond to notification-related events
+/// since the plugin is initialised in the `main` function
+final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject =
+    BehaviorSubject<ReceivedNotification>();
+
+final BehaviorSubject<String?> selectNotificationSubject =
+    BehaviorSubject<String?>();
+
+const MethodChannel platform = MethodChannel('smart_beehive');
+
+class ReceivedNotification {
+  ReceivedNotification({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.payload,
+  });
+
+  final int id;
+  final String? title;
+  final String? body;
+  final String? payload;
+}
+
+String? selectedNotificationPayload;
+
 late FirebaseFirestore fireStore;
+late AndroidNotificationChannel channel;
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+final messaging = FirebaseMessaging.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeSecondaryApp();
+  FirebaseApp secondaryApp = Firebase.app('Smart Beehive');
+  fireStore = FirebaseFirestore.instanceFor(app: secondaryApp);
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  if (!kIsWeb) {
+    channel = const AndroidNotificationChannel(
+      'high_importance_channel', // id
+      'High Importance Notifications', // title
+      'This channel is used for important notifications.', // description
+      importance: Importance.high,
+    );
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+
+  await handleRefreshFirebaseToken();
+  handleNotifications();
+
+  runApp(const MyApp());
+}
+
+initializeSecondaryApp() async {
   await Firebase.initializeApp(
     name: 'Smart Beehive',
-    options:const FirebaseOptions(
+    options: const FirebaseOptions(
       apiKey: 'AIzaSyBsdcX6OYVkB_Ty5ZkSJYLBgQP7R8OA7-Y',
       appId: '1:33277488295:android:eb5054d23e50d14816ff82',
       messagingSenderId: '33277488295',
       projectId: 'talabak3enna-cadee',
     ),
   );
-  FirebaseApp secondaryApp = Firebase.app('Smart Beehive');
-  fireStore = FirebaseFirestore.instanceFor(app: secondaryApp);
-  runApp(const MyApp());
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await initializeSecondaryApp();
+
+  channel = const AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    'This channel is used for important notifications.', // description
+    importance: Importance.high,
+  );
+  handleRemoteMessage(message);
+}
+
+handleRemoteMessage(RemoteMessage message) {
+  logInfo("Remote " + message.data.toString(), tag: _tag);
+  logInfo("Remote " + message.notification.toString(), tag: _tag);
+  final title = message.data['title'];
+  final body = message.data['body'];
+  final openPage = message.data['open_page'];
+  logInfo("OpenPage $openPage", tag: _tag);
+  final tracker = message.data["notification_tracker"];
+
+  selectedNotificationPayload = openPage;
+  selectNotificationSubject.add(openPage);
+
+  flutterLocalNotificationsPlugin.show(
+    1,
+    title,
+    body,
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        channel.id,
+        channel.name,
+        channel.description,
+      ),
+    ),
+  );
+
+  // cant open inbox because of remote message not containing notification
+  RemoteNotification? notification = message.notification;
+  AndroidNotification? android = message.notification?.android;
+  if (notification != null && android != null && !kIsWeb) {
+    flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channel.description,
+          ),
+        ));
+  }
+}
+
+handleRefreshFirebaseToken() async {
+  final authToken = await PrefUtils.authToken;
+  try {
+    messaging.onTokenRefresh.listen((token) {
+      logInfo("Token is $token", tag: _tag);
+      PrefUtils.setDeviceToken(token);
+      fireStore
+          .collection(collectionBeekeeper)
+          .doc(authToken)
+          .update({fieldDeviceToken: token});
+    });
+  } catch (ex) {
+    logError("Exception with error $ex");
+  }
+}
+
+void handleNotifications() async {
+  await _configureLocalTimeZone();
+
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
+      await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  /*String initialRoute = HomePage.routeName;
+  if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+    selectedNotificationPayload = notificationAppLaunchDetails!.payload;
+    initialRoute = SecondPage.routeName;
+  }*/
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('app_icon');
+
+  /// Note: permissions aren't requested here just to demonstrate that can be
+  /// done later
+  final IOSInitializationSettings initializationSettingsIOS =
+      IOSInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+          onDidReceiveLocalNotification: (
+            int id,
+            String? title,
+            String? body,
+            String? payload,
+          ) async {
+            didReceiveLocalNotificationSubject.add(
+              ReceivedNotification(
+                id: id,
+                title: title,
+                body: body,
+                payload: payload,
+              ),
+            );
+          });
+  const MacOSInitializationSettings initializationSettingsMacOS =
+      MacOSInitializationSettings(
+    requestAlertPermission: false,
+    requestBadgePermission: false,
+    requestSoundPermission: false,
+  );
+
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsIOS,
+    macOS: initializationSettingsMacOS,
+  );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      onSelectNotification: (String? payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: $payload');
+    }
+    selectedNotificationPayload = payload;
+    selectNotificationSubject.add(payload);
+  });
+}
+
+Future<void> _configureLocalTimeZone() async {
+  tz.initializeTimeZones();
+  final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+  tz.setLocalLocation(tz.getLocation(timeZoneName!));
 }
 
 class MyApp extends StatelessWidget {

@@ -11,6 +11,7 @@ const collectionProperties = 'Properties';
 const collectionLogs = 'Logs';
 
 // firestore - Beekeeper
+const fieldDeviceToken = 'deviceToken';
 const fieldId = 'id';
 const fieldUsername = 'username';
 const fieldPassword = 'password';
