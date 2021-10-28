@@ -38,6 +38,7 @@ List<Beehive> get beehives {
   }
   return <Beehive>[];
 }
+String currentHiveId = '';
 
 /// Streams are created so that app can respond to notification-related events
 /// since the plugin is initialised in the `main` function
@@ -75,8 +76,9 @@ final messaging = FirebaseMessaging.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeSecondaryApp();
-  FirebaseApp secondaryApp = Firebase.app('Smart Beehive');
-  fireStore = FirebaseFirestore.instanceFor(app: secondaryApp);
+  /*FirebaseApp secondaryApp = Firebase.app('Smart Beehive');
+  fireStore = FirebaseFirestore.instanceFor(app: secondaryApp);*/
+  fireStore = FirebaseFirestore.instance;
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -108,6 +110,8 @@ void main() async {
 }
 
 initializeSecondaryApp() async {
+  await Firebase.initializeApp();
+  return;
   await Firebase.initializeApp(
     name: 'Smart Beehive',
     options: const FirebaseOptions(

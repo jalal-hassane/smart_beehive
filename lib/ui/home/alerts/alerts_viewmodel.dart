@@ -10,20 +10,27 @@ class AlertsViewModel extends ChangeNotifier {
   late AlertsHelper helper;
 
   CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
+  CollectionReference hives = fireStore.collection(collectionHives);
 
   /// add hive to firestore db
-  updateHives() async {
-    final authToken = await PrefUtils.authToken;
-    final hives = <Beehive>[];
-    hives.addAll(beehives);
-    if (hives.isNotEmpty) {
-      final data = {fieldHives: hives.map((e) => e.toMap()).toList()};
-      return beekeepers.doc(authToken).update(data).then((value) {
-        helper._success();
-      }).catchError((error) {
-        helper._failure(error);
-      });
-    }
+  updateHive() async {
+    final updatedHive =
+    beehives.firstWhere((element) => element.id == currentHiveId);
+
+    hives
+        .where(fieldId, isEqualTo: currentHiveId)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        final doc = snapshot.docs[0];
+        hives
+            .doc(doc.id)
+            .update(updatedHive.toMap())
+            .then((value) => helper._success())
+            .catchError((error) => helper._failure(error));
+      }
+    });
   }
 }
 

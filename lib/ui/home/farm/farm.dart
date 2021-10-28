@@ -87,15 +87,25 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
                 'Qr code info is not valid.',
                 style: rTS(),
               ),
+              actions: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Text(
+                    textOk,
+                    style: rTS(),
+                  ),
+                ),
+              ],
+              actionsPadding: all(8),
             );
           },
         );
         return;
       }
-      insertedHive = Beehive(uuid)
+      insertedHive = Beehive(uuid, me?.id ?? '')
         ..overview = HiveOverview(name: 'hive #$_hiveCounter');
       //me!.beehives?.add(insertedHive!);
-      _farmViewModel.updateHives(insertedHive!);
+      _farmViewModel.insertHive(insertedHive!);
     });
   }
 
@@ -140,7 +150,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
     setState(() {
       logInfo('next item $_nextItem');
       final index = _nextItem;
-      me?.beehives?.insert(index,insertedHive!);
+      me?.beehives?.insert(index, insertedHive!);
       logInfo('next item $_nextItem');
       _listKey.currentState?.insertItem(index);
       audioPlayer.seek(const Duration(milliseconds: 0));
@@ -305,8 +315,11 @@ Navigator.popUntil(context, (route) => route.isFirst);
               ),
             ],
             border: Border.all(
-                color: Colors.green,
-                width: _selectedHiveIndex == hiveIndex ? 2 : 0),
+              color: _selectedHiveIndex == hiveIndex
+                  ? Colors.green
+                  : Colors.transparent,
+              width: 2,
+            ),
           ),
           child: Column(
             children: [
@@ -349,6 +362,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
     if (index == _selectedHiveIndex) return;
     _selectedHiveIndex = index;
     final hive = beehives[index];
+    currentHiveId = hive.id;
     setState(() {
       _propertyTitleVisibility = true;
       _properties = Details(

@@ -316,7 +316,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         _hive.overview.mLocation = location;
       }
 
-      _overviewViewModel.updateHives();
+      _overviewViewModel.updateHive();
       _nameController.clear();
       _dateController.clear();
       _locationController.clear();

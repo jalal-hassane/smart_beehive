@@ -9,22 +9,14 @@ import '../../../main.dart';
 class FarmViewModel extends ChangeNotifier {
   late FarmHelper helper;
 
-  CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
+  CollectionReference hives = fireStore.collection(collectionHives);
 
-  /// add hive to firestore db
-  updateHives(Beehive beehive) async {
-    final authToken = await PrefUtils.authToken;
-    final hives = <Beehive>[];
-    hives.addAll(beehives);
-    hives.add(beehive);
-    if (hives.isNotEmpty) {
-      final data = {fieldHives: hives.map((e) => e.toMap()).toList()};
-      return beekeepers.doc(authToken).update(data).then((value) {
-        helper._success();
-      }).catchError((error) {
-        helper._failure(error);
-      });
-    }
+  insertHive(Beehive beehive) async {
+    hives.add(beehive.toMap()).then((snapshot) {
+      helper._success();
+    }).catchError((error) {
+      helper._failure(error);
+    });
   }
 }
 

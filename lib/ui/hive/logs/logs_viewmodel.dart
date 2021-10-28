@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/utils/constants.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 import 'package:smart_beehive/utils/pref_utils.dart';
 
@@ -11,21 +12,47 @@ class LogsViewModel extends ChangeNotifier {
   late LogsHelper helper;
 
   CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
+  CollectionReference hives = fireStore.collection(collectionHives);
 
   /// add hive to firestore db
-  updateHives() async {
-    final authToken = await PrefUtils.authToken;
-    final hives = <Beehive>[];
-    hives.addAll(beehives);
+  updateHive() async {
+    final updatedHive =
+        beehives.firstWhere((element) => element.id == currentHiveId);
 
-    final data = {fieldHives: hives.map((e) => e.toMap()).toList()};
-    logInfo('data $data');
-    logInfo('data ${data[fieldHarvest]}');
-    return beekeepers.doc(authToken).update(data).then((value) {
-      helper._success();
-    }).catchError((error) {
-      helper._failure(error);
+    hives
+        .where(fieldId, isEqualTo: currentHiveId)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        final doc = snapshot.docs[0];
+        hives
+            .doc(doc.id)
+            .update(updatedHive.toMap())
+            .then((value) => helper._success())
+            .catchError((error) => helper._failure(error));
+      }
     });
+  }
+
+  updateQueen() {
+    final keeper = me?.id;
+    if (keeper.isNullOrEmpty) {}
+  }
+
+  updateHarvests() {
+    final keeper = me?.id;
+    if (keeper.isNullOrEmpty) {}
+  }
+
+  updateFeeds() {
+    final keeper = me?.id;
+    if (keeper.isNullOrEmpty) {}
+  }
+
+  updateTreatments() {
+    final keeper = me?.id;
+    if (keeper.isNullOrEmpty) {}
   }
 }
 

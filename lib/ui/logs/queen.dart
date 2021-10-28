@@ -87,7 +87,7 @@ class _Queen extends State<Queen> {
             ElevatedButton(
               onPressed: () {
                 _logQueen?.clear();
-                _logsViewModel.updateHives();
+                _logsViewModel.updateHive();
                 /*setState(() {
                   _logQueen?.clear();
                 });*/
@@ -135,7 +135,7 @@ class _Queen extends State<Queen> {
                 : logQueenWingsNotClipped;
             _logQueen!.logs[1].setData(icon, title);
 
-            _logsViewModel.updateHives();
+            _logsViewModel.updateHive();
           };
           break;
         case logQueenExcluder:
@@ -151,7 +151,7 @@ class _Queen extends State<Queen> {
             String title =
                 _logQueen!.queenExcluder! ? logExcluder : logNoExcluder;
             _logQueen!.logs.last.setData(icon, title);
-            _logsViewModel.updateHives();
+            _logsViewModel.updateHive();
           };
           break;
         default:
@@ -225,7 +225,7 @@ class _Queen extends State<Queen> {
           _logQueen?.swarmStatus = null;
       }
     });
-    _logsViewModel.updateHives();
+    _logsViewModel.updateHive();
   }
 
   _processItem(ItemLog itemLog, Function(void Function()) setState) {
@@ -252,7 +252,7 @@ class _Queen extends State<Queen> {
         _logQueen!.status = status;
         itemLog.setData(icon, title);
         itemLog.setColor(color);
-        _logsViewModel.updateHives();
+        _logsViewModel.updateHive();
     }
 
     return Status.logs.generateQueenStatusWidgets(f);
@@ -267,7 +267,7 @@ class _Queen extends State<Queen> {
       Navigator.pop(context);
         _logQueen!.marking = marking;
         itemLog.setData(icon, title);
-        _logsViewModel.updateHives();
+        _logsViewModel.updateHive();
     }
 
     return Marking.logs.generateMarkingWidgets(f);
@@ -281,7 +281,7 @@ class _Queen extends State<Queen> {
       Navigator.pop(context);
         _logQueen!.cells = cells;
         itemLog.setData(icon, title);
-        _logsViewModel.updateHives();
+        _logsViewModel.updateHive();
     }
 
     return Cells.logs.generateCellsWidgets(f);
@@ -296,7 +296,7 @@ class _Queen extends State<Queen> {
         _logQueen!.swarmStatus = status;
         itemLog.setData(icon, title);
         itemLog.setColor(color);
-        _logsViewModel.updateHives();
+        _logsViewModel.updateHive();
     }
 
     return Swarm.logs.generateSwarmStatusWidgets(f);

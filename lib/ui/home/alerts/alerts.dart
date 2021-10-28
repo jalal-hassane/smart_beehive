@@ -174,7 +174,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
   _removeAlert(int index) {
     _hive.properties.alerts?.removeAt(index);
-    _alertsViewModel.updateHives();
+    _alertsViewModel.updateHive();
   }
 
   _changeSound(int index) {}
@@ -372,10 +372,25 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   _createAlert({bool edit = false, Alert? alert}) {
     final lowest = _lowestController.text;
     final highest = _highestController.text;
-    assert(!lowest.isNullOrEmpty);
-    assert(!highest.isNullOrEmpty);
+    try{
+      assert(!lowest.isNullOrEmpty);
+      assert(!highest.isNullOrEmpty);
+    }catch(e){
+      _showError('All fields are required');
+      logError(e.toString());
+      return;
+    }
+
     final lb = double.parse(lowest.toString());
     final ub = double.parse(highest.toString());
+
+    try{
+      assert(lb < ub);
+    }catch(e){
+      _showError('Lowest should be less than highest');
+      logError(e.toString());
+      return;
+    }
 
     if (edit) {
       alert!.type = _alertType;
@@ -398,7 +413,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
     //_listKey.currentState?.insertItem(0);
 
-    _alertsViewModel.updateHives();
+    _alertsViewModel.updateHive();
   }
 
   _initViewModel() {
@@ -414,5 +429,33 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
   _failure(String error) {
     logError('alert: $error');
+  }
+
+  _showError(String content){
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Error',
+            style: mTS(size: 18),
+          ),
+          content: Text(
+            content,
+            style: rTS(),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Text(
+                textOk,
+                style: rTS(),
+              ),
+            ),
+          ],
+          actionsPadding: all(8),
+        );
+      },
+    );
   }
 }

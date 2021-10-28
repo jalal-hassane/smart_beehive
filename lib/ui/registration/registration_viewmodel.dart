@@ -20,6 +20,7 @@ class RegistrationViewModel extends ChangeNotifier {
   late RegistrationHelper helper;
 
   CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
+  CollectionReference hives = fireStore.collection(collectionHives);
 
   checkUsernameAvailability(String username, String password) {
     bool usernameIsAvailable = true;
@@ -44,7 +45,7 @@ class RegistrationViewModel extends ChangeNotifier {
     final authToken = await PrefUtils.authToken;
     logInfo("auth token $authToken");
     if (authToken.isNotEmpty) {
-      return beekeepers.doc(authToken).get().then((snapshot) {
+      return beekeepers.doc(authToken).get().then((snapshot) async {
         final id = snapshot[fieldId].toString();
         final firebaseId = authToken;
         final username = snapshot[fieldUsername].toString();
@@ -55,46 +56,13 @@ class RegistrationViewModel extends ChangeNotifier {
         } catch (ex) {
           logError(ex.toString());
         }
-        final hives = <Beehive>[];
-        try {
-          final fBeehives = snapshot[fieldHives] as List<dynamic>;
-          for (Map<String, dynamic> h in fBeehives) {
-            final hiveId = h[fieldId].toString();
-            final swarming = h[fieldSwarming] as bool;
-            final beehive = Beehive(hiveId)..hiveIsSwarming = swarming;
-            try {
-              final overview = HiveOverview.fromMap(
-                  h[fieldOverview] as Map<String, dynamic>);
-              beehive.overview = overview;
-            } catch (ex) {
-              logError('overview => $ex');
-            }
-            try {
-              final properties = HiveProperties.fromMap(
-                  h[fieldProperties] as Map<String, dynamic>);
-              beehive.properties = properties;
-            } catch (ex) {
-              logError('properties => $ex');
-            }
-            try {
-              final logs =
-                  HiveLogs.fromMap(h[fieldLogs] as Map<String, dynamic>);
-              beehive.logs = logs;
-            } catch (ex) {
-              logError('logs => $ex');
-            }
-            hives.add(beehive);
-          }
-        } catch (ex) {
-          logError(ex.toString());
-        }
-
+        final _hives = await _getBeehives(id);
         final beekeeper = Beekeeper(id)
           ..firebaseId = firebaseId
           ..username = username
           ..password = password
           ..profileImage = profileImage
-          ..beehives = hives;
+          ..beehives = _hives;
         helper._success(beekeeper);
       }).catchError((error) {
         logInfo(error.toString());
@@ -103,6 +71,44 @@ class RegistrationViewModel extends ChangeNotifier {
     } else {
       helper._failure(errorNoAuthToken);
     }
+  }
+
+  _getBeehives(String id) async {
+    final _hives = <Beehive>[];
+    hives.where(fieldKeeperId, isEqualTo: id).get().then((querySnapshot) {
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        try {
+          final hiveId = doc[fieldId].toString();
+          final swarming = doc[fieldSwarming] as bool;
+          final beehive = Beehive(hiveId, id)..hiveIsSwarming = swarming;
+          try {
+            final overview = HiveOverview.fromMap(
+                doc[fieldOverview] as Map<String, dynamic>);
+            beehive.overview = overview;
+          } catch (ex) {
+            logError('overview => $ex');
+          }
+          try {
+            final properties = HiveProperties.fromMap(
+                doc[fieldProperties] as Map<String, dynamic>);
+            beehive.properties = properties;
+          } catch (ex) {
+            logError('properties => $ex');
+          }
+          try {
+            final logs =
+                HiveLogs.fromMap(doc[fieldLogs] as Map<String, dynamic>);
+            beehive.logs = logs;
+          } catch (ex) {
+            logError('logs => $ex');
+          }
+          _hives.add(beehive);
+        } catch (ex) {
+          logError(ex.toString());
+        }
+      }
+    }).catchError((error) {});
+    return _hives;
   }
 
   login(String docId, String username, String password) {
