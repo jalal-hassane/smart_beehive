@@ -57,6 +57,7 @@ class RegistrationViewModel extends ChangeNotifier {
           logError(ex.toString());
         }
         final _hives = await _getBeehives(id);
+        await handleRefreshFirebaseToken();
         final beekeeper = Beekeeper(id)
           ..firebaseId = firebaseId
           ..username = username
@@ -132,14 +133,15 @@ class RegistrationViewModel extends ChangeNotifier {
       fieldUsername: username,
       fieldPassword: password,
     });
-    return beekeepers.add(map).then((docRef) {
+    return beekeepers.add(map).then((docRef) async{
+      PrefUtils.setAuthToken(docRef.id);
+      await handleRefreshFirebaseToken();
       helper._success(
         Beekeeper(id)
           ..username = username
           ..password = password
           ..firebaseId = docRef.id,
       );
-      PrefUtils.setAuthToken(docRef.id);
     }).catchError((error) {
       helper._failure(errorSomethingWrong);
     });

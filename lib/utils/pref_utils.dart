@@ -37,12 +37,12 @@ class PrefUtils {
 
   static Future<String> get deviceToken async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
-    return _prefs.getString(prefLoggedIn) ?? '';
+    return _prefs.getString(prefDeviceToken) ?? '';
   }
 
   static void setDeviceToken(String token) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
-    _prefs.setString(prefLoggedIn, token);
+    _prefs.setString(prefDeviceToken, token);
   }
 
   static Future<bool> get isFirstLoading async {

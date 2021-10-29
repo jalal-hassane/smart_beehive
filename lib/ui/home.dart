@@ -344,8 +344,8 @@ class _Home extends State<Home> with WidgetsBindingObserver {
   }
 
   _handleFcmMessage() async {
-    await initializeSecondaryApp();
-    await messaging.getToken();
+    //await initializeFirebaseApp();
+    //await messaging.getToken();
 
     /**
      * todo If the application has been opened from a terminated state via a [RemoteMessage]

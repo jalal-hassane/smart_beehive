@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "816488035266",
-    "project_id": "smart-beehive-47b44",
-    "storage_bucket": "smart-beehive-47b44.appspot.com"
+    "project_number": "655846909924",
+    "project_id": "smartbeehive-41c07",
+    "storage_bucket": "smartbeehive-41c07.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:816488035266:android:f048433c450771208fdc5b",
+        "mobilesdk_app_id": "1:655846909924:android:b7fa26e54e749864b1c9f1",
         "android_client_info": {
           "package_name": "com.numbase.smart_beehive"
         }
       },
       "oauth_client": [
         {
-          "client_id": "816488035266-pen5t8qu11pi46372r3ji1uqr2rehm9s.apps.googleusercontent.com",
+          "client_id": "655846909924-svgp72pgovdouocip5r4m4c11tnjfjfi.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCLesgXLB00VRkHP962mz3_a3iu_fOevIU"
+          "current_key": "AIzaSyB22tEPcYTA9QH5c-fnmANoj7ssD9HGVJM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "816488035266-pen5t8qu11pi46372r3ji1uqr2rehm9s.apps.googleusercontent.com",
+              "client_id": "655846909924-svgp72pgovdouocip5r4m4c11tnjfjfi.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

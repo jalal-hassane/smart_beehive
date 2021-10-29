@@ -13,7 +13,7 @@ const collectionLogs = 'Logs';
 // firestore - Beekeeper
 const fieldDeviceToken = 'deviceToken';
 const fieldId = 'id';
-const fieldKeeperId = 'KeeperId';
+const fieldKeeperId = 'keeperId';
 const fieldUsername = 'username';
 const fieldPassword = 'password';
 const fieldImage = 'image';

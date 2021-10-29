@@ -14,6 +14,7 @@ import 'package:smart_beehive/ui/home/farm/farm_viewmodel.dart';
 import 'package:smart_beehive/ui/registration/registration_viewmodel.dart';
 import 'package:smart_beehive/ui/splash/splash.dart';
 import 'package:smart_beehive/ui/splash/splash_viewmodel.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -75,9 +76,7 @@ final messaging = FirebaseMessaging.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeSecondaryApp();
-  /*FirebaseApp secondaryApp = Firebase.app('Smart Beehive');
-  fireStore = FirebaseFirestore.instanceFor(app: secondaryApp);*/
+  await initializeFirebaseApp();
   fireStore = FirebaseFirestore.instance;
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -95,7 +94,7 @@ void main() async {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    await FirebaseMessaging.instance
+    await messaging
         .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
@@ -109,11 +108,12 @@ void main() async {
   runApp(const MyApp());
 }
 
-initializeSecondaryApp() async {
-  await Firebase.initializeApp();
-  return;
+initializeFirebaseApp() async {
+  /*await Firebase.initializeApp();
+  return;*/
+
   await Firebase.initializeApp(
-    name: 'Smart Beehive',
+    //name: 'Smart Beehive',
     options: const FirebaseOptions(
       apiKey: 'AIzaSyBsdcX6OYVkB_Ty5ZkSJYLBgQP7R8OA7-Y',
       appId: '1:33277488295:android:eb5054d23e50d14816ff82',
@@ -126,7 +126,7 @@ initializeSecondaryApp() async {
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  await initializeSecondaryApp();
+  await initializeFirebaseApp();
 
   channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
@@ -182,10 +182,13 @@ handleRemoteMessage(RemoteMessage message) {
 
 handleRefreshFirebaseToken() async {
   final authToken = await PrefUtils.authToken;
+  if(authToken.isEmpty) return;
+  final oldToken = await PrefUtils.deviceToken;
   try {
-    messaging.onTokenRefresh.listen((token) {
+    messaging.getToken().then((token) {
+      if(token.isNullOrEmpty || oldToken==token) return;
       logInfo("Token is $token", tag: _tag);
-      PrefUtils.setDeviceToken(token);
+      PrefUtils.setDeviceToken(token!);
       fireStore
           .collection(collectionBeekeeper)
           .doc(authToken)
