@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
@@ -13,6 +12,7 @@ import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:vibration/vibration.dart';
 
 const _tag = 'Analysis';
 
@@ -264,7 +264,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
         _addWeightValues();
         break;
       case AlertType.swarming:
-        // TODO: Handle this case.
         break;
     }
   }
@@ -828,11 +827,13 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   }
 
   _vibrate() async {
-    bool canVibrate = await Vibrate.canVibrate;
-    if (canVibrate) {
-      Vibrate.vibrateWithPauses(const [
-        Duration(milliseconds: 500),
-      ]).whenComplete(() => _vibrate());
+    bool? canVibrate = await Vibration.hasVibrator();
+    if (canVibrate ?? false) {
+      Vibration.vibrate();
+      await Future.delayed(const Duration(seconds: 1), () {
+        if (!mounted) return;
+        _vibrate();
+      });
     }
   }
 
@@ -903,6 +904,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     _analysisScaleController.dispose();
     _analysisFadeController.dispose();
     audioPlayer.dispose();
+    Vibration.cancel();
     super.dispose();
   }
 }
