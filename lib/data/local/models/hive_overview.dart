@@ -8,7 +8,7 @@ class HiveOverview {
   String? name = 'hive #1';
   HiveType? type;
   Species? species;
-  String? mLocation; // todo add location in app
+  String? mLocation;
   DateTime? date = DateTime.now();
 
   Position? position;

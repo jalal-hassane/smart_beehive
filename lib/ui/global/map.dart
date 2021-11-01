@@ -33,17 +33,9 @@ class _Map extends State<LocationMap> {
     zoom: _zoom,
   );
 
-  late final List<Marker> _markers = <Marker>[
-    /*Marker(
-      markerId: markerId,
-      position: LatLng(widget.initial.latitude, widget.initial.longitude),
-      onTap: _showMarkerInfo,
-    ),*/
-  ];
+  late final List<Marker> _markers = <Marker>[];
 
   late final markerId = const MarkerId('Current Position');
-
-  // todo handle my location button
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +62,7 @@ class _Map extends State<LocationMap> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-;                      widget.getLocationCallback.call(_markers.first);
+                      widget.getLocationCallback.call(_markers.first);
                     },
                     style: ElevatedButton.styleFrom(
                       primary: Colors.red[200],
@@ -143,9 +135,5 @@ class _Map extends State<LocationMap> {
         ),
       );
     });
-  }
-
-  _showMarkerInfo() {
-    final marker = _markers.first;
   }
 }

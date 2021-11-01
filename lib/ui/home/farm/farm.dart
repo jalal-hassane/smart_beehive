@@ -492,7 +492,6 @@ Navigator.popUntil(context, (route) => route.isFirst);
   }
 }
 
-// todo finish details page
 class Details extends StatefulWidget {
   final Beehive beehive;
   final void Function() farmState;
