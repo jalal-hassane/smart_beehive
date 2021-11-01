@@ -417,3 +417,42 @@ extension WidgetsGenerator on List<ItemLog> {
     );
   }
 }
+
+extension AnimationHandler on TickerProviderStateMixin {
+  AnimationController animationController({Duration duration = const Duration(seconds: 1)}) => AnimationController(
+        duration: duration,
+        vsync: this,
+        lowerBound: 0.0,
+        upperBound: 1.0,
+      );
+
+  Animation<double> doubleAnimation(
+    AnimationController parent, {
+    double begin = 0.0,
+    double end = 1.0,
+  }) =>
+      Tween<double>(
+        begin: begin,
+        end: end,
+      ).animate(
+        CurvedAnimation(
+          parent: parent,
+          curve: Curves.ease,
+        ),
+      );
+
+  Animation<Offset> offsetAnimation(
+    AnimationController parent, {
+    Offset? begin,
+    Offset end = Offset.zero,
+  }) =>
+      Tween<Offset>(
+        begin: begin ?? const Offset(0.0, 2.0),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(
+          parent: parent,
+          curve: Curves.ease,
+        ),
+      );
+}

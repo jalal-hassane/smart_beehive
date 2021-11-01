@@ -16,7 +16,7 @@ import 'package:smart_beehive/data/local/models/hive_overview.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/hive/logs/logs.dart';
 import 'package:smart_beehive/ui/hive/overview/overview.dart';
-import 'package:smart_beehive/ui/hive/properties.dart';
+import 'package:smart_beehive/ui/hive/properties/properties.dart';
 import 'package:smart_beehive/ui/home/farm/farm_viewmodel.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
@@ -112,7 +112,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         );
         return;
       }
-      insertedHive = Beehive(uuid, me?.id ?? '')
+      insertedHive = Beehive(uuid, me?.id ?? '','')
         ..overview = HiveOverview(name: 'hive #$_hiveCounter');
       //me!.beehives?.add(insertedHive!);
       _farmViewModel.insertHive(insertedHive!);
@@ -147,6 +147,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         final beehive = beehives
             .firstWhere((element) => element.id == message.data['hive_id']);
         final analysis = message.data['analysis'];
+        if(!mounted) return;
         showDialog<void>(
             context: context,
             builder: (BuildContext context) {

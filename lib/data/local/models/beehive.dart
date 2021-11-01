@@ -5,6 +5,7 @@ import 'package:smart_beehive/utils/constants.dart';
 
 class Beehive {
   final String id; // uuid to identify each hive
+  final String docId;
   final String keeperId;
   HiveOverview overview = HiveOverview();
   HiveProperties properties = HiveProperties();
@@ -13,7 +14,7 @@ class Beehive {
   bool hiveIsSwarming = false;
   bool hasNotifications = false;
 
-  Beehive(this.id, this.keeperId);
+  Beehive(this.id, this.keeperId,this.docId);
 
   toMap() {
     return {

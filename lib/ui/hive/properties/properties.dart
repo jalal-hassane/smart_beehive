@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
@@ -8,9 +10,12 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/main.dart';
+import 'package:smart_beehive/ui/hive/properties/properties_viewmodel.dart';
 import 'package:smart_beehive/ui/home/alerts/alerts.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
+import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/extensions.dart';
+import 'package:smart_beehive/utils/log_utils.dart';
 
 const _tag = 'Properties';
 
@@ -29,40 +34,118 @@ class Properties extends StatefulWidget {
 class _Properties extends State<Properties> with TickerProviderStateMixin {
   late Beehive _hive;
 
+  late PropertiesViewModel _propertiesViewModel;
+
+  late final _collection =
+      fireStore.collection(collectionHives).doc(_hive.docId);
+
+  _initViewModel() {
+    _propertiesViewModel = Provider.of<PropertiesViewModel>(context);
+    _propertiesViewModel.helper = PropertiesHelper(
+      success: _success,
+      failure: _failure,
+    );
+  }
+
+  _success() {
+    logInfo('Success');
+  }
+
+  _failure(String error) {
+    logError(error);
+  }
+
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
-    _hive.properties.generateNewProperties();
+    _initViewModel();
     _celsiusController.forward(from: 0);
     if (widget.showOnlyAnalysis) return _showOnlyAnalysis();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _propertyItem(
-              svgCelsius,
-              _hive.properties.temperature?.toPrecision(1),
-            ),
-            _propertyItem(
-              svgScale,
-              _hive.properties.weight?.toPrecision(1),
-            ),
-          ],
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _propertyItem(svgBees, _hive.properties.population),
-            _propertyItem(
-              svgHumidity,
-              '${_hive.properties.humidity?.toPrecision(1)}%',
-            ),
-          ],
-        ),
-      ],
-    );
+    return StreamBuilder<DocumentSnapshot>(
+        stream: _collection.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(child: Text('Something went wrong'));
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: Text("Collecting data"));
+          }
+          final map = snapshot.requireData.data() as Map<String, dynamic>;
+          parseData(map);
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _propertyItem(
+                    svgCelsius,
+                    _hive.properties.temperature?.toPrecision(1),
+                    _doubleAnimation(_tempUpdateScaleController),
+                  ),
+                  _propertyItem(
+                    svgScale,
+                    _hive.properties.weight?.toPrecision(1),
+                    _doubleAnimation(_weiUpdateScaleController),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _propertyItem(
+                    svgBees,
+                    _hive.properties.population,
+                    _doubleAnimation(_popUpdateScaleController),
+                  ),
+                  _propertyItem(
+                    svgHumidity,
+                    '${_hive.properties.humidity?.toPrecision(1)}%',
+                    _doubleAnimation(_humUpdateScaleController),
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+  }
+
+  parseData(Map<String, dynamic> doc) {
+    try {
+      final properties = doc[fieldProperties] as Map<String, dynamic>;
+      final oldTemperature = _hive.properties.temperature;
+      final oldHumidity = _hive.properties.humidity;
+      final oldWeight = _hive.properties.weight;
+      final oldPopulation = _hive.properties.population;
+      _hive.properties.temperature = properties[fieldTemperature] as double;
+      _hive.properties.humidity = properties[fieldHumidity] as double;
+      _hive.properties.weight = properties[fieldWeight] as double;
+      _hive.properties.population = properties[fieldPopulation] as int;
+      if (oldTemperature != _hive.properties.temperature) {
+        _tempUpdateScaleController.forward(from: 0).whenComplete(() {
+          _tempUpdateScaleController.reverse(from: 1);
+        });
+      }
+      if (oldHumidity != _hive.properties.humidity) {
+        _humUpdateScaleController.forward(from: 0).whenComplete(() {
+          _humUpdateScaleController.reverse(from: 1);
+        });
+      }
+      if (oldWeight != _hive.properties.weight) {
+        _weiUpdateScaleController.forward(from: 0).whenComplete(() {
+          _weiUpdateScaleController.reverse(from: 1);
+        });
+      }
+      if (oldPopulation != _hive.properties.population) {
+        _popUpdateScaleController.forward(from: 0).whenComplete(() {
+          _popUpdateScaleController.reverse(from: 1);
+        });
+      }
+      logInfo('Properties => ${_hive.properties.toMap()}');
+    } catch (ex) {
+      logError('properties => $ex');
+    }
   }
 
   _showOnlyAnalysis() {
@@ -129,6 +212,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
   _propertyItem(
     String svg,
     dynamic text,
+    Animation<double> scale,
   ) {
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -144,9 +228,12 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                 height: screenHeight * 0.07,
               ),
             ),
-            Text(
-              text.toString(),
-              style: ebTS(),
+            ScaleTransition(
+              scale: scale,
+              child: Text(
+                text.toString(),
+                style: ebTS(),
+              ),
             ),
           ],
         ),
@@ -233,44 +320,32 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     );
   }
 
-  late final AnimationController _celsiusController = AnimationController(
-    duration: const Duration(seconds: 1),
-    vsync: this,
-    lowerBound: 0.0,
-    upperBound: 1.0,
-  );
+  late final AnimationController _celsiusController = animationController();
+  late final Animation<Offset> _iconOffsetAnimation =
+      offsetAnimation(_celsiusController);
+  late final Animation<double> _fadeInAnimation =
+      doubleAnimation(_celsiusController);
+  late final Animation<double> _scaleAnimation =
+      doubleAnimation(_celsiusController);
 
-  late final Animation<Offset> _iconOffsetAnimation = Tween<Offset>(
-    begin: const Offset(0.0, 2.0),
-    end: Offset.zero,
-  ).animate(CurvedAnimation(
-    parent: _celsiusController,
-    curve: Curves.ease,
-  ));
+  late final AnimationController _tempUpdateScaleController =
+      animationController(duration: const Duration(milliseconds: 500));
+  late final AnimationController _humUpdateScaleController =
+      animationController(duration: const Duration(milliseconds: 500));
+  late final AnimationController _weiUpdateScaleController =
+      animationController(duration: const Duration(milliseconds: 500));
+  late final AnimationController _popUpdateScaleController =
+      animationController(duration: const Duration(milliseconds: 500));
 
-  late final Animation<double> _fadeInAnimation = Tween<double>(
-    begin: 0.0,
-    end: 1.0,
-  ).animate(
-    CurvedAnimation(
-      parent: _celsiusController,
-      curve: Curves.ease,
-    ),
-  );
-
-  late final Animation<double> _scaleAnimation = Tween<double>(
-    begin: 0.0,
-    end: 1.0,
-  ).animate(
-    CurvedAnimation(
-      parent: _celsiusController,
-      curve: Curves.ease,
-    ),
-  );
+  _doubleAnimation(parent) => doubleAnimation(parent, begin: 1.0, end: 1.2);
 
   @override
   void dispose() {
     _celsiusController.dispose();
+    _tempUpdateScaleController.dispose();
+    _humUpdateScaleController.dispose();
+    _weiUpdateScaleController.dispose();
+    _popUpdateScaleController.dispose();
     super.dispose();
   }
 

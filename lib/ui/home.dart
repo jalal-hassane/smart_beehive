@@ -246,12 +246,12 @@ class _Home extends State<Home> with WidgetsBindingObserver {
         return _farmInstance;
       case 1:
         return Analysis(
-          hive: Beehive(uuid(), ''),
+          hive: Beehive(uuid(), '',''),
           type: AlertType.humidity,
         );
       case 2:
         return Alerts(
-          hive: Beehive(uuid(), ''),
+          hive: Beehive(uuid(), '',''),
         );
       default:
         return const Profile();

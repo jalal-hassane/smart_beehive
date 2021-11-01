@@ -81,7 +81,7 @@ class RegistrationViewModel extends ChangeNotifier {
         try {
           final hiveId = doc[fieldId].toString();
           final swarming = doc[fieldSwarming] as bool;
-          final beehive = Beehive(hiveId, id)..hiveIsSwarming = swarming;
+          final beehive = Beehive(hiveId, id,doc.id)..hiveIsSwarming = swarming;
           try {
             final overview = HiveOverview.fromMap(
                 doc[fieldOverview] as Map<String, dynamic>);
