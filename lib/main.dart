@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/data/local/models/beekeeper.dart';
 import 'package:smart_beehive/ui/hive/overview/overview_viewmodel.dart';
 import 'package:smart_beehive/ui/home/farm/farm_viewmodel.dart';
@@ -39,6 +40,7 @@ List<Beehive> get beehives {
   }
   return <Beehive>[];
 }
+
 String currentHiveId = '';
 
 /// Streams are created so that app can respond to notification-related events
@@ -84,7 +86,7 @@ void main() async {
   if (!kIsWeb) {
     channel = const AndroidNotificationChannel(
       'high_importance_channel', // id
-      'High Importance Notifications', // title
+      'Alerts', // title
       'This channel is used for important notifications.', // description
       importance: Importance.high,
     );
@@ -94,8 +96,7 @@ void main() async {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    await messaging
-        .setForegroundNotificationPresentationOptions(
+    await messaging.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -103,7 +104,7 @@ void main() async {
   }
 
   await handleRefreshFirebaseToken();
-  handleNotifications();
+  //handleNotifications();
 
   runApp(const MyApp());
 }
@@ -130,11 +131,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
-    'High Importance Notifications', // title
+    'Alerts', // title
     'This channel is used for important notifications.', // description
     importance: Importance.high,
+    ledColor: colorPrimary,
   );
-  handleRemoteMessage(message);
+  //handleRemoteMessage(message);
 }
 
 handleRemoteMessage(RemoteMessage message) {
@@ -158,11 +160,17 @@ handleRemoteMessage(RemoteMessage message) {
         channel.id,
         channel.name,
         channel.description,
+        channelShowBadge: true,
+        priority: Priority.high,
+        setAsGroupSummary: true,
+        ledColor: colorPrimary,
+        ledOnMs: 1500,
+        ledOffMs: 500,
       ),
     ),
   );
 
-  // cant open inbox because of remote message not containing notification
+  /*// cant open inbox because of remote message not containing notification
   RemoteNotification? notification = message.notification;
   AndroidNotification? android = message.notification?.android;
   if (notification != null && android != null && !kIsWeb) {
@@ -175,18 +183,20 @@ handleRemoteMessage(RemoteMessage message) {
             channel.id,
             channel.name,
             channel.description,
+            groupAlertBehavior: GroupAlertBehavior.summary,
+            channelShowBadge: true,
           ),
         ));
-  }
+  }*/
 }
 
 handleRefreshFirebaseToken() async {
   final authToken = await PrefUtils.authToken;
-  if(authToken.isEmpty) return;
+  if (authToken.isEmpty) return;
   final oldToken = await PrefUtils.deviceToken;
   try {
     messaging.getToken().then((token) {
-      if(token.isNullOrEmpty || oldToken==token) return;
+      if (token.isNullOrEmpty || oldToken == token) return;
       logInfo("Token is $token", tag: _tag);
       PrefUtils.setDeviceToken(token!);
       fireStore

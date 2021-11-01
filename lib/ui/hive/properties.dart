@@ -7,6 +7,7 @@ import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
+import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/home/alerts/alerts.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
 import 'package:smart_beehive/utils/extensions.dart';
@@ -40,15 +41,24 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _propertyItem(svgCelsius, _hive.properties.temperature?.toPrecision(1)),
-            _propertyItem(svgScale, _hive.properties.weight?.toPrecision(1)),
+            _propertyItem(
+              svgCelsius,
+              _hive.properties.temperature?.toPrecision(1),
+            ),
+            _propertyItem(
+              svgScale,
+              _hive.properties.weight?.toPrecision(1),
+            ),
           ],
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _propertyItem(svgBees, _hive.properties.population),
-            _propertyItem(svgHumidity, '${_hive.properties.humidity?.toPrecision(1)}%'),
+            _propertyItem(
+              svgHumidity,
+              '${_hive.properties.humidity?.toPrecision(1)}%',
+            ),
           ],
         ),
       ],
@@ -130,13 +140,13 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               margin: bottom(10),
               child: SvgPicture.asset(
                 svg,
-                width: 50,
-                height: 50,
+                width: screenHeight * 0.07,
+                height: screenHeight * 0.07,
               ),
             ),
             Text(
               text.toString(),
-              style: ebTS(size: 18),
+              style: ebTS(),
             ),
           ],
         ),
@@ -158,7 +168,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                 padding: all(2),
                 child: Icon(
                   data,
-                  size: 50,
+                  size: screenHeight * 0.07,
                 ),
               ),
             ),
@@ -166,7 +176,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               onPressed: press,
               child: Text(
                 text,
-                style: mTS(size: 18),
+                style: mTS(),
               ),
             ),
           ],
@@ -193,13 +203,13 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                     child: type != AlertType.swarming
                         ? SvgPicture.asset(
                             type.icon,
-                            width: 50,
-                            height: 50,
+                            width: screenHeight * 0.07,
+                            height: screenHeight * 0.07,
                           )
                         : Image.asset(
                             type.icon,
-                            width: 50,
-                            height: 50,
+                            width: screenHeight * 0.07,
+                            height: screenHeight * 0.07,
                           ),
                   ),
                   Icon(
@@ -214,7 +224,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               onPressed: press,
               child: Text(
                 type.description,
-                style: mTS(size: 18),
+                style: mTS(),
               ),
             ),
           ],

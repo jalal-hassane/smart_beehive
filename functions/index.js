@@ -9,8 +9,6 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const pleaseClickHere = ", please click here for more details";
 
-// admin.initializeApp();
-// const serviceAccount = require("./service-account.json");
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
 });
@@ -34,9 +32,6 @@ exports.alertBeekeeper = functions.firestore
           notification: {
             "title": "Swarm Warning",
             "body": "The hive might be swarming" + pleaseClickHere,
-          // "open_page": "Farm",
-          // "hive_id": hive.id,
-          // "analysis": "Swarming",
           },
         });
       }
@@ -66,25 +61,14 @@ exports.alertBeekeeper = functions.firestore
           .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
               // doc.data() is never undefined for query doc snapshots
-              console.log(doc.id, " => ", doc.data());
               const metadata = doc.data();
-              console.log("doc => " + metadata);
               const token = metadata.deviceToken;
-              console.log("token => " + token);
               for (let k = 0; k < payloads.length; k++) {
                 payloads[k].token = token;
-                console.log("payload keys => " + Object.keys(payloads[k]));
-                console.log("payload values => " + Object.values(payloads[k]));
               }
-              console.log("for loop");
-              // admin.messaging().send(payloads[0]);
-              admin.messaging().sendAll(payloads).then((response) => {
-                console.log("response keys => " + Object.keys(response));
-                console.log("response values => " + Object.values(response));
-              }).catch((error) => {
+              return admin.messaging().sendAll(payloads).catch((error) => {
                 console.log("Catching error => " + error);
               });
-              // return console.log("finished Properly");
             });
           })
           .catch((error) => {

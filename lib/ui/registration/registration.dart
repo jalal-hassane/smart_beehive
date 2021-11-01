@@ -65,7 +65,7 @@ class _Registration extends State<Registration> {
                       children: [
                         Container(
                           margin: bottom(16),
-                          child: registrationTextField(
+                          child: sheetTextField(
                             screenWidth,
                             screenHeight,
                             _usernameController,
@@ -74,7 +74,7 @@ class _Registration extends State<Registration> {
                         ),
                         Container(
                           margin: bottom(32),
-                          child: registrationTextField(
+                          child: sheetTextField(
                             screenWidth,
                             screenHeight,
                             _passwordController,

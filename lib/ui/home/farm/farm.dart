@@ -291,6 +291,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
 
   Widget _listItemWidget(
       BuildContext context, int hiveIndex, Animation<double> animation) {
+    final hive = beehives[hiveIndex];
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(-1, 0),
@@ -315,39 +316,55 @@ Navigator.popUntil(context, (route) => route.isFirst);
               ),
             ],
             border: Border.all(
-              color: _selectedHiveIndex == hiveIndex
-                  ? Colors.green
-                  : Colors.transparent,
+              color: hive.hasNotifications
+                  ? Colors.red
+                  : _selectedHiveIndex == hiveIndex
+                      ? Colors.green
+                      : Colors.transparent,
               width: 2,
             ),
           ),
-          child: Column(
+          child: Stack(
             children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Visibility(
-                    visible: _selectedHiveIndex == hiveIndex ? true : false,
-                    child: Lottie.asset(
-                      lottieBee,
-                      width: 24,
-                      height: 24,
-                      repeat: true,
-                    ),
+              Align(
+                alignment: Alignment.topRight,
+                child: Visibility(
+                  visible: hive.hasNotifications,
+                  child: const Icon(
+                    Icons.notifications,
+                    color: Colors.red,
                   ),
                 ),
               ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: all(8),
-                  child: Center(
-                      child: Text(
-                    beehives[hiveIndex].overview.name!,
-                    style: sbTS(),
-                  )),
-                ),
+              Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Visibility(
+                        visible: _selectedHiveIndex == hiveIndex ? true : false,
+                        child: Lottie.asset(
+                          lottieBee,
+                          width: 24,
+                          height: 24,
+                          repeat: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: all(8),
+                      child: Center(
+                          child: Text(
+                        beehives[hiveIndex].overview.name!,
+                        style: sbTS(),
+                      )),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -362,6 +379,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
     if (index == _selectedHiveIndex) return;
     _selectedHiveIndex = index;
     final hive = beehives[index];
+    if(hive.hasNotifications) hive.hasNotifications = false;
     currentHiveId = hive.id;
     setState(() {
       _propertyTitleVisibility = true;
