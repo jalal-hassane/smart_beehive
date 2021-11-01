@@ -51,6 +51,12 @@ final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject =
 final BehaviorSubject<String?> selectNotificationSubject =
     BehaviorSubject<String?>();
 
+final BehaviorSubject<String?> selectNotificationHiveId =
+BehaviorSubject<String?>();
+
+final BehaviorSubject<String?> selectNotificationAnalysis =
+BehaviorSubject<String?>();
+
 const MethodChannel platform = MethodChannel('smart_beehive');
 
 class ReceivedNotification {
@@ -104,14 +110,14 @@ void main() async {
   }
 
   await handleRefreshFirebaseToken();
-  //handleNotifications();
+  handleNotifications();
 
   runApp(const MyApp());
 }
 
 initializeFirebaseApp() async {
-  /*await Firebase.initializeApp();
-  return;*/
+  await Firebase.initializeApp();
+  return;
 
   await Firebase.initializeApp(
     //name: 'Smart Beehive',
@@ -145,11 +151,15 @@ handleRemoteMessage(RemoteMessage message) {
   final title = message.data['title'];
   final body = message.data['body'];
   final openPage = message.data['open_page'];
+  final hiveId = message.data['hive_id'];
+  final analysis = message.data['analysis'];
+
   logInfo("OpenPage $openPage", tag: _tag);
-  final tracker = message.data["notification_tracker"];
 
   selectedNotificationPayload = openPage;
   selectNotificationSubject.add(openPage);
+  selectNotificationHiveId.add(hiveId);
+  selectNotificationAnalysis.add(analysis);
 
   flutterLocalNotificationsPlugin.show(
     1,

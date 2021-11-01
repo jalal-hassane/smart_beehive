@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +14,7 @@ import '../../main.dart';
 import '../home.dart';
 import 'splash_viewmodel.dart';
 
-const _tag = 'Home';
+const _tag = 'Splash';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
@@ -26,12 +25,6 @@ class Splash extends StatefulWidget {
 
 class _Splash extends State<Splash> {
   late SplashViewModel _splashViewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _handleFcmMessage();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,46 +113,16 @@ class _Splash extends State<Splash> {
   }
 
   _failure(String error) {
-    if(error==errorNoAuthToken){
+    if (error == errorNoAuthToken) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           settings: const RouteSettings(name: settingRegistration),
           builder: (context) => const Registration(),
         ),
       );
-    }else{
+    } else {
       // handle more errors later
       logInfo(error);
     }
-  }
-
-  _handleFcmMessage() async {
-    //await initializeFirebaseApp();
-    //await messaging.getToken();
-
-    /**
-     * todo If the application has been opened from a terminated state via a [RemoteMessage]
-     * (containing a [Notification]), it will be returned, otherwise it will be `null`.
-     */
-    messaging.getInitialMessage().then((RemoteMessage? message) {
-      logInfo('getInitialMessage', tag: _tag);
-      logInfo("Remote ${message?.data}", tag: _tag);
-      logInfo("Remote ${message?.notification}", tag: _tag);
-      if (message != null) {
-        logInfo('getInitialMessage', tag: _tag);
-        logInfo("Remote " + message.data.toString(), tag: _tag);
-        logInfo("Remote " + message.notification.toString(), tag: _tag);
-      }
-    });
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
-      if (message != null) {
-        handleRemoteMessage(message);
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      logInfo('onMessageOpenedApp', tag: _tag);
-    });
   }
 }

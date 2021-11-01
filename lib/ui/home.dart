@@ -55,22 +55,20 @@ class _Home extends State<Home> with WidgetsBindingObserver {
     }
 
     _handleFcmMessage();
-
   }
-
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       final PendingDynamicLinkData? data =
-      await FirebaseDynamicLinks.instance.getInitialLink();
+          await FirebaseDynamicLinks.instance.getInitialLink();
       logInfo("Data link ${data?.link}", tag: _tag);
 
       FirebaseDynamicLinks.instance.onLink(
           onSuccess: (PendingDynamicLinkData? dynamicLink) async {
-            final Uri? deepLink = dynamicLink?.link;
-            logInfo("DataLink $deepLink", tag: _tag);
-          }, onError: (OnLinkErrorException e) async {
+        final Uri? deepLink = dynamicLink?.link;
+        logInfo("DataLink $deepLink", tag: _tag);
+      }, onError: (OnLinkErrorException e) async {
         logError('onLinkError ${e.message}', tag: _tag);
       });
     }
@@ -245,15 +243,15 @@ class _Home extends State<Home> with WidgetsBindingObserver {
   Widget _screen(int index) {
     switch (index) {
       case 0:
-        return const Farm();
+        return _farmInstance;
       case 1:
         return Analysis(
-          hive: Beehive(uuid(),''),
+          hive: Beehive(uuid(), ''),
           type: AlertType.humidity,
         );
       case 2:
         return Alerts(
-          hive: Beehive(uuid(),''),
+          hive: Beehive(uuid(), ''),
         );
       default:
         return const Profile();
@@ -265,6 +263,7 @@ class _Home extends State<Home> with WidgetsBindingObserver {
       bottomNavigationVisibility = true;
     });
   }
+  final _farmInstance = Farm();
 
   _navigate(int index, String page) {
     // close drawer
@@ -341,6 +340,19 @@ class _Home extends State<Home> with WidgetsBindingObserver {
     selectNotificationSubject.stream.listen((String? payload) async {
       logInfo("select $payload", tag: _tag);
     });
+    selectNotificationHiveId.stream.listen((String? id) async {
+      for (var element in beehives) {
+        if (element.id == id) {
+          setState(() {
+            element.hasNotifications = true;
+          });
+        }
+      }
+      logInfo("select $id", tag: _tag);
+    });
+    selectNotificationAnalysis.stream.listen((String? analysis) async {
+      logInfo("select $analysis", tag: _tag);
+    });
   }
 
   _handleFcmMessage() async {
@@ -352,9 +364,6 @@ class _Home extends State<Home> with WidgetsBindingObserver {
      * (containing a [Notification]), it will be returned, otherwise it will be `null`.
      */
     messaging.getInitialMessage().then((RemoteMessage? message) {
-      logInfo('getInitialMessage', tag: _tag);
-      logInfo("Remote ${message?.data}", tag: _tag);
-      logInfo("Remote ${message?.notification}", tag: _tag);
       if (message != null) {
         logInfo('getInitialMessage', tag: _tag);
         logInfo("Remote " + message.data.toString(), tag: _tag);
@@ -362,14 +371,13 @@ class _Home extends State<Home> with WidgetsBindingObserver {
       }
     });
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
-      if (message != null) {
-        handleRemoteMessage(message);
-      }
-    });
-
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      logInfo('onMessageOpenedApp', tag: _tag);
+      logInfo('onMessageOpenedApp ${message.data}', tag: _tag);
+      final beehive = beehives
+          .firstWhere((element) => element.id == message.data['hive_id']);
+      final analysis = message.data['analysis'];
+      beehive.hasNotifications = true;
+      _farmInstance.changeState();
     });
   }
 }

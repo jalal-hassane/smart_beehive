@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
@@ -24,10 +25,14 @@ const _tag = 'My Farm';
 int _selectedTabIndex = 0;
 
 class Farm extends StatefulWidget {
-  const Farm({Key? key}) : super(key: key);
+  Farm({Key? key}) : super(key: key);
 
   @override
-  _Farm createState() => _Farm();
+  _Farm createState() => instance;
+
+  final _Farm instance = _Farm();
+
+  changeState() => instance.showNotificationBadge();
 }
 
 class _Farm extends State<Farm> with TickerProviderStateMixin {
@@ -41,6 +46,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   Beehive? insertedHive;
   Barcode? result;
   QRViewController? controller;
+  String _warning = '';
 
   int get _hiveCounter => beehives.length + 1;
 
@@ -53,6 +59,10 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   late FarmViewModel _farmViewModel;
 
   late Widget listWidget;
+
+  showNotificationBadge() {
+    setState(() {});
+  }
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -127,7 +137,49 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _handleFcm();
     _initPlayer();
+  }
+
+  _handleFcm() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
+      if (message != null) {
+        final beehive = beehives
+            .firstWhere((element) => element.id == message.data['hive_id']);
+        final analysis = message.data['analysis'];
+        showDialog<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(
+                  'Alert - ${beehive.overview.name}',
+                  style: mTS(size: 18),
+                ),
+                content: Text(
+                  'We\'ve detected a $analysis warning!',
+                  style: rTS(),
+                ),
+                actions: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Text(
+                      textOk,
+                      style: rTS(),
+                    ),
+                  ),
+                ],
+                actionsPadding: all(8),
+              );
+            });
+        setState(() {
+          if (_selectedHiveIndex == -1 ||
+              beehives[_selectedHiveIndex].id != beehive.id) {
+            beehive.hasNotifications = true;
+            _warning = analysis;
+          }
+        });
+      }
+    });
   }
 
   @override
@@ -330,9 +382,18 @@ Navigator.popUntil(context, (route) => route.isFirst);
                 alignment: Alignment.topRight,
                 child: Visibility(
                   visible: hive.hasNotifications,
-                  child: const Icon(
-                    Icons.notifications,
-                    color: Colors.red,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        _warning,
+                        style: mTS(size: 10, color: Colors.red),
+                      ),
+                      const Icon(
+                        Icons.notifications,
+                        color: Colors.red,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -358,10 +419,11 @@ Navigator.popUntil(context, (route) => route.isFirst);
                     child: Padding(
                       padding: all(8),
                       child: Center(
-                          child: Text(
-                        beehives[hiveIndex].overview.name!,
-                        style: sbTS(),
-                      )),
+                        child: Text(
+                          beehives[hiveIndex].overview.name!,
+                          style: sbTS(),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -379,7 +441,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
     if (index == _selectedHiveIndex) return;
     _selectedHiveIndex = index;
     final hive = beehives[index];
-    if(hive.hasNotifications) hive.hasNotifications = false;
+    if (hive.hasNotifications) hive.hasNotifications = false;
     currentHiveId = hive.id;
     setState(() {
       _propertyTitleVisibility = true;
