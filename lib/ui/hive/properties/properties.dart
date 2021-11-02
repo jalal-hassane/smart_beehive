@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
+import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -10,7 +10,6 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/main.dart';
-import 'package:smart_beehive/ui/hive/properties/properties_viewmodel.dart';
 import 'package:smart_beehive/ui/home/alerts/alerts.dart';
 import 'package:smart_beehive/ui/home/analysis.dart';
 import 'package:smart_beehive/utils/constants.dart';
@@ -34,31 +33,14 @@ class Properties extends StatefulWidget {
 class _Properties extends State<Properties> with TickerProviderStateMixin {
   late Beehive _hive;
 
-  late PropertiesViewModel _propertiesViewModel;
+  Color _animatedTextColor = colorBlack;
 
   late final _collection =
       fireStore.collection(collectionHives).doc(_hive.docId);
 
-  _initViewModel() {
-    _propertiesViewModel = Provider.of<PropertiesViewModel>(context);
-    _propertiesViewModel.helper = PropertiesHelper(
-      success: _success,
-      failure: _failure,
-    );
-  }
-
-  _success() {
-    logInfo('Success');
-  }
-
-  _failure(String error) {
-    logError(error);
-  }
-
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
-    _initViewModel();
     _celsiusController.forward(from: 0);
     if (widget.showOnlyAnalysis) return _showOnlyAnalysis();
     return StreamBuilder<DocumentSnapshot>(
@@ -81,13 +63,15 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                 children: [
                   _propertyItem(
                     svgCelsius,
-                    _hive.properties.temperature?.toPrecision(1),
+                    _hive.properties.temperature?.toPrecision(2),
                     _doubleAnimation(_tempUpdateScaleController),
+                    colorAnimation(_tempUpdateScaleController),
                   ),
                   _propertyItem(
                     svgScale,
-                    _hive.properties.weight?.toPrecision(1),
+                    _hive.properties.weight?.toPrecision(2),
                     _doubleAnimation(_weiUpdateScaleController),
+                    colorAnimation(_weiUpdateScaleController),
                   ),
                 ],
               ),
@@ -98,11 +82,13 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                     svgBees,
                     _hive.properties.population,
                     _doubleAnimation(_popUpdateScaleController),
+                    colorAnimation(_popUpdateScaleController),
                   ),
                   _propertyItem(
                     svgHumidity,
-                    '${_hive.properties.humidity?.toPrecision(1)}%',
+                    '${_hive.properties.humidity?.toPrecision(2)}%',
                     _doubleAnimation(_humUpdateScaleController),
+                    colorAnimation(_humUpdateScaleController),
                   ),
                 ],
               ),
@@ -209,10 +195,12 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     );
   }
 
+  // todo add color animation when updating values from database
   _propertyItem(
     String svg,
     dynamic text,
     Animation<double> scale,
+    Animation<Color> color,
   ) {
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -231,8 +219,8 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             ScaleTransition(
               scale: scale,
               child: Text(
-                text.toString(),
-                style: ebTS(),
+                '$text',
+                style: ebTS(color: color.value),
               ),
             ),
           ],
@@ -244,7 +232,6 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
   _propertyIconItem(IconData data, String text, Function()? press) {
     return SlideTransition(
       position: _iconOffsetAnimation,
-      //scale: _scaleAnimation,
       child: FadeTransition(
         opacity: _fadeInAnimation,
         child: Column(
@@ -275,7 +262,6 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
   _analysisItem(AlertType type, Function()? press) {
     return SlideTransition(
       position: _iconOffsetAnimation,
-      //scale: _scaleAnimation,
       child: FadeTransition(
         opacity: _fadeInAnimation,
         child: Column(

@@ -419,7 +419,9 @@ extension WidgetsGenerator on List<ItemLog> {
 }
 
 extension AnimationHandler on TickerProviderStateMixin {
-  AnimationController animationController({Duration duration = const Duration(seconds: 1)}) => AnimationController(
+  AnimationController animationController(
+          {Duration duration = const Duration(seconds: 1)}) =>
+      AnimationController(
         duration: duration,
         vsync: this,
         lowerBound: 0.0,
@@ -455,4 +457,14 @@ extension AnimationHandler on TickerProviderStateMixin {
           curve: Curves.ease,
         ),
       );
+
+  Animation<Color> colorAnimation(
+    AnimationController parent, {
+    Color begin = Colors.black,
+    Color end = Colors.blue,
+  }) =>
+      Tween<Color>(
+        begin: begin,
+        end: end,
+      ).animate(parent);
 }
