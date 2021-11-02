@@ -14,16 +14,24 @@ class Beehive {
   bool hiveIsSwarming = false;
   bool hasNotifications = false;
 
+  String? overviewId;
+  String? propertiesId;
+  String? logsId;
+
   Beehive(this.id, this.keeperId,this.docId);
 
   toMap() {
     return {
       fieldId: id,
       fieldKeeperId: keeperId,
-      fieldOverview: overview.toMap(),
-      fieldProperties: properties.toMap(),
-      fieldLogs: logs.toMap(),
+      fieldOverviewId: overviewId,
+      fieldPropertiesId: propertiesId,
+      fieldLogsId: logsId,
       fieldSwarming: hiveIsSwarming,
     };
+  }
+
+  static Beehive fromMap(Map<String,dynamic> map){
+    return Beehive('id', 'keeperId', 'docId');
   }
 }

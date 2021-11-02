@@ -12,7 +12,9 @@ import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
+import 'package:smart_beehive/data/local/models/hive_logs.dart';
 import 'package:smart_beehive/data/local/models/hive_overview.dart';
+import 'package:smart_beehive/data/local/models/hive_properties.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/hive/logs/logs.dart';
 import 'package:smart_beehive/ui/hive/overview/overview.dart';
@@ -47,8 +49,6 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   Barcode? result;
   QRViewController? controller;
   String _warning = '';
-
-  int get _hiveCounter => beehives.length + 1;
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
@@ -112,10 +112,11 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         );
         return;
       }
-      insertedHive = Beehive(uuid, me?.id ?? '','')
-        ..overview = HiveOverview(name: 'hive #$_hiveCounter');
-      //me!.beehives?.add(insertedHive!);
-      _farmViewModel.insertHive(insertedHive!);
+      insertedHive = Beehive(uuid, me?.docId ?? '', '')/*
+        ..overview = HiveOverview(name: 'hive #$hiveCounter', hiveId: uuid)
+        ..properties = HiveProperties(hiveId: uuid)
+        ..logs = HiveLogs(hiveId: uuid)*/;
+      _farmViewModel.insertHive2(insertedHive!);
     });
   }
 
@@ -147,7 +148,7 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         final beehive = beehives
             .firstWhere((element) => element.id == message.data['hive_id']);
         final analysis = message.data['analysis'];
-        if(!mounted) return;
+        if (!mounted) return;
         showDialog<void>(
             context: context,
             builder: (BuildContext context) {

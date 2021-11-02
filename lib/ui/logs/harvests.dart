@@ -125,7 +125,7 @@ class _Harvests extends State<Harvests> {
                     onPressed: () {
                       setState(() {
                         _logHarvests?.clear();
-                        _logsViewModel.updateHive();
+                        _logsViewModel.updateLogs();
                       });
                     },
                     style: ElevatedButton.styleFrom(
@@ -253,7 +253,7 @@ class _Harvests extends State<Harvests> {
 
     _logHarvests!.history.add(ItemHarvestHistory(_history));
     _logHarvests!.clear();
-    _logsViewModel.updateHive();
+    _logsViewModel.updateLogs();
   }
 
   _closeSheetAndSave(ItemHarvest item) {
@@ -290,7 +290,7 @@ class _Harvests extends State<Harvests> {
 
       _textController.clear();
       logInfo('harvests ${_logHarvests?.toMap()}');
-      _logsViewModel.updateHive();
+      _logsViewModel.updateLogs();
     } catch (e) {
       showSnackBar(context, 'Value entered is malformed!');
     }

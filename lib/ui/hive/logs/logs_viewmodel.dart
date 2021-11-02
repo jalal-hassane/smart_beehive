@@ -11,49 +11,21 @@ import '../../../main.dart';
 class LogsViewModel extends ChangeNotifier {
   late LogsHelper helper;
 
-  CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
   CollectionReference hives = fireStore.collection(collectionHives);
+  CollectionReference logs = fireStore.collection(collectionLogs);
 
-  /// add hive to firestore db
-  updateHive() async {
+  updateLogs() async {
     final updatedHive =
-        beehives.firstWhere((element) => element.id == currentHiveId);
+    beehives.firstWhere((element) => element.id == currentHiveId);
 
-    hives
-        .where(fieldId, isEqualTo: currentHiveId)
-        .limit(1)
-        .get()
-        .then((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        final doc = snapshot.docs[0];
-        hives
-            .doc(doc.id)
-            .update(updatedHive.toMap())
-            .then((value) => helper._success())
-            .catchError((error) => helper._failure(error));
-      }
-    });
+    logInfo('updatedHive ${updatedHive.toMap()}');
+    logs
+        .doc(updatedHive.logsId)
+        .update(updatedHive.logs.toMap())
+        .then((value) => helper._success())
+        .catchError((error) => helper._failure(error));
   }
 
-  updateQueen() {
-    final keeper = me?.id;
-    if (keeper.isNullOrEmpty) {}
-  }
-
-  updateHarvests() {
-    final keeper = me?.id;
-    if (keeper.isNullOrEmpty) {}
-  }
-
-  updateFeeds() {
-    final keeper = me?.id;
-    if (keeper.isNullOrEmpty) {}
-  }
-
-  updateTreatments() {
-    final keeper = me?.id;
-    if (keeper.isNullOrEmpty) {}
-  }
 }
 
 class LogsHelper {

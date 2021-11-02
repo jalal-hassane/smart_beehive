@@ -114,6 +114,7 @@ Widget sheetTextField(
   void Function(String string)? submit,
   bool focus = true,
   bool alignVertical = false,
+  TextAlign align = TextAlign.start,
   Widget? suffix,
   ScrollController? scrollController,
   int? max,
@@ -127,6 +128,7 @@ Widget sheetTextField(
     child: Padding(
       padding: left(8),
       child: TextField(
+        textAlign: align,
         enabled: focus,
         autofocus: false,
         controller: controller,

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:smart_beehive/composite/assets.dart';
-import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -33,10 +32,8 @@ class Properties extends StatefulWidget {
 class _Properties extends State<Properties> with TickerProviderStateMixin {
   late Beehive _hive;
 
-  Color _animatedTextColor = colorBlack;
-
   late final _collection =
-      fireStore.collection(collectionHives).doc(_hive.docId);
+      fireStore.collection(collectionProperties).doc(_hive.propertiesId);
 
   @override
   Widget build(BuildContext context) {
@@ -99,15 +96,14 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
 
   parseData(Map<String, dynamic> doc) {
     try {
-      final properties = doc[fieldProperties] as Map<String, dynamic>;
       final oldTemperature = _hive.properties.temperature;
       final oldHumidity = _hive.properties.humidity;
       final oldWeight = _hive.properties.weight;
       final oldPopulation = _hive.properties.population;
-      _hive.properties.temperature = properties[fieldTemperature] as double;
-      _hive.properties.humidity = properties[fieldHumidity] as double;
-      _hive.properties.weight = properties[fieldWeight] as double;
-      _hive.properties.population = properties[fieldPopulation] as int;
+      _hive.properties.temperature = doc[fieldTemperature] as double;
+      _hive.properties.humidity = doc[fieldHumidity] as double;
+      _hive.properties.weight = doc[fieldWeight] as double;
+      _hive.properties.population = doc[fieldPopulation] as int;
       if (oldTemperature != _hive.properties.temperature) {
         _tempUpdateScaleController.forward(from: 0).whenComplete(() {
           _tempUpdateScaleController.reverse(from: 1);
@@ -240,18 +236,12 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               margin: bottom(10),
               child: Padding(
                 padding: all(2),
-                child: Icon(
-                  data,
-                  size: screenHeight * 0.07,
-                ),
+                child: Icon(data, size: screenHeight * 0.07),
               ),
             ),
             ElevatedButton(
               onPressed: press,
-              child: Text(
-                text,
-                style: mTS(),
-              ),
+              child: Text(text, style: mTS()),
             ),
           ],
         ),

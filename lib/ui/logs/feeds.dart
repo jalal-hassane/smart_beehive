@@ -88,7 +88,7 @@ class _Feeds extends State<Feeds> {
               onPressed: () {
                 setState(() {
                   _logFeeds?.clear();
-                  _logsViewModel.updateHive();
+                  _logsViewModel.updateLogs();
                 });
               },
               style: ElevatedButton.styleFrom(
@@ -131,7 +131,7 @@ class _Feeds extends State<Feeds> {
             }
             String icon = _logFeeds!.honey! ? pngFeedHoneyActive : pngFeedHoney;
             _logFeeds!.logs[1].setIcon(icon, _logFeeds!.honey!);
-            _logsViewModel.updateHive();
+            _logsViewModel.updateLogs();
             setState(() {});
           };
           break;
@@ -146,7 +146,7 @@ class _Feeds extends State<Feeds> {
                 ? pngFeedProbioticsActive
                 : pngFeedProbiotics;
             _logFeeds!.logs.last.setIcon(icon, _logFeeds!.probiotics!);
-            _logsViewModel.updateHive();
+            _logsViewModel.updateLogs();
             setState(() {});
           };
           break;
@@ -231,7 +231,7 @@ class _Feeds extends State<Feeds> {
         it.isActive = false;
       }
       Navigator.pop(context);
-      _logsViewModel.updateHive();
+      _logsViewModel.updateLogs();
       setState(() {
         _logFeeds!.syrup = syrup;
         itemLog.setData(icon, title);
@@ -247,7 +247,7 @@ class _Feeds extends State<Feeds> {
         it.isActive = false;
       }
       Navigator.pop(context);
-      _logsViewModel.updateHive();
+      _logsViewModel.updateLogs();
       setState(() {
         _logFeeds!.patty = pattyType;
         itemLog.setData(icon, title);

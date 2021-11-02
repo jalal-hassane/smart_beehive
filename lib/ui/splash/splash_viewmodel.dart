@@ -16,14 +16,15 @@ class SplashViewModel extends ChangeNotifier {
 
   CollectionReference beekeepers = fireStore.collection(collectionBeekeeper);
   CollectionReference hives = fireStore.collection(collectionHives);
+  CollectionReference overview = fireStore.collection(collectionOverview);
+  CollectionReference properties = fireStore.collection(collectionProperties);
+  CollectionReference logs = fireStore.collection(collectionLogs);
 
   checkIn() async {
     final authToken = await PrefUtils.authToken;
     logInfo("auth token $authToken");
     if (authToken.isNotEmpty) {
       return beekeepers.doc(authToken).get().then((snapshot) {
-        final id = snapshot[fieldId].toString();
-        final firebaseId = authToken;
         final username = snapshot[fieldUsername].toString();
         final password = snapshot[fieldPassword].toString();
         String profileImage = '';
@@ -32,9 +33,8 @@ class SplashViewModel extends ChangeNotifier {
         } catch (ex) {
           logError(ex.toString());
         }
-        _getBeehives(id).then((_hives){
-          final beekeeper = Beekeeper(id)
-            ..firebaseId = firebaseId
+        _getBeehives(authToken).then((_hives) {
+          final beekeeper = Beekeeper(authToken)
             ..username = username
             ..password = password
             ..profileImage = profileImage
@@ -50,45 +50,78 @@ class SplashViewModel extends ChangeNotifier {
     }
   }
 
-  Future<List<Beehive>> _getBeehives(String id) async{
+  Future<List<Beehive>> _getBeehives(String id) async {
     final _hives = <Beehive>[];
-    await hives.where(fieldKeeperId, isEqualTo: id).get().then((querySnapshot) {
+    await hives
+        .where(fieldKeeperId, isEqualTo: id)
+        .get()
+        .then((querySnapshot) async {
       logInfo('equal');
       logInfo('equal ${querySnapshot.docs.length}');
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
         try {
           final hiveId = doc[fieldId].toString();
           final swarming = doc[fieldSwarming] as bool;
-          final beehive = Beehive(hiveId, id,doc.id)..hiveIsSwarming = swarming;
-          try {
-            final overview = HiveOverview.fromMap(
-                doc[fieldOverview] as Map<String, dynamic>);
-            beehive.overview = overview;
-          } catch (ex) {
-            logError('overview => $ex');
-          }
-          try {
-            final properties = HiveProperties.fromMap(
-                doc[fieldProperties] as Map<String, dynamic>);
-            beehive.properties = properties;
-          } catch (ex) {
-            logError('properties => $ex');
-          }
-          try {
-            final logs =
-                HiveLogs.fromMap(doc[fieldLogs] as Map<String, dynamic>);
-            beehive.logs = logs;
-          } catch (ex) {
-            logError('logs => $ex');
-          }
+          final beehive = Beehive(hiveId, id, doc.id)
+            ..hiveIsSwarming = swarming
+            ..overviewId = doc[fieldOverviewId].toString()
+            ..propertiesId = doc[fieldPropertiesId].toString()
+            ..logsId = doc[fieldLogsId].toString();
+          await _getOverview(beehive, doc.id);
+          await _getProperties(beehive, doc.id);
+          await _getLogs(beehive, doc.id);
           _hives.add(beehive);
         } catch (ex) {
           logError(ex.toString());
         }
       }
-    }).catchError((error) {
-    });
+    }).catchError((error) {});
     return _hives;
+  }
+
+  _getOverview(Beehive beehive, String id) async {
+    return overview
+        .where(fieldHiveId, isEqualTo: id)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      try {
+        final overview = HiveOverview.fromMap(snapshot.docs.first);
+        beehive.overview = overview;
+      } catch (ex) {
+        logError('overview => $ex');
+      }
+    });
+  }
+
+  _getProperties(Beehive beehive, String id) async {
+    return properties
+        .where(fieldHiveId, isEqualTo: id)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      try {
+        final properties = HiveProperties.fromMap(snapshot.docs.first);
+        beehive.properties = properties;
+      } catch (ex) {
+        logError('properties => $ex');
+      }
+    });
+  }
+
+  _getLogs(Beehive beehive, String id) async {
+    return logs
+        .where(fieldHiveId, isEqualTo: id)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      try {
+        final logs = HiveLogs.fromMap(snapshot.docs.first);
+        beehive.logs = logs;
+      } catch (ex) {
+        logError('logs => $ex');
+      }
+    });
   }
 }
 

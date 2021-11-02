@@ -70,6 +70,7 @@ class _Registration extends State<Registration> {
                             screenHeight,
                             _usernameController,
                             hintUsername,
+                            align: TextAlign.center,
                           ),
                         ),
                         Container(
@@ -81,6 +82,7 @@ class _Registration extends State<Registration> {
                             hintPassword,
                             shouldHideText: true,
                             last: true,
+                            align: TextAlign.center,
                             type: TextInputType.visiblePassword,
                             submit: (_) => _proceed(),
                           ),

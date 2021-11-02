@@ -11,7 +11,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/data/local/models/beekeeper.dart';
 import 'package:smart_beehive/ui/hive/overview/overview_viewmodel.dart';
-import 'package:smart_beehive/ui/hive/properties/properties_viewmodel.dart';
 import 'package:smart_beehive/ui/home/farm/farm_viewmodel.dart';
 import 'package:smart_beehive/ui/registration/registration_viewmodel.dart';
 import 'package:smart_beehive/ui/splash/splash.dart';
@@ -42,6 +41,8 @@ List<Beehive> get beehives {
   return <Beehive>[];
 }
 
+int get hiveCounter => beehives.length + 1;
+
 String currentHiveId = '';
 
 /// Streams are created so that app can respond to notification-related events
@@ -53,10 +54,10 @@ final BehaviorSubject<String?> selectNotificationSubject =
     BehaviorSubject<String?>();
 
 final BehaviorSubject<String?> selectNotificationHiveId =
-BehaviorSubject<String?>();
+    BehaviorSubject<String?>();
 
 final BehaviorSubject<String?> selectNotificationAnalysis =
-BehaviorSubject<String?>();
+    BehaviorSubject<String?>();
 
 const MethodChannel platform = MethodChannel('smart_beehive');
 
@@ -296,7 +297,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: SplashViewModel()),
         ChangeNotifierProvider.value(value: RegistrationViewModel()),
         ChangeNotifierProvider.value(value: FarmViewModel()),
-        ChangeNotifierProvider.value(value: PropertiesViewModel()),
         ChangeNotifierProvider.value(value: OverviewViewModel()),
         ChangeNotifierProvider.value(value: AlertsViewModel()),
         ChangeNotifierProvider.value(value: LogsViewModel()),

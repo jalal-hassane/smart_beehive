@@ -1,8 +1,8 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/extensions.dart';
-import 'package:smart_beehive/utils/log_utils.dart';
 
 import 'alert.dart';
 
@@ -12,6 +12,9 @@ class HiveProperties {
   double? weight = 5.5;
   int? population = 2000;
   List<Alert>? alerts = [];
+  String? hiveId;
+
+  HiveProperties({this.hiveId});
 
   generateNewProperties() {
     temperature = (Random().nextDouble() * 3 + 37).toPrecision(2);
@@ -22,6 +25,7 @@ class HiveProperties {
 
   toMap() {
     return {
+      fieldHiveId: hiveId,
       fieldTemperature: temperature,
       fieldHumidity: humidity,
       fieldWeight: weight,
@@ -30,8 +34,9 @@ class HiveProperties {
     };
   }
 
-  static HiveProperties fromMap(Map<String, dynamic> map) {
+  static HiveProperties fromMap(QueryDocumentSnapshot map) {
     return HiveProperties()
+      ..hiveId = map[fieldHiveId].toString()
       ..temperature = map[fieldTemperature] as double
       ..humidity = map[fieldHumidity] as double
       ..weight = map[fieldWeight] as double

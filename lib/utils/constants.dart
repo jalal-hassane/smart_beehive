@@ -12,8 +12,12 @@ const collectionLogs = 'Logs';
 
 // firestore - Beekeeper
 const fieldDeviceToken = 'deviceToken';
-const fieldId = 'id';
-const fieldKeeperId = 'keeperId';
+const fieldId = 'ID';
+const fieldHiveId = 'HiveID';
+const fieldOverviewId = 'OverviewID';
+const fieldPropertiesId = 'PropertiesID';
+const fieldLogsId = 'LogsID';
+const fieldKeeperId = 'KeeperID';
 const fieldUsername = 'username';
 const fieldPassword = 'password';
 const fieldImage = 'image';
@@ -29,7 +33,7 @@ const fieldSwarming = 'swarming';
 const fieldName = 'name';
 const fieldType = 'type';
 const fieldSpecies = 'species';
-const fieldLocation = 'mLocation';
+const fieldLocation = 'location';
 const fieldDate = 'date';
 const fieldPosition = 'position';
 

@@ -10,10 +10,13 @@ class HiveOverview {
   Species? species;
   String? mLocation;
   DateTime? date = DateTime.now();
-
   Position? position;
+  String? hiveId; // firebase doc id
 
-  HiveOverview({this.name});
+  HiveOverview({
+    this.name,
+    this.hiveId,
+  });
 
   String get installationDate {
     if (date == null) return textNA;
@@ -57,6 +60,7 @@ class HiveOverview {
 
   toMap() {
     return {
+      fieldHiveId: hiveId,
       fieldName: name,
       fieldType: type?.description,
       fieldSpecies: species?.description,
@@ -68,9 +72,10 @@ class HiveOverview {
     };
   }
 
-  static HiveOverview fromMap(Map<String, dynamic> map) {
+  static HiveOverview fromMap(QueryDocumentSnapshot map) {
     final geo = map[fieldPosition] as GeoPoint?;
     return HiveOverview()
+      ..hiveId = map[fieldHiveId].toString()
       ..name = map[fieldName].toString()
       ..mLocation = map[fieldLocation].toString()
       ..date = (map[fieldDate] as Timestamp).toDate()

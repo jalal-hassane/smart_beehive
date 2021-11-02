@@ -174,7 +174,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
   _removeAlert(int index) {
     _hive.properties.alerts?.removeAt(index);
-    _alertsViewModel.updateHive();
+    _alertsViewModel.updateProperties();
   }
 
   _changeSound(int index) {}
@@ -413,7 +413,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
     //_listKey.currentState?.insertItem(0);
 
-    _alertsViewModel.updateHive();
+    _alertsViewModel.updateProperties();
   }
 
   _initViewModel() {

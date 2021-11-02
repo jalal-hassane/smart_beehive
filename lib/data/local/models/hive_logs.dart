@@ -15,9 +15,13 @@ class HiveLogs {
   LogTreatment? treatment = LogTreatment();
   LogGeneral? general = LogGeneral();
   LogWintering? wintering;
+  String? hiveId;
+
+  HiveLogs({this.hiveId});
 
   toMap() {
     return {
+      fieldHiveId:hiveId,
       fieldQueen: queen?.toMap(),
       fieldHarvest: harvests?.toMap(),
       fieldFeeds: feeds?.toMap(),
@@ -25,8 +29,9 @@ class HiveLogs {
     };
   }
 
-  static HiveLogs fromMap(Map<String, dynamic> map) {
+  static HiveLogs fromMap(QueryDocumentSnapshot map) {
     return HiveLogs()
+      ..hiveId = map[fieldHiveId].toString()
       ..queen = LogQueen.fromMap(map[fieldQueen] as Map<String, dynamic>)
       ..harvests =
           LogHarvests.fromMap(map[fieldHarvest] as Map<String, dynamic>)

@@ -221,7 +221,7 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
             setState(() {
 
             });
-            _logsViewModel.updateHive();
+            _logsViewModel.updateLogs();
 
           });
         },
