@@ -1,5 +1,4 @@
-import 'dart:math';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:smart_beehive/composite/assets.dart';
@@ -10,7 +9,9 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/main.dart';
+import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/extensions.dart';
+import 'package:smart_beehive/utils/log_utils.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:vibration/vibration.dart';
 
@@ -34,12 +35,14 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   final audioPlayer = AudioPlayer();
 
   late Beehive _hive;
+  late final _collection =
+      fireStore.collection(collectionHives).doc(_hive.docId);
+
   late final TooltipBehavior _tooltipBehavior = TooltipBehavior(enable: true);
-  final List<TempInfo> _temp = [];
   final List<Info> _dataSource = [];
   final List<Info> _last5DataSource = [];
   final List<Info> _dailyDataSource = [];
-  double weight = 5000;
+
   final List<BeeType> _population = [
     BeeType('Type1', 5000),
     BeeType('Type2', 1000),
@@ -56,221 +59,53 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _hive = widget.hive;
-    _addValues();
     _initPlayer();
   }
 
-  _addTempValues() {
-    _addTemp1();
-    _addTemp2();
-    _addTemp3();
-  }
+  _updateValues(double value) {
+    // add to current
+    setState(() {
+      if (_dataSource.length >= 5) {
+        _dataSource.removeAt(0);
+      }
+      _dataSource.add(Info(DateTime.now(), value));
 
-  _addTemp1() {
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (!mounted) return;
-      setState(() {
-        if (_dataSource.length >= 5) {
-          _dataSource.removeAt(0);
-        }
-        double rand = Random().nextDouble() * 4 + 37;
-        if (rand >= 40) {
-          _showCurrentAlert = true;
-          _highTemp = true;
-        }
-        if (rand <= 39) {
-          _showCurrentAlert = true;
-          _highTemp = false;
-        }
-        _dataSource.add(Info(DateTime.now(), rand));
-      });
-      _addTemp1();
-    });
-  }
-
-  _addTemp2() {
-    Future.delayed(const Duration(seconds: 10), () {
-      if (!mounted) return;
-      setState(() {
+      if (_last5DataSource.isEmpty) {
         if (_last5DataSource.length >= 5) {
           _last5DataSource.removeAt(0);
         }
-        double rand = Random().nextDouble() * 4 + 37;
-        if (rand >= 40) {
-          _showLast5Alert = true;
-          _highTemp = true;
-        }
-        if (rand <= 39) {
-          _showLast5Alert = true;
-          _highTemp = false;
-        }
-        _last5DataSource.add(Info(DateTime.now(), rand));
-      });
-      _addTemp2();
-    });
-  }
+        _last5DataSource.add(Info(DateTime.now(), value));
+      } else {
+        Future.delayed(const Duration(seconds: 10), () {
+          if (!mounted) return;
+          if (_last5DataSource.length >= 5) {
+            _last5DataSource.removeAt(0);
+          }
+          _last5DataSource.add(Info(DateTime.now(), value));
+        });
+      }
 
-  _addTemp3() {
-    Future.delayed(const Duration(seconds: 15), () {
-      if (!mounted) return;
-      setState(() {
+      if (_dailyDataSource.isEmpty) {
         if (_dailyDataSource.length >= 5) {
           _dailyDataSource.removeAt(0);
         }
-        double rand = Random().nextDouble() * 4 + 37;
-        if (rand >= 40) {
-          _showDailyAlert = true;
-          _highTemp = true;
-        }
-        if (rand <= 39) {
-          _showDailyAlert = true;
-          _highTemp = false;
-        }
-        _dailyDataSource.add(Info(DateTime.now(), rand));
-      });
-      _addTemp3();
+        _dailyDataSource.add(Info(DateTime.now(), value));
+      } else {
+        Future.delayed(const Duration(seconds: 10), () {
+          if (!mounted) return;
+
+          if (_dailyDataSource.length >= 5) {
+            _dailyDataSource.removeAt(0);
+          }
+          _dailyDataSource.add(Info(DateTime.now(), value));
+        });
+      }
     });
-  }
-
-  _addWeightValues() {
-    _addWeight1();
-    _addWeight2();
-    _addWeight3();
-  }
-
-  _addWeight1() {
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (!mounted) return;
-      setState(() {
-        if (_dataSource.length >= 5) {
-          _dataSource.removeAt(0);
-        }
-        if (weight == 6000) {
-          weight = 2000;
-          _showCurrentAlert = true;
-        } else {
-          weight += 100;
-        }
-        _dataSource.add(Info(DateTime.now(), weight));
-        _addWeight1();
-      });
-    });
-  }
-
-  _addWeight2() {
-    Future.delayed(const Duration(seconds: 10), () {
-      if (!mounted) return;
-      setState(() {
-        if (_last5DataSource.length >= 5) {
-          _last5DataSource.removeAt(0);
-        }
-        if (weight == 6000) {
-          weight = 2000;
-          _showLast5Alert = true;
-        } else {
-          weight += 100;
-        }
-        _last5DataSource.add(Info(DateTime.now(), weight));
-        _addWeight2();
-      });
-    });
-  }
-
-  _addWeight3() {
-    Future.delayed(const Duration(seconds: 15), () {
-      if (!mounted) return;
-      setState(() {
-        if (_dailyDataSource.length >= 5) {
-          _dailyDataSource.removeAt(0);
-        }
-        if (weight == 6000) {
-          weight = 2000;
-          _showDailyAlert = true;
-        } else {
-          weight += 100;
-        }
-        _dailyDataSource.add(Info(DateTime.now(), weight));
-      });
-      _addWeight3();
-    });
-  }
-
-  _addHumidityValues() {
-    _addHumidity1();
-    _addHumidity2();
-    _addHumidity3();
-  }
-
-  _addHumidity1() {
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (!mounted) return;
-      setState(() {
-        if (_dataSource.length >= 5) {
-          _dataSource.removeAt(0);
-        }
-        double rand = Random().nextDouble() * 4 + 75;
-
-        _dataSource.add(Info(DateTime.now(), rand));
-      });
-      _addHumidity1();
-    });
-  }
-
-  _addHumidity2() {
-    Future.delayed(const Duration(seconds: 10), () {
-      if (!mounted) return;
-      setState(() {
-        if (_last5DataSource.length >= 5) {
-          _last5DataSource.removeAt(0);
-        }
-        double rand = Random().nextDouble() * 4 + 75;
-
-        _last5DataSource.add(Info(DateTime.now(), rand));
-      });
-      _addHumidity2();
-    });
-  }
-
-  _addHumidity3() {
-    Future.delayed(const Duration(seconds: 15), () {
-      if (!mounted) return;
-      setState(() {
-        if (_dailyDataSource.length >= 5) {
-          _dailyDataSource.removeAt(0);
-        }
-        double rand = Random().nextDouble() * 4 + 75;
-
-        _dailyDataSource.add(Info(DateTime.now(), rand));
-      });
-      _addHumidity3();
-    });
-  }
-
-  _addPopulationValues() {}
-
-  _addValues() {
-    switch (widget.type) {
-      case AlertType.temperature:
-        _addTempValues();
-        break;
-      case AlertType.humidity:
-        _addHumidityValues();
-        break;
-      case AlertType.population:
-        _addPopulationValues();
-        break;
-      case AlertType.weight:
-        _addWeightValues();
-        break;
-      case AlertType.swarming:
-        break;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    _hive.hiveIsSwarming = Random().nextBool();
+    _hive = widget.hive;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -285,28 +120,73 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
         body: SingleChildScrollView(
           child: widget.type == AlertType.swarming
               ? _swarmingWidget()
-              : Column(
-                  children: [
-                    _cartesianChartWidget(
-                      'Current',
-                      _dataSource,
-                      _showCurrentAlert,
-                    ),
-                    _cartesianChartWidget(
-                      'Last Five Minutes (testing: 10 seconds)',
-                      _last5DataSource,
-                      _showLast5Alert,
-                    ),
-                    _cartesianChartWidget(
-                      'Daily (testing: 15 seconds)',
-                      _dailyDataSource,
-                      _showDailyAlert,
-                    ),
-                  ],
+              : StreamBuilder<DocumentSnapshot>(
+                  stream: _collection.snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Center(child: Text('Something went wrong'));
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Text("Collecting data"));
+                    }
+                    final map =
+                        snapshot.requireData.data() as Map<String, dynamic>;
+                    parseData(map);
+                    return Column(
+                      children: [
+                        _cartesianChartWidget(
+                          'Current',
+                          _dataSource,
+                          _showCurrentAlert,
+                        ),
+                        _cartesianChartWidget(
+                          'Last Five Minutes (testing: 10 seconds)',
+                          _last5DataSource,
+                          _showLast5Alert,
+                        ),
+                        _cartesianChartWidget(
+                          'Daily (testing: 15 seconds)',
+                          _dailyDataSource,
+                          _showDailyAlert,
+                        ),
+                      ],
+                    );
+                  },
                 ),
         ),
       ),
     );
+  }
+
+  parseData(Map<String, dynamic> doc) {
+    try {
+      final properties = doc[fieldProperties] as Map<String, dynamic>;
+      _hive.properties.temperature = properties[fieldTemperature] as double;
+      _hive.properties.humidity = properties[fieldHumidity] as double;
+      _hive.properties.weight = properties[fieldWeight] as double;
+      _hive.properties.population = properties[fieldPopulation] as int;
+      logInfo('Properties => ${_hive.properties.toMap()}');
+
+      switch (widget.type) {
+        case AlertType.temperature:
+          _updateValues(_hive.properties.temperature!);
+          break;
+        case AlertType.humidity:
+          _updateValues(_hive.properties.humidity!);
+          break;
+        case AlertType.population:
+          _updateValues(_hive.properties.population!.toDouble());
+          break;
+        case AlertType.weight:
+          _updateValues(_hive.properties.weight!);
+          break;
+        case AlertType.swarming:
+          break;
+      }
+    } catch (ex) {
+      logError('properties => $ex');
+    }
   }
 
   _swarmingWidget() {
@@ -907,13 +787,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     Vibration.cancel();
     super.dispose();
   }
-}
-
-class TempInfo {
-  final DateTime time;
-  final double value;
-
-  TempInfo(this.time, this.value);
 }
 
 class Info {
