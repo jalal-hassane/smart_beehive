@@ -14,7 +14,7 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
-import 'package:smart_beehive/ui/home/analysis.dart';
+import 'package:smart_beehive/ui/home/analysis/analysis.dart';
 import 'package:smart_beehive/ui/home/farm/farm.dart';
 import 'package:smart_beehive/ui/home/profile.dart';
 import 'package:smart_beehive/utils/extensions.dart';

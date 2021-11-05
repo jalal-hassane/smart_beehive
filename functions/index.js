@@ -13,63 +13,198 @@ admin.initializeApp({
   credential: admin.credential.applicationDefault(),
 });
 
-exports.alertBeekeeper = functions.firestore
-    .document("/Hives/{id}")
+// every 5 minutes job
+exports.collectFiveMinutesData = functions.pubsub
+    .schedule("*/5 * * * *")
+    .timeZone("Europe/London")
+    .onRun((context) => {
+      admin.firestore().collection("Properties")
+          .get()
+          .then((query) => {
+            query.forEach((doc) => {
+              const metadata = doc.data();
+              console.log("Properties => " + Object.keys(doc));
+              console.log("Properties => " + Object.values(doc));
+              const time = admin.firestore.Timestamp.fromDate(new Date());
+              metadata.temperature_5.push(
+                  {
+                    date: time,
+                    value: metadata.temperature,
+                  }
+              );
+              metadata.weight_5.push(
+                  {
+                    date: time,
+                    value: metadata.weight,
+                  }
+              );
+              metadata.humidity_5.push(
+                  {
+                    date: time,
+                    value: metadata.humidity,
+                  }
+              );
+              metadata.population_5.push(
+                  {
+                    date: time,
+                    value: metadata.population,
+                  }
+              );
+              return doc.ref.update(metadata, {merge: true});
+            });
+          })
+          .catch((error) => {
+            console.log("Catching error => " + error);
+          });
+    });
+
+// every day job
+exports.collectDailyData = functions.pubsub
+    .schedule("0 0 * * *")
+    .timeZone("Europe/London")
+    .onRun((context) => {
+      admin.firestore().collection("Properties")
+          .get()
+          .then((query) => {
+            query.forEach((doc) => {
+              const metadata = doc.data();
+              console.log("Properties => " + Object.keys(doc));
+              console.log("Properties => " + Object.values(doc));
+              const time = admin.firestore.Timestamp.fromDate(new Date());
+              metadata.temperature_day.push(
+                  {
+                    date: time,
+                    value: metadata.temperature,
+                  }
+              );
+              metadata.weight_day.push(
+                  {
+                    date: time,
+                    value: metadata.weight,
+                  }
+              );
+              metadata.humidity_day.push(
+                  {
+                    date: time,
+                    value: metadata.humidity,
+                  }
+              );
+              metadata.population_day.push(
+                  {
+                    date: time,
+                    value: metadata.population,
+                  }
+              );
+              return doc.ref.update(metadata, {merge: true});
+            });
+          })
+          .catch((error) => {
+            console.log("Catching error => " + error);
+          });
+    });
+
+exports.raiseSwarmingAlert = functions.firestore
+    .document("Hives/{id}")
     .onUpdate((change, context) => {
-    // check for alerts
-      const payloads = [];
+      const hiveId = context.params.id;
       const hive = change.after.data();
 
       if (hive.swarming) {
-        payloads.push({
-          data: {
-            "title": "Swarm Warning",
-            "body": "The hive might be swarming" + pleaseClickHere,
-            "open_page": "Farm",
-            "hive_id": hive.id,
-            "analysis": "Swarming",
-          },
-          notification: {
-            "title": "Swarm Warning",
-            "body": "The hive might be swarming" + pleaseClickHere,
-          },
-        });
+        admin.firestore().collection("Beekeeper")
+            .doc(hive.KeeperID)
+            .get()
+            .then((doc) => {
+              console.log("doc exists");
+              const metadata = doc.data();
+              const token = metadata.deviceToken;
+              const payload = {
+                data: {
+                  "title": "Swarm Warning",
+                  "body": "The hive might be swarming" + pleaseClickHere,
+                  "open_page": "Farm",
+                  "hive_id": hiveId,
+                  "analysis": "Swarming",
+                },
+                notification: {
+                  "title": "Swarm Warning",
+                  "body": "The hive might be swarming" + pleaseClickHere,
+                },
+                token: token,
+              };
+
+              return admin.messaging().send(payload).catch((error) => {
+                console.log("Catching error => " + error);
+              });
+            })
+            .catch((error) => {
+              console.log("Error getting documents: ", error);
+            });
       }
-      const mProperties = hive.properties;
+    });
+
+exports.alertBeekeeper = functions.firestore
+    .document("/Properties/{id}")
+    .onUpdate((change, context) => {
+    // check for alerts
+      const propId = context.params.id;
+      const payloads = [];
+      const mProperties = change.after.data();
+      console.log("mProperties => " + Object.values(mProperties));
+      console.log("mProperties => " + Object.keys(mProperties));
       for (let i = 0; i < mProperties.alerts.length; i++) {
         const alert = mProperties.alerts[i];
         switch (alert.type) {
           case "Temperature":
-            payloads.push(getPayload(alert, mProperties.temperature, hive.id));
+            payloads
+                .push(
+                    getPayload(alert, mProperties.temperature,
+                        propId
+                    )
+                );
             break;
           case "Humidity":
-            payloads.push(getPayload(alert, mProperties.humidity, hive.id));
+            payloads
+                .push(
+                    getPayload(alert, mProperties.humidity,
+                        propId
+                    )
+                );
             break;
           case "Population":
-            payloads.push(getPayload(alert, mProperties.population, hive.id));
+            payloads
+                .push(
+                    getPayload(alert, mProperties.population,
+                        propId
+                    )
+                );
             break;
           default:
-            payloads.push(getPayload(alert, mProperties.weight, hive.id));
+            payloads
+                .push(
+                    getPayload(alert, mProperties.weight,
+                        propId
+                    )
+                );
         }
       }
       if (payloads.length == 0) {
         return console.log("No alerts to be raised");
       }
       admin.firestore().collection("Beekeeper")
-          .where("id", "==", hive.keeperId)
+          .doc(mProperties.KeeperID)
           .get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              // doc.data() is never undefined for query doc snapshots
-              const metadata = doc.data();
-              const token = metadata.deviceToken;
-              for (let k = 0; k < payloads.length; k++) {
-                payloads[k].token = token;
-              }
-              return admin.messaging().sendAll(payloads).catch((error) => {
-                console.log("Catching error => " + error);
-              });
-            });
+          .then((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            const metadata = doc.data();
+            const token = metadata.deviceToken;
+            for (let k = 0; k < payloads.length; k++) {
+              payloads[k].token = token;
+            }
+            try {
+              return admin.messaging().sendAll(payloads);
+            } catch (error) {
+              console.log("Catching error => " + error);
+            }
           })
           .catch((error) => {
             console.log("Error getting documents: ", error);

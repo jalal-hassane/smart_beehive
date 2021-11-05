@@ -1,19 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
+import 'package:smart_beehive/composite/widgets.dart';
 import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
+import 'package:smart_beehive/data/local/models/hive_properties.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:vibration/vibration.dart';
+
+import 'analysis_viewmodel.dart';
 
 const _tag = 'Analysis';
 
@@ -36,12 +44,14 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
 
   late Beehive _hive;
   late final _collection =
-      fireStore.collection(collectionHives).doc(_hive.docId);
+      fireStore.collection(collectionProperties).doc(_hive.propertiesId);
 
   late final TooltipBehavior _tooltipBehavior = TooltipBehavior(enable: true);
   final List<Info> _dataSource = [];
   final List<Info> _last5DataSource = [];
+  int _last5Length = 0;
   final List<Info> _dailyDataSource = [];
+  int _dailyLength = 0;
 
   final List<BeeType> _population = [
     BeeType('Type1', 5000),
@@ -56,56 +66,105 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   bool _highTemp = false;
   bool stateExpanded = false;
 
+  late AnalysisViewModel _analysisViewModel;
+
+  _initViewModel() {
+    _analysisViewModel = Provider.of<AnalysisViewModel>(context);
+    _analysisViewModel.helper = AnalysisHelper(
+      success: _success,
+      failure: _failure,
+    );
+  }
+
+  _success() {
+    setState(() {});
+    logInfo('alert: added successfully');
+  }
+
+  _failure(String error) {
+    logError('alert: $error');
+  }
+
   @override
   void initState() {
     super.initState();
     _initPlayer();
   }
 
-  _updateValues(double value) {
+  Widget _updateValues(
+    double value,
+    List<Info> last5,
+    List<Info> daily,
+  ) {
     // add to current
-    setState(() {
-      if (_dataSource.length >= 5) {
-        _dataSource.removeAt(0);
-      }
-      _dataSource.add(Info(DateTime.now(), value));
 
-      if (_last5DataSource.isEmpty) {
-        if (_last5DataSource.length >= 5) {
-          _last5DataSource.removeAt(0);
-        }
-        _last5DataSource.add(Info(DateTime.now(), value));
-      } else {
-        Future.delayed(const Duration(seconds: 10), () {
-          if (!mounted) return;
-          if (_last5DataSource.length >= 5) {
-            _last5DataSource.removeAt(0);
+    if (_dataSource.length >= 5) {
+      _dataSource.removeAt(0);
+    }
+    _dataSource.add(Info(DateTime.now(), value));
+
+    if (_last5Length != last5.length) {
+      _last5Length = last5.length;
+      if (_last5DataSource.length < 8) {
+        last5.sort((a, b) => b.time.compareTo(a.time));
+        for (var element in last5) {
+          if (!_last5DataSource.contains(element) &&
+              _last5DataSource.length < 8) {
+            _last5DataSource.add(element);
           }
-          _last5DataSource.add(Info(DateTime.now(), value));
-        });
-      }
-
-      if (_dailyDataSource.isEmpty) {
-        if (_dailyDataSource.length >= 5) {
-          _dailyDataSource.removeAt(0);
         }
-        _dailyDataSource.add(Info(DateTime.now(), value));
+        _last5DataSource.sort((a, b) => a.time.compareTo(b.time));
       } else {
-        Future.delayed(const Duration(seconds: 10), () {
-          if (!mounted) return;
-
-          if (_dailyDataSource.length >= 5) {
-            _dailyDataSource.removeAt(0);
-          }
-          _dailyDataSource.add(Info(DateTime.now(), value));
-        });
+        _last5DataSource.removeAt(0);
+        _last5DataSource.add(last5.last);
       }
-    });
+    }
+
+    if (_dailyLength != daily.length) {
+      _dailyLength = daily.length;
+      if (_dailyDataSource.length < 8) {
+        daily.sort((a, b) => b.time.compareTo(a.time));
+        for (var element in daily) {
+          if (!_dailyDataSource.contains(element) &&
+              _dailyDataSource.length < 8) {
+            _dailyDataSource.add(element);
+          }
+        }
+        _dailyDataSource.sort((a, b) => a.time.compareTo(b.time));
+      } else {
+        _dailyDataSource.removeAt(0);
+        _dailyDataSource.add(last5.last);
+      }
+    }
+
+    logInfo("last 5 ${_last5DataSource.map((e) => e.toMap())}");
+    return Column(
+      children: [
+        _cartesianChartWidget(
+          'Current',
+          _dataSource,
+          _showCurrentAlert,
+        ),
+        _cartesianChartWidget(
+          'Last Five Minutes',
+          _last5DataSource,
+          _showLast5Alert,
+          interval: DateTimeIntervalType.hours,
+        ),
+        _cartesianChartWidget(
+          'Daily',
+          _dailyDataSource,
+          _showDailyAlert,
+          interval: DateTimeIntervalType.days,
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     _hive = widget.hive;
+    _initViewModel();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -117,81 +176,217 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
           ),
           centerTitle: true,
         ),
+        floatingActionButton: widget.type == AlertType.population
+            ? FloatingActionButton(
+                onPressed: _showAddBeesSheet,
+                child: Padding(
+                  padding: all(8),
+                  child: SvgPicture.asset(
+                    svgBees,
+                    color: colorBlack,
+                  ),
+                ),
+                backgroundColor: colorPrimary,
+              )
+            : null,
         body: SingleChildScrollView(
           child: widget.type == AlertType.swarming
               ? _swarmingWidget()
-              : StreamBuilder<DocumentSnapshot>(
-                  stream: _collection.snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return const Center(child: Text('Something went wrong'));
-                    }
+              : widget.type == AlertType.population
+                  ? _populationWidget()
+                  : StreamBuilder<DocumentSnapshot>(
+                      stream: _collection.snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Text('Something went wrong'),
+                          );
+                        }
 
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: Text("Collecting data"));
-                    }
-                    final map =
-                        snapshot.requireData.data() as Map<String, dynamic>;
-                    parseData(map);
-                    return Column(
-                      children: [
-                        _cartesianChartWidget(
-                          'Current',
-                          _dataSource,
-                          _showCurrentAlert,
-                        ),
-                        _cartesianChartWidget(
-                          'Last Five Minutes (testing: 10 seconds)',
-                          _last5DataSource,
-                          _showLast5Alert,
-                        ),
-                        _cartesianChartWidget(
-                          'Daily (testing: 15 seconds)',
-                          _dailyDataSource,
-                          _showDailyAlert,
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: Text("Collecting data"),
+                          );
+                        }
+                        final map =
+                            snapshot.requireData.data() as Map<String, dynamic>;
+                        return parseData(map);
+                      },
+                    ),
         ),
       ),
     );
   }
 
-  parseData(Map<String, dynamic> doc) {
+  Widget parseData(Map<String, dynamic> doc) {
     try {
-      final properties = doc[fieldProperties] as Map<String, dynamic>;
-      _hive.properties.temperature = properties[fieldTemperature] as double;
-      _hive.properties.humidity = properties[fieldHumidity] as double;
-      _hive.properties.weight = properties[fieldWeight] as double;
-      _hive.properties.population = properties[fieldPopulation] as int;
+      _hive.properties.temperature =
+          double.parse(doc[fieldTemperature].toString());
+      _hive.properties.humidity = double.parse(doc[fieldHumidity].toString());
+      _hive.properties.weight = double.parse(doc[fieldWeight].toString());
+      _hive.properties.population = doc[fieldPopulation] as int;
       logInfo('Properties => ${_hive.properties.toMap()}');
+
+      _hive.properties.lastFiveTemperature =
+          (doc[fieldLastFiveTemperature] as List<dynamic>)
+              .map((e) => Info.fromMap(e))
+              .toList();
+
+      _hive.properties.lastFiveWeight =
+          (doc[fieldLastFiveWeight] as List<dynamic>)
+              .map((e) => Info.fromMap(e))
+              .toList();
+
+      _hive.properties.lastFiveHumidity =
+          (doc[fieldLastFiveHumidity] as List<dynamic>)
+              .map((e) => Info.fromMap(e))
+              .toList();
+
+      _hive.properties.lastFivePopulation =
+          (doc[fieldLastFivePopulation] as List<dynamic>)
+              .map((e) => Info.fromMap(e))
+              .toList();
 
       switch (widget.type) {
         case AlertType.temperature:
-          _updateValues(_hive.properties.temperature!);
-          break;
+          return _updateValues(
+            _hive.properties.temperature!,
+            _hive.properties.lastFiveTemperature,
+            _hive.properties.dailyTemperature,
+          );
         case AlertType.humidity:
-          _updateValues(_hive.properties.humidity!);
-          break;
+          return _updateValues(
+            _hive.properties.humidity!,
+            _hive.properties.lastFiveHumidity,
+            _hive.properties.dailyHumidity,
+          );
         case AlertType.population:
-          _updateValues(_hive.properties.population!.toDouble());
-          break;
+          return _updateValues(
+            _hive.properties.population!.toDouble(),
+            _hive.properties.lastFivePopulation,
+            _hive.properties.dailyPopulation,
+          );
         case AlertType.weight:
-          _updateValues(_hive.properties.weight!);
-          break;
+          return _updateValues(
+            _hive.properties.weight!,
+            _hive.properties.lastFiveWeight,
+            _hive.properties.dailyWeight,
+          );
         case AlertType.swarming:
-          break;
+          return Container();
       }
     } catch (ex) {
       logError('properties => $ex');
+      return Container();
     }
+  }
+
+  _updatePopulation({bool remove = false}) {
+    var amount = int.parse(_amountController.text);
+    if (remove) amount = amount * -1;
+    _hive.properties.population = _hive.properties.population! + amount;
+    if (_hive.properties.population! < 0) _hive.properties.population = 0;
+    // update population
+    _analysisViewModel.updatePopulation();
+  }
+
+  final _amountController = TextEditingController();
+
+  _showAddBeesSheet() {
+    context.showCustomScaffoldBottomSheet((_) {
+      return StatefulBuilder(
+        builder: (_, state) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                textAddBees,
+                style: bTS(size: 30, color: colorPrimary),
+              ),
+              sheetTextField(
+                screenWidth,
+                screenHeight,
+                _amountController,
+                textAddBees,
+                type: const TextInputType.numberWithOptions(
+                    decimal: false, signed: false),
+                align: TextAlign.center,
+                last: true,
+                //submit:(v)=> _updatePopulation(),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
+              Column(
+                children: [
+                  Container(
+                    margin: bottom(10),
+                    child: ElevatedButton(
+                      onPressed: () => state(() => _updatePopulation()),
+                      style: ElevatedButton.styleFrom(primary: Colors.red[200]),
+                      child: SizedBox(
+                        width: screenWidth * 0.4,
+                        height: screenHeight * 0.056,
+                        child: Center(
+                          child: Text(
+                            textAdd,
+                            style: mTS(color: colorWhite),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _updatePopulation(remove: true),
+                    style: ElevatedButton.styleFrom(primary: Colors.red[400]),
+                    child: SizedBox(
+                      width: screenWidth * 0.3,
+                      height: screenHeight * 0.05,
+                      child: Center(
+                        child: Text(
+                          textRemove,
+                          style: mTS(color: colorWhite),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  _populationWidget() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            svgBees,
+            width: screenWidth * 0.7,
+            height: screenHeight * 0.5,
+            color: Colors.green,
+          ),
+          Center(
+            child: Padding(
+              padding: all(8),
+              child: Text(
+                "${_hive.properties.population}",
+                textAlign: TextAlign.center,
+                style: sbTS(size: 30),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   _swarmingWidget() {
     if (_hive.hiveIsSwarming) {
-      // vibrate
       _vibrate();
     }
     return Column(
@@ -219,10 +414,27 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                       Visibility(
                         visible: _hive.hiveIsSwarming,
                         child: Container(
-                          margin: bottom(6),
-                          child: const Icon(
-                            Icons.warning_rounded,
-                            color: Colors.red,
+                          margin: trbl(0, 8, 0, 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                margin: bottom(6),
+                                child: const Icon(
+                                  Icons.warning_rounded,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: _stopSwarming,
+                                child: Text(textStop, style: mTS()),
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.green[200],
+                                  minimumSize: Size.zero,
+                                  padding: all(8),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -240,7 +452,9 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                         child: Container(
                           margin: top(6),
                           child: Text(
-                            'date: 2021 Oct 19',
+                            'Date: ' +
+                                formatDate(
+                                    swarmingTime!, [yyyy, ' ', M, ' ', dd]),
                             style: sbTS(color: Colors.red),
                           ),
                         ),
@@ -250,7 +464,9 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                         child: Container(
                           margin: top(6),
                           child: Text(
-                            'time: 4:06 pm',
+                            'Time: ' +
+                                formatDate(
+                                    swarmingTime!, [hh, ':', nn, ' ', am]),
                             style: sbTS(color: Colors.red),
                           ),
                         ),
@@ -501,7 +717,14 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     );
   }
 
-  _cartesianChartWidget(String title, List<Info> source, bool alert) {
+  _stopSwarming() => _analysisViewModel.stopSwarming();
+
+  _cartesianChartWidget(
+    String title,
+    List<Info> source,
+    bool alert, {
+    DateTimeIntervalType interval = DateTimeIntervalType.seconds,
+  }) {
     return Padding(
       padding: all(12),
       child: Stack(
@@ -510,26 +733,34 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
           SfCartesianChart(
             primaryXAxis: DateTimeCategoryAxis(
               interval: 1,
-              intervalType: DateTimeIntervalType.seconds,
+              intervalType: interval,
               autoScrollingMode: AutoScrollingMode.start,
               labelPlacement: LabelPlacement.onTicks,
+              labelStyle: mTS(size: 10),
             ),
+            primaryYAxis: NumericAxis(labelStyle: mTS(size: 10)),
             title: ChartTitle(
               text: title,
               textStyle: mTS(),
             ),
-            tooltipBehavior: _tooltipBehavior,
+            tooltipBehavior: TooltipBehavior(enable: true, canShowMarker: true),
             series: <StackedLineSeries<Info, DateTime>>[
               StackedLineSeries<Info, DateTime>(
                 color: widget.type.color,
+                name: widget.type.description,
                 dataSource: source,
                 xValueMapper: (Info info, _) => info.time,
                 yValueMapper: (Info info, _) => info.value,
                 dataLabelSettings: DataLabelSettings(
                   isVisible: true,
                   builder: (data, point, series, pointIndex, seriesIndex) {
-                    final _value = (data as Info).value.toPrecision(2);
-                    return Text(_value.toString());
+                    final _value =
+                        (double.parse((data as Info).value.toString()))
+                            .toPrecision(2);
+                    return Text(
+                      _value.toString(),
+                      style: sbTS(size: 10),
+                    );
                   },
                 ),
                 markerSettings: const MarkerSettings(isVisible: true),
@@ -787,13 +1018,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     Vibration.cancel();
     super.dispose();
   }
-}
-
-class Info {
-  final DateTime time;
-  final double value;
-
-  Info(this.time, this.value);
 }
 
 class BeeType {

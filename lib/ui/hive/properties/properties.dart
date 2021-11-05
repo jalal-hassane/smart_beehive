@@ -10,7 +10,7 @@ import 'package:smart_beehive/data/local/models/alert.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/home/alerts/alerts.dart';
-import 'package:smart_beehive/ui/home/analysis.dart';
+import 'package:smart_beehive/ui/home/analysis/analysis.dart';
 import 'package:smart_beehive/utils/constants.dart';
 import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
@@ -100,9 +100,9 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
       final oldHumidity = _hive.properties.humidity;
       final oldWeight = _hive.properties.weight;
       final oldPopulation = _hive.properties.population;
-      _hive.properties.temperature = doc[fieldTemperature] as double;
-      _hive.properties.humidity = doc[fieldHumidity] as double;
-      _hive.properties.weight = doc[fieldWeight] as double;
+      _hive.properties.temperature = double.parse(doc[fieldTemperature].toString());
+      _hive.properties.humidity = double.parse(doc[fieldHumidity].toString());
+      _hive.properties.weight = double.parse(doc[fieldWeight].toString());
       _hive.properties.population = doc[fieldPopulation] as int;
       if (oldTemperature != _hive.properties.temperature) {
         _tempUpdateScaleController.forward(from: 0).whenComplete(() {

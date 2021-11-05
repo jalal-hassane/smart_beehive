@@ -1404,42 +1404,42 @@ class ItemHarvest {
   static ItemHarvest? beeswaxFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsBeeswax, logBeeswax)
-      ..value = map[fieldValue] as double?
+      ..value = double.tryParse(map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? honeyCombFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsHoneycomb, logHoneycomb)
-      ..value = map[fieldValue] as double?
+      ..value =double.tryParse( map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? honeyFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsHoney, logHoney)
-      ..value = map[fieldValue] as double?
+      ..value = double.tryParse( map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? pollenFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsPollen, logPollen)
-      ..value = map[fieldValue] as double?
+      ..value = double.tryParse( map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? propolisFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsPropolis, logPropolis)
-      ..value = map[fieldValue] as double?
+      ..value = double.tryParse( map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? royalJellyFrom(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsRoyalJelly, logRoyalJelly)
-      ..value = map[fieldValue] as double?
+      ..value = double.tryParse( map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 }

@@ -12,9 +12,6 @@ import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
-import 'package:smart_beehive/data/local/models/hive_logs.dart';
-import 'package:smart_beehive/data/local/models/hive_overview.dart';
-import 'package:smart_beehive/data/local/models/hive_properties.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/hive/logs/logs.dart';
 import 'package:smart_beehive/ui/hive/overview/overview.dart';
@@ -112,11 +109,13 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
         );
         return;
       }
-      insertedHive = Beehive(uuid, me?.docId ?? '', '')/*
+      insertedHive = Beehive(uuid, me?.docId ?? '',
+              '') /*
         ..overview = HiveOverview(name: 'hive #$hiveCounter', hiveId: uuid)
         ..properties = HiveProperties(hiveId: uuid)
-        ..logs = HiveLogs(hiveId: uuid)*/;
-      _farmViewModel.insertHive2(insertedHive!);
+        ..logs = HiveLogs(hiveId: uuid)*/
+          ;
+      _farmViewModel.insertHive(insertedHive!);
     });
   }
 
@@ -145,8 +144,10 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   _handleFcm() {
     FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
       if (message != null) {
-        final beehive = beehives
-            .firstWhere((element) => element.id == message.data['hive_id']);
+        swarmingTime = message.sentTime;
+        final beehive = beehives.firstWhere((element) =>
+            element.propertiesId == message.data['hive_id'] ||
+            element.docId == message.data['hive_id']);
         final analysis = message.data['analysis'];
         if (!mounted) return;
         showDialog<void>(
@@ -542,7 +543,6 @@ class _Details extends State<Details> with TickerProviderStateMixin {
           indicatorPadding: symmetric(0, 8),
           controller: _tabController,
           onTap: (value) {
-            //_selectedTabIndex = value;
             _tabsPageController!.animateToPage(
               value,
               duration: const Duration(milliseconds: 500),
@@ -568,10 +568,14 @@ class _Details extends State<Details> with TickerProviderStateMixin {
               ),
               Logs(beehive: _hive),
             ],
+            //todo fix tab switch
             onPageChanged: (value) {
               logInfo('onPageChanged $value');
-              _tabController!.animateTo(value);
-              _selectedTabIndex = value;
+              logInfo('onPageChanged2 ${_tabController!.index}');
+              if (!_tabController!.indexIsChanging) {
+                _tabController!.animateTo(value);
+              }
+              //_selectedTabIndex = value;
             },
           ),
         ),

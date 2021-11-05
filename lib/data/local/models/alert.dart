@@ -40,8 +40,8 @@ class Alert {
   static Alert fromMap(Map<String, dynamic> map) {
     return Alert()
       ..type = map[fieldType].toString().alertFromString
-      ..lowerBound = map[fieldLowerBound] as double
-      ..upperBound = map[fieldUpperBound] as double;
+      ..lowerBound = double.parse(map[fieldLowerBound].toString())
+      ..upperBound = double.parse(map[fieldUpperBound].toString());
   }
 }
 

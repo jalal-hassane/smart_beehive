@@ -11,6 +11,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/data/local/models/beekeeper.dart';
 import 'package:smart_beehive/ui/hive/overview/overview_viewmodel.dart';
+import 'package:smart_beehive/ui/home/analysis/analysis_viewmodel.dart';
 import 'package:smart_beehive/ui/home/farm/farm_viewmodel.dart';
 import 'package:smart_beehive/ui/registration/registration_viewmodel.dart';
 import 'package:smart_beehive/ui/splash/splash.dart';
@@ -44,6 +45,7 @@ List<Beehive> get beehives {
 int get hiveCounter => beehives.length + 1;
 
 String currentHiveId = '';
+DateTime? swarmingTime = DateTime.now();
 
 /// Streams are created so that app can respond to notification-related events
 /// since the plugin is initialised in the `main` function
@@ -300,6 +302,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: OverviewViewModel()),
         ChangeNotifierProvider.value(value: AlertsViewModel()),
         ChangeNotifierProvider.value(value: LogsViewModel()),
+        ChangeNotifierProvider.value(value: AnalysisViewModel()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

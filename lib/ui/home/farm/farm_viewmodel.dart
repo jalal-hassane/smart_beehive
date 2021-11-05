@@ -17,14 +17,6 @@ class FarmViewModel extends ChangeNotifier {
   CollectionReference logs = fireStore.collection(collectionLogs);
 
   insertHive(Beehive beehive) async {
-    hives.add(beehive.toMap()).then((snapshot) {
-      helper._success();
-    }).catchError((error) {
-      helper._failure(error);
-    });
-  }
-
-  insertHive2(Beehive beehive) async {
     hives.add(beehive.toMap()).then((snapshot) async {
       final docID = snapshot.id;
       await _addLogs(beehive, docID);
@@ -55,7 +47,7 @@ class FarmViewModel extends ChangeNotifier {
   }
 
   _addProperties(Beehive beehive, String hiveId) async {
-    final _properties = HiveProperties(hiveId: hiveId);
+    final _properties = HiveProperties(hiveId: hiveId,hiveKeeperId: beehive.keeperId);
     beehive.properties = _properties;
     return properties.add(_properties.toMap()).then((doc) {
       beehive.propertiesId = doc.id;

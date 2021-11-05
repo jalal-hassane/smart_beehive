@@ -75,6 +75,8 @@ class SplashViewModel extends ChangeNotifier {
           logError(ex.toString());
         }
       }
+      // todo change sort function
+      _hives.sort((a, b) => a.overview.name!.compareTo(b.overview.name!));
     }).catchError((error) {});
     return _hives;
   }

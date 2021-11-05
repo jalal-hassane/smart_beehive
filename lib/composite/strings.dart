@@ -51,6 +51,10 @@ const textOk = 'Ok';
 const textCancel = 'Cancel';
 const textLocationSettings = 'Location Settings';
 const textAppSettings = 'App Settings';
+const textAddBees = "Add Bees";
+const textAdd  = "Add";
+const textRemove  = "Remove";
+const textStop  = "Stop";
 
 // chart titles
 const textTemperature = 'Temperature (°C)';

@@ -117,6 +117,7 @@ Widget sheetTextField(
   TextAlign align = TextAlign.start,
   Widget? suffix,
   ScrollController? scrollController,
+  List<TextInputFormatter>? inputFormatters,
   int? max,
 }) {
   return Container(
@@ -146,6 +147,7 @@ Widget sheetTextField(
         ),
         inputFormatters: [
           LengthLimitingTextInputFormatter(max),
+          ...?inputFormatters,
         ],
         onSubmitted: last ? submit : null,
       ),

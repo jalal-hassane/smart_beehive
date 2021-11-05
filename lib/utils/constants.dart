@@ -43,6 +43,15 @@ const fieldHumidity = 'humidity';
 const fieldWeight = 'weight';
 const fieldPopulation = 'population';
 const fieldAlerts = 'alerts';
+const fieldLastFiveTemperature = 'temperature_5';
+const fieldLastFiveWeight = 'weight_5';
+const fieldLastFiveHumidity = 'humidity_5';
+const fieldLastFivePopulation = 'population_5';
+const fieldDailyFiveTemperature = 'temperature_day';
+const fieldDailyFiveWeight = 'weight_day';
+const fieldDailyFiveHumidity = 'humidity_day';
+const fieldDailyFivePopulation = 'population_day';
+
 
 // firestore - logs
 const fieldQueen = 'queen';
