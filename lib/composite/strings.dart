@@ -55,6 +55,8 @@ const textAddBees = "Add Bees";
 const textAdd  = "Add";
 const textRemove  = "Remove";
 const textStop  = "Stop";
+const textTotal  = "Total";
+const textNoData = 'No Data Found';
 
 // chart titles
 const textTemperature = 'Temperature (°C)';

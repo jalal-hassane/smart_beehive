@@ -608,15 +608,15 @@ class ItemHarvestHistory {
   DateTime date = DateTime.now();
   List<ItemHarvest?>? history;
 
-  final mFormat = [M];
+  final mFormat = [MM];
   final yFormat = [yyyy];
 
   String get month {
     return formatDate(date, mFormat);
   }
 
-  int get year {
-    return int.parse(formatDate(date, yFormat));
+  String get year {
+    return formatDate(date, yFormat);
   }
 
   ItemHarvestHistory(this.history);

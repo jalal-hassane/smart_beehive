@@ -38,16 +38,16 @@ class _Harvests extends State<Harvests> {
 
   late LogsViewModel _logsViewModel;
 
-  _initViewModel(){
+  _initViewModel() {
     _logsViewModel = Provider.of<LogsViewModel>(context);
     _logsViewModel.helper = LogsHelper(success: _success, failure: _failure);
   }
 
-  _success(){
+  _success() {
     logInfo('success');
   }
 
-  _failure(String error){
+  _failure(String error) {
     logError('Error $error');
   }
 
@@ -179,68 +179,90 @@ class _Harvests extends State<Harvests> {
     for (ItemHarvest item in _logHarvests!.logs2) {
       f() {
         _generateSingleTap(item);
-        return context.showCustomBottomSheet((p0) {
-          return StatefulBuilder(
-            builder: (context, state) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Center(
-                    child: Text(
-                      item.id!,
-                      style: bTS(size: 30, color: colorPrimary),
-                    ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _dropDownWidget(state),
-                      sheetTextField(
-                        screenWidth,
-                        screenHeight,
-                        _textController,
-                        item.title,
-                        type: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        last: true,
-                        submit: (string) => _closeSheetAndSave(item),
-                      ),
-                    ],
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      state(() {
-                        item.reset();
-                      });
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red[200],
-                    ),
-                    child: SizedBox(
-                      width: screenWidth * 0.4,
-                      height: screenHeight * 0.056,
-                      child: Center(
-                        child: Text(
-                          textClear,
-                          style: mTS(color: colorWhite),
-                        ),
+        return context.showCustomBottomSheet(
+          (p0) {
+            return StatefulBuilder(
+              builder: (context, state) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Center(
+                      child: Text(
+                        item.id!,
+                        style: bTS(size: 30, color: colorPrimary),
                       ),
                     ),
-                  ),
-                ],
-              );
-            },
-          );
-        }, onClosing: () => _closeSheetAndSave(item));
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _dropDownWidget(state),
+                        sheetTextField(
+                          screenWidth,
+                          screenHeight,
+                          _textController,
+                          item.title,
+                          type: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          last: true,
+                          submit: (string) => _closeSheetAndSave(item),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Container(
+                          margin: bottom(10),
+                          child: ElevatedButton(
+                            onPressed: () => _closeSheetAndSave(item),
+                            child: SizedBox(
+                              width: screenWidth * 0.4,
+                              height: screenHeight * 0.056,
+                              child: Center(
+                                child: Text(
+                                  textSave,
+                                  style: mTS(color: colorWhite),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            state(() {
+                              item.reset();
+                            });
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.red[200],
+                          ),
+                          child: SizedBox(
+                            width: screenWidth * 0.3,
+                            height: screenHeight * 0.05,
+                            child: Center(
+                              child: Text(
+                                textClear,
+                                style: mTS(color: colorWhite),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
       }
 
       _taps.add(f);
     }
   }
 
-  _saveHarvest() async{
+  _saveHarvest() async {
     final List<ItemHarvest> _history = [];
     for (ItemHarvest item in _logHarvests!.harvests) {
       if (item.isActive) {

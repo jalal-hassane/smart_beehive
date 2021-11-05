@@ -1,5 +1,8 @@
+import 'dart:math';
+
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_beehive/composite/colors.dart';
+import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
@@ -19,11 +22,9 @@ class HarvestHistory extends StatefulWidget {
 }
 
 class _HarvestHistory extends State<HarvestHistory> {
-  String _selectedYear = '';
-  String _selectedMonth = '';
-  String _selectedDay = '';
+  String _selectedYear = formatDate(DateTime.now(), [yyyy]);
+  String _selectedMonth = formatDate(DateTime.now(), [M]);
 
-  double _typeOpacity = 0.5;
   double _allTimeOpacity = 1.0;
   double _yearOpacity = 0.5;
   double _monthOpacity = 0.5;
@@ -31,18 +32,18 @@ class _HarvestHistory extends State<HarvestHistory> {
   HarvestFilter _filter = HarvestFilter.all;
   MonthFilter _month = MonthFilter.all;
 
-  late final TooltipBehavior _tooltipBehavior = TooltipBehavior(
-    enable: true,
-    borderColor: Colors.red,
-  );
-
   bool get _typeFilterApplied => _filter != HarvestFilter.all;
 
   bool get _timeFilterApplied => _allTimeOpacity == 0.5;
 
-  bool get _monthFilterApplied => _month != MonthFilter.all;
-
   bool get _filtersApplied => _typeFilterApplied && _timeFilterApplied;
+
+  final List<ItemHarvest> _totalBeeswax = [];
+  final List<ItemHarvest> _totalHoney = [];
+  final List<ItemHarvest> _totalHoneycomb = [];
+  final List<ItemHarvest> _totalPollen = [];
+  final List<ItemHarvest> _totalPropolis = [];
+  final List<ItemHarvest> _totalRoyalJelly = [];
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +136,7 @@ class _HarvestHistory extends State<HarvestHistory> {
                             },
                             child: Center(
                               child: Text(
-                                '2021',
+                                _selectedYear,
                                 style: mTS(size: 10),
                               ),
                             ),
@@ -157,39 +158,18 @@ class _HarvestHistory extends State<HarvestHistory> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               minimumSize: Size.zero,
-                              padding: all(6),
+                              padding: all(1),
                             ),
                             onPressed: () {
-                              _datePickerWidget();
+                              //_datePickerWidget(year: true);
                             },
                             child: Center(
-                              child: Text(
-                                'Oct',
-                                style: mTS(size: 10),
-                              ),
+                              child: _monthDropDownWidget(),
                             ),
                           ),
                         ),
                       ),
                     ],
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {});
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red[200],
-                      minimumSize: Size.zero,
-                      padding: all(8),
-                    ),
-                    child: SizedBox(
-                      child: Center(
-                        child: Text(
-                          textApply,
-                          style: mTS(color: colorWhite),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -208,20 +188,187 @@ class _HarvestHistory extends State<HarvestHistory> {
     );
   }
 
+  _totalWidget(List<ItemHarvest> list) {
+    if (list.isEmpty) return Container();
+    if (_typeFilterApplied && _filter.description != list.first.title)
+      return Container();
+    final _widgets = <Widget>[
+      Text(list.first.title, style: sbTS()),
+    ];
+    for (ItemHarvest itemHarvest in list) {
+      _widgets.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('${itemHarvest.value} ', style: mTS()),
+            Text(itemHarvest.unit!.description, style: rTS()),
+          ],
+        ),
+      );
+    }
+    return Column(children: _widgets);
+    return Container(
+        color: Color.fromRGBO(
+            (Random().nextDouble() * 255).toInt(),
+            (Random().nextDouble() * 255).toInt(),
+            (Random().nextDouble() * 255).toInt(),
+            1.0),
+        child: Column(children: _widgets));
+  }
+
   _generateWidgets(List<ItemHarvestHistory> list) {
     var _widgets = <Widget>[];
-    for (ItemHarvestHistory item in list) {
+    _clearTotalLists();
+    _getTotals(list);
+    final _totals = <Widget>[];
+    if (_totalBeeswax.isNotEmpty) {
+      if (!_typeFilterApplied || _filter.description == logBeeswax) {
+        _totals.add(_totalWidget(_totalBeeswax));
+      }
+    }
+    if (_totalHoney.isNotEmpty) {
+      if (!_typeFilterApplied || _filter.description == logHoney) {
+        _totals.add(_totalWidget(_totalHoney));
+      }
+    }
+    if (_totalHoneycomb.isNotEmpty) {
+      if (!_typeFilterApplied || _filter.description == logHoneycomb) {
+        _totals.add(_totalWidget(_totalHoneycomb));
+      }
+    }
+    if (_totalPollen.isNotEmpty) {
+      if (!_typeFilterApplied || _filter.description == logPollen) {
+        _totals.add(_totalWidget(_totalPollen));
+      }
+    }
+    if (_totalPropolis.isNotEmpty) {
+      if (!_typeFilterApplied || _filter.description == logPropolis) {
+        _totals.add(_totalWidget(_totalPropolis));
+      }
+    }
+    if (_totalRoyalJelly.isNotEmpty) {
+      if (!_typeFilterApplied || _filter.description == logRoyalJelly) {
+        _totals.add(_totalWidget(_totalRoyalJelly));
+      }
+    }
+    if (_totals.isNotEmpty) {
+      _widgets.add(
+        Padding(
+          padding: all(8),
+          child: Column(
+            children: [
+              Container(
+                margin: bottom(10),
+                child: Text(
+                  textTotal,
+                  style: boTS(size: 20, color: Colors.green),
+                ),
+              ),
+              Center(
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  children: _totals,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      _widgets.add(
+        Center(
+          child: Text(textNoData, style: rTS()),
+        ),
+      );
+    }
+    if (!_typeFilterApplied || _filter.description == logBeeswax) {
+      if (_totalBeeswax.isNotEmpty) {
+        _widgets.add(
+          _generateCharts(
+            _totalBeeswax,
+            pngHarvestsBeeswaxActive,
+            Colors.blueGrey,
+          ),
+        );
+      }
+    }
+    if (!_typeFilterApplied || _filter.description == logHoney) {
+      if (_totalHoney.isNotEmpty) {
+        _widgets.add(
+          _generateCharts(
+            _totalHoney,
+            pngHarvestsHoneyActive,
+            Colors.amber,
+          ),
+        );
+      }
+    }
+    if (!_typeFilterApplied || _filter.description == logHoneycomb) {
+      if (_totalHoneycomb.isNotEmpty) {
+        _widgets.add(
+          _generateCharts(
+            _totalHoneycomb,
+            pngHarvestsHoneycombActive,
+            Colors.deepOrangeAccent,
+          ),
+        );
+      }
+    }
+    if (!_typeFilterApplied || _filter.description == logPollen) {
+      if (_totalPollen.isNotEmpty) {
+        _widgets.add(
+          _generateCharts(
+            _totalPollen,
+            pngHarvestsPollenActive,
+            Colors.yellow,
+          ),
+        );
+      }
+    }
+    if (!_typeFilterApplied || _filter.description == logPropolis) {
+      if (_totalPropolis.isNotEmpty) {
+        _widgets.add(
+          _generateCharts(
+            _totalPropolis,
+            pngHarvestsPropolisActive,
+            Colors.brown,
+          ),
+        );
+      }
+    }
+    if (!_typeFilterApplied || _filter.description == logRoyalJelly) {
+      if (_totalRoyalJelly.isNotEmpty) {
+        _widgets.add(
+          _generateCharts(
+            _totalRoyalJelly,
+            pngHarvestsRoyalJellyActive,
+            Colors.deepOrange,
+          ),
+        );
+      }
+    }
+    /*for (ItemHarvestHistory item in list) {
       _widgets.add(
         Padding(
           padding: all(12),
           child: SfCartesianChart(
-            // Chart title
             title: ChartTitle(
-              text: item.date.toString(),
+              text: formatDate(
+                item.date,
+                [yyyy, ' ', M, ' ', dd, ' ', hh, ':', nn, ' ', am],
+              ),
               textStyle: mTS(),
             ),
-            primaryXAxis: CategoryAxis(labelRotation: 45),
-            tooltipBehavior: _tooltipBehavior,
+            primaryXAxis: CategoryAxis(
+              labelRotation: 45,
+              labelStyle: mTS(size: 10),
+            ),
+            primaryYAxis: NumericAxis(labelStyle: mTS(size: 10)),
+            tooltipBehavior: TooltipBehavior(
+              enable: true,
+              borderColor: Colors.red,
+            ),
             series: <ColumnSeries<ItemHarvest?, String>>[
               ColumnSeries<ItemHarvest?, String>(
                 name: logHarvests,
@@ -230,8 +377,14 @@ class _HarvestHistory extends State<HarvestHistory> {
                     '${datum?.title}' '\n(${datum?.unit!.description})',
                 yValueMapper: (datum, index) => datum?.value,
                 // Enable data label
-                dataLabelSettings: const DataLabelSettings(
+                dataLabelSettings: DataLabelSettings(
                   isVisible: true,
+                  builder: (data, point, series, pointIndex, seriesIndex) {
+                    return Text(
+                      (data as ItemHarvest).value.toString(),
+                      style: sbTS(size: 10),
+                    );
+                  },
                 ),
                 width: 0.5,
               ),
@@ -239,24 +392,177 @@ class _HarvestHistory extends State<HarvestHistory> {
           ),
         ),
       );
-    }
+    }*/
     return _widgets;
+  }
+
+  _generateCharts(List<ItemHarvest> harvest, String icon, Color color) {
+    return Padding(
+      padding: all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                icon,
+                height: 20,
+                width: 20,
+              ),
+              Container(
+                margin: left(4),
+                child: Text(harvest.first.title, style: mTS()),
+              ),
+            ],
+          ),
+          SfCartesianChart(
+            /*title: ChartTitle(
+              text: harvest.first.title,
+              textStyle: mTS(),
+            ),*/
+            primaryXAxis: CategoryAxis(labelStyle: mTS(size: 10)),
+            primaryYAxis: NumericAxis(labelStyle: mTS(size: 10)),
+            tooltipBehavior: TooltipBehavior(
+              enable: true,
+              borderColor: Colors.red,
+            ),
+            series: <ColumnSeries<ItemHarvest?, String>>[
+              ColumnSeries<ItemHarvest?, String>(
+                name: harvest.first.title,
+                color: color,
+                dataSource: harvest,
+                xValueMapper: (datum, index) => '${datum?.unit!.description}',
+                yValueMapper: (datum, index) => datum?.value,
+                // Enable data label
+                dataLabelSettings: DataLabelSettings(
+                  isVisible: true,
+                  builder: (data, point, series, pointIndex, seriesIndex) {
+                    return Text(
+                      (data as ItemHarvest).value.toString(),
+                      style: sbTS(size: 10),
+                    );
+                  },
+                ),
+                width: 0.5,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  _clearTotalLists() {
+    _totalBeeswax.clear();
+    _totalHoney.clear();
+    _totalHoneycomb.clear();
+    _totalPollen.clear();
+    _totalPropolis.clear();
+    _totalRoyalJelly.clear();
+  }
+
+  _getTotals(List<ItemHarvestHistory> list) {
+    for (ItemHarvestHistory item in list) {
+      if (item.history == null) continue;
+      for (ItemHarvest? harvest in item.history!) {
+        if (harvest != null) {
+          logInfo(harvest.title.toString());
+          switch (harvest.title) {
+            case logBeeswax:
+              _addBeeswax(harvest);
+              continue;
+            case logHoneycomb:
+              _addHoneycomb(harvest);
+              continue;
+            case logHoney:
+              _addHoney(harvest);
+              continue;
+            case logPollen:
+              _addPollen(harvest);
+              continue;
+            case logPropolis:
+              _addPropolis(harvest);
+              continue;
+            case logRoyalJelly:
+              _addRoyalJelly(harvest);
+              continue;
+          }
+        }
+      }
+    }
+  }
+
+  _addBeeswax(ItemHarvest harvest) {
+    final h =
+        _totalBeeswax.indexWhere((element) => element.unit == harvest.unit);
+    if (h == -1) {
+      _totalBeeswax.add(harvest);
+    } else {
+      _totalBeeswax[h].value = _totalBeeswax[h].value! + harvest.value!;
+    }
+  }
+
+  _addHoneycomb(ItemHarvest harvest) {
+    final h =
+        _totalHoneycomb.indexWhere((element) => element.unit == harvest.unit);
+    if (h == -1) {
+      _totalHoneycomb.add(harvest);
+    } else {
+      _totalHoneycomb[h].value = _totalHoneycomb[h].value! + harvest.value!;
+    }
+  }
+
+  _addHoney(ItemHarvest harvest) {
+    final h = _totalHoney.indexWhere((element) => element.unit == harvest.unit);
+    if (h == -1) {
+      _totalHoney.add(harvest);
+    } else {
+      _totalHoney[h].value = _totalHoney[h].value! + harvest.value!;
+    }
+  }
+
+  _addPollen(ItemHarvest harvest) {
+    final h =
+        _totalPollen.indexWhere((element) => element.unit == harvest.unit);
+    if (h == -1) {
+      _totalPollen.add(harvest);
+    } else {
+      _totalPollen[h].value = _totalPollen[h].value! + harvest.value!;
+    }
+  }
+
+  _addPropolis(ItemHarvest harvest) {
+    final h =
+        _totalPropolis.indexWhere((element) => element.unit == harvest.unit);
+    if (h == -1) {
+      _totalPropolis.add(harvest);
+    } else {
+      _totalPropolis[h].value = _totalPropolis[h].value! + harvest.value!;
+    }
+  }
+
+  _addRoyalJelly(ItemHarvest harvest) {
+    final h =
+        _totalRoyalJelly.indexWhere((element) => element.unit == harvest.unit);
+    if (h == -1) {
+      _totalRoyalJelly.add(harvest);
+    } else {
+      _totalRoyalJelly[h].value = _totalRoyalJelly[h].value! + harvest.value!;
+    }
   }
 
   _processItems() {
     if (widget.history.isEmpty) return <Widget>[];
     List<ItemHarvestHistory> _list = [];
-    // todo handle filters
-    if (_filtersApplied) {
-      // apply both filters
-      //_widgets.add();
+
+    if (_filtersApplied || _timeFilterApplied) {
+      _list.addAll(_timeFilteredHarvests());
     } else if (_typeFilterApplied) {
       _list.addAll(_typeFilteredHarvests());
-    } else if (_timeFilterApplied) {
     } else {
       _list.addAll(widget.history);
     }
-
     return _generateWidgets(_list);
   }
 
@@ -274,19 +580,38 @@ class _HarvestHistory extends State<HarvestHistory> {
   }
 
   _timeFilteredHarvests() {
+    final month = _month.description;
     final List<ItemHarvestHistory> _filteredHistory = [];
     for (ItemHarvestHistory item in widget.history) {
       if (item.history == null) continue;
-      for (ItemHarvest? harvest in item.history!) {
-        if (harvest?.title == _filter.description) {
-          _filteredHistory.add(item);
+      if (item.year == _selectedYear) {
+        if (_month == MonthFilter.all) {
+          if (_filter == HarvestFilter.all) {
+            _filteredHistory.add(item);
+          } else {
+            for (ItemHarvest? harvest in item.history!) {
+              if (harvest?.title == _filter.description) {
+                _filteredHistory.add(item);
+              }
+            }
+          }
+        } else {
+          if (item.month == month) {
+            if (_filter == HarvestFilter.all) {
+              _filteredHistory.add(item);
+            } else {
+              for (ItemHarvest? harvest in item.history!) {
+                if (harvest?.title == _filter.description) {
+                  _filteredHistory.add(item);
+                }
+              }
+            }
+          }
         }
       }
     }
     return _filteredHistory;
   }
-
-  _filteredHarvests() {}
 
   _enableDatePickers() {
     setState(() {
@@ -311,6 +636,12 @@ class _HarvestHistory extends State<HarvestHistory> {
         lastDate: DateTime.now(),
         firstDate: DateTime(2000, 1, 1),
         initialDatePickerMode: year ? DatePickerMode.year : DatePickerMode.day);
+    if (date != null) {
+      _selectedYear = date.year.toString();
+      _selectedMonth = formatDate(date, [MM]);
+      _month = _selectedMonth.monthFromString;
+      setState(() {});
+    }
   }
 
   _dropDownWidget() {
@@ -335,6 +666,28 @@ class _HarvestHistory extends State<HarvestHistory> {
     );
   }
 
+  _monthDropDownWidget() {
+    return Center(
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          iconSize: 0,
+          value: _month.description,
+          onChanged: (String? newValue) {
+            setState(() {
+              _month = newValue!.monthFromString;
+            });
+          },
+          style: mTS(size: 10),
+          isDense: true,
+          alignment: Alignment.center,
+          borderRadius: BorderRadius.circular(8),
+          icon: const Icon(Icons.arrow_downward),
+          items: _monthDropDownItems(),
+        ),
+      ),
+    );
+  }
+
   _typeDropDownWidget() {
     return HarvestFilter.values
         .map<DropdownMenuItem<String>>((HarvestFilter value) {
@@ -345,6 +698,21 @@ class _HarvestHistory extends State<HarvestHistory> {
           value.description,
           style: mTS(size: 10),
         ),
+      );
+    }).toList();
+  }
+
+  _monthDropDownItems() {
+    return MonthFilter.values
+        .map<DropdownMenuItem<String>>((MonthFilter value) {
+      return DropdownMenuItem<String>(
+        alignment: Alignment.center,
+        value: value.description,
+        child: Text(
+          value.description,
+          style: mTS(size: 10),
+        ),
+        onTap: () => setState(() {}),
       );
     }).toList();
   }

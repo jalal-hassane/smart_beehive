@@ -47,6 +47,8 @@ int get hiveCounter => beehives.length + 1;
 String currentHiveId = '';
 DateTime? swarmingTime = DateTime.now();
 
+double get childAspectRatio => screenHeight / screenWidth;
+
 /// Streams are created so that app can respond to notification-related events
 /// since the plugin is initialised in the `main` function
 final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject =
