@@ -32,78 +32,54 @@ class Properties extends StatefulWidget {
 class _Properties extends State<Properties> with TickerProviderStateMixin {
   late Beehive _hive;
 
-  late final _collection =
+  late DocumentReference _collection =
       fireStore.collection(collectionProperties).doc(_hive.propertiesId);
 
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
+    _collection =
+        fireStore.collection(collectionProperties).doc(_hive.propertiesId);
     _celsiusController.forward(from: 0);
     if (widget.showOnlyAnalysis) return _showOnlyAnalysis();
     return StreamBuilder<DocumentSnapshot>(
-        stream: _collection.snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Center(child: Text('Something went wrong'));
-          }
+      stream: _collection.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Something went wrong'));
+        }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: Text("Collecting data"));
-          }
-          final map = snapshot.requireData.data() as Map<String, dynamic>;
-          parseData(map);
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _propertyItem(
-                    svgCelsius,
-                    _hive.properties.temperature?.toPrecision(2),
-                    _doubleAnimation(_tempUpdateScaleController),
-                    colorAnimation(_tempUpdateScaleController),
-                  ),
-                  _propertyItem(
-                    svgScale,
-                    _hive.properties.weight?.toPrecision(2),
-                    _doubleAnimation(_weiUpdateScaleController),
-                    colorAnimation(_weiUpdateScaleController),
-                  ),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _propertyItem(
-                    svgBees,
-                    _hive.properties.population,
-                    _doubleAnimation(_popUpdateScaleController),
-                    colorAnimation(_popUpdateScaleController),
-                  ),
-                  _propertyItem(
-                    svgHumidity,
-                    '${_hive.properties.humidity?.toPrecision(2)}%',
-                    _doubleAnimation(_humUpdateScaleController),
-                    colorAnimation(_humUpdateScaleController),
-                  ),
-                ],
-              ),
-            ],
-          );
-        });
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Text("Collecting data"));
+        }
+        final map = snapshot.requireData.data() as Map<String, dynamic>;
+        return parseData(map);
+      },
+    );
   }
 
   parseData(Map<String, dynamic> doc) {
+    logInfo("DOC => " + doc.toString());
+    logInfo("DOC => " + doc[fieldTemperature].toString());
+    logInfo("DOC => " + doc[fieldHumidity].toString());
+    logInfo("DOC => " + doc[fieldWeight].toString());
+    logInfo("DOC => " + doc[fieldPopulation].toString());
     try {
       final oldTemperature = _hive.properties.temperature;
       final oldHumidity = _hive.properties.humidity;
       final oldWeight = _hive.properties.weight;
       final oldPopulation = _hive.properties.population;
-      _hive.properties.temperature = double.parse(doc[fieldTemperature].toString());
+      _hive.properties.temperature =
+          double.parse(doc[fieldTemperature].toString());
       _hive.properties.humidity = double.parse(doc[fieldHumidity].toString());
       _hive.properties.weight = double.parse(doc[fieldWeight].toString());
       _hive.properties.population = doc[fieldPopulation] as int;
+
+      logInfo('old temperature $oldTemperature');
+      logInfo('old humidity $oldHumidity');
+      logInfo('old weight $oldWeight');
+      logInfo('old population $oldPopulation');
+
       if (oldTemperature != _hive.properties.temperature) {
         _tempUpdateScaleController.forward(from: 0).whenComplete(() {
           _tempUpdateScaleController.reverse(from: 1);
@@ -124,7 +100,47 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
           _popUpdateScaleController.reverse(from: 1);
         });
       }
+
       logInfo('Properties => ${_hive.properties.toMap()}');
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _propertyItem(
+                svgCelsius,
+                _hive.properties.temperature?.toPrecision(2),
+                _doubleAnimation(_tempUpdateScaleController),
+                //colorAnimation(_tempUpdateScaleController),
+              ),
+              _propertyItem(
+                svgScale,
+                _hive.properties.weight?.toPrecision(2),
+                _doubleAnimation(_weiUpdateScaleController),
+                //colorAnimation(_weiUpdateScaleController),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _propertyItem(
+                svgBees,
+                _hive.properties.population,
+                _doubleAnimation(_popUpdateScaleController),
+                //colorAnimation(_popUpdateScaleController),
+              ),
+              _propertyItem(
+                svgHumidity,
+                '${_hive.properties.humidity?.toPrecision(2)}%',
+                _doubleAnimation(_humUpdateScaleController),
+                //colorAnimation(_humUpdateScaleController),
+              ),
+            ],
+          ),
+        ],
+      );
     } catch (ex) {
       logError('properties => $ex');
     }
@@ -196,7 +212,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     String svg,
     dynamic text,
     Animation<double> scale,
-    Animation<Color> color,
+    //Animation<Color> color,
   ) {
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -216,7 +232,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               scale: scale,
               child: Text(
                 '$text',
-                style: ebTS(color: color.value),
+                style: ebTS(),
               ),
             ),
           ],
@@ -317,6 +333,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    logInfo('dispose from properties');
     _celsiusController.dispose();
     _tempUpdateScaleController.dispose();
     _humUpdateScaleController.dispose();
