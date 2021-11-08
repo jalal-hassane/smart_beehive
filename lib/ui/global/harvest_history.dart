@@ -220,6 +220,7 @@ class _HarvestHistory extends State<HarvestHistory> {
     var _widgets = <Widget>[];
     _clearTotalLists();
     _getTotals(list);
+    _logTotalLists();
     final _totals = <Widget>[];
     if (_totalBeeswax.isNotEmpty) {
       if (!_typeFilterApplied || _filter.description == logBeeswax) {
@@ -397,6 +398,10 @@ class _HarvestHistory extends State<HarvestHistory> {
   }
 
   _generateCharts(List<ItemHarvest> harvest, String icon, Color color) {
+    final filter =
+        _timeFilterApplied ? '${_month.description} $_selectedYear' : '';
+    var title = harvest.first.title;
+    title += filter.isNotEmpty ? ' - $filter' : '';
     return Padding(
       padding: all(12),
       child: Column(
@@ -412,7 +417,7 @@ class _HarvestHistory extends State<HarvestHistory> {
               ),
               Container(
                 margin: left(4),
-                child: Text(harvest.first.title, style: mTS()),
+                child: Text(title, style: mTS()),
               ),
             ],
           ),
@@ -462,9 +467,20 @@ class _HarvestHistory extends State<HarvestHistory> {
     _totalRoyalJelly.clear();
   }
 
+  _logTotalLists() {
+    logInfo("total beeswax => " + _totalBeeswax.map((e) => e.toMapWithName()).toList().toString() );
+    logInfo("total honey => " + _totalHoney.map((e) => e.toMapWithName()).toList().toString() );
+    logInfo("total honeycomb => " + _totalHoneycomb.map((e) => e.toMapWithName()).toList().toString() );
+    logInfo("total pollen => " + _totalPollen.map((e) => e.toMapWithName()).toList().toString() );
+    logInfo("total propolis => " + _totalPropolis.map((e) => e.toMapWithName()).toList().toString() );
+    logInfo("total royal jelly => " + _totalRoyalJelly.map((e) => e.toMapWithName()).toList().toString() );
+  }
+
   _getTotals(List<ItemHarvestHistory> list) {
     for (ItemHarvestHistory item in list) {
+      logInfo(item.history.toString());
       if (item.history == null) continue;
+      logInfo(item.history!.map((e) => e?.toMapWithName()).toString());
       for (ItemHarvest? harvest in item.history!) {
         if (harvest != null) {
           logInfo(harvest.title.toString());
@@ -496,9 +512,11 @@ class _HarvestHistory extends State<HarvestHistory> {
   _addBeeswax(ItemHarvest harvest) {
     final h =
         _totalBeeswax.indexWhere((element) => element.unit == harvest.unit);
+    logInfo('Beeswax index is $h');
     if (h == -1) {
-      _totalBeeswax.add(harvest);
+      _totalBeeswax.add(harvest.copy());
     } else {
+      logInfo('Beeswax index is $h');
       _totalBeeswax[h].value = _totalBeeswax[h].value! + harvest.value!;
     }
   }
@@ -507,7 +525,7 @@ class _HarvestHistory extends State<HarvestHistory> {
     final h =
         _totalHoneycomb.indexWhere((element) => element.unit == harvest.unit);
     if (h == -1) {
-      _totalHoneycomb.add(harvest);
+      _totalHoneycomb.add(harvest.copy());
     } else {
       _totalHoneycomb[h].value = _totalHoneycomb[h].value! + harvest.value!;
     }
@@ -516,7 +534,7 @@ class _HarvestHistory extends State<HarvestHistory> {
   _addHoney(ItemHarvest harvest) {
     final h = _totalHoney.indexWhere((element) => element.unit == harvest.unit);
     if (h == -1) {
-      _totalHoney.add(harvest);
+      _totalHoney.add(harvest.copy());
     } else {
       _totalHoney[h].value = _totalHoney[h].value! + harvest.value!;
     }
@@ -536,7 +554,7 @@ class _HarvestHistory extends State<HarvestHistory> {
     final h =
         _totalPropolis.indexWhere((element) => element.unit == harvest.unit);
     if (h == -1) {
-      _totalPropolis.add(harvest);
+      _totalPropolis.add(harvest.copy());
     } else {
       _totalPropolis[h].value = _totalPropolis[h].value! + harvest.value!;
     }
@@ -546,7 +564,7 @@ class _HarvestHistory extends State<HarvestHistory> {
     final h =
         _totalRoyalJelly.indexWhere((element) => element.unit == harvest.unit);
     if (h == -1) {
-      _totalRoyalJelly.add(harvest);
+      _totalRoyalJelly.add(harvest.copy());
     } else {
       _totalRoyalJelly[h].value = _totalRoyalJelly[h].value! + harvest.value!;
     }

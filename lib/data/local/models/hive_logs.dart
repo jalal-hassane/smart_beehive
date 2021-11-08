@@ -21,7 +21,7 @@ class HiveLogs {
 
   toMap() {
     return {
-      fieldHiveId:hiveId,
+      fieldHiveId: hiveId,
       fieldQueen: queen?.toMap(),
       fieldHarvest: harvests?.toMap(),
       fieldFeeds: feeds?.toMap(),
@@ -1411,36 +1411,42 @@ class ItemHarvest {
   static ItemHarvest? honeyCombFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsHoneycomb, logHoneycomb)
-      ..value =double.tryParse( map[fieldValue].toString())
+      ..value = double.tryParse(map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? honeyFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsHoney, logHoney)
-      ..value = double.tryParse( map[fieldValue].toString())
+      ..value = double.tryParse(map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? pollenFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsPollen, logPollen)
-      ..value = double.tryParse( map[fieldValue].toString())
+      ..value = double.tryParse(map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? propolisFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsPropolis, logPropolis)
-      ..value = double.tryParse( map[fieldValue].toString())
+      ..value = double.tryParse(map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
   }
 
   static ItemHarvest? royalJellyFrom(Map<String, dynamic>? map) {
     if (map == null) return null;
     return ItemHarvest(pngHarvestsRoyalJelly, logRoyalJelly)
-      ..value = double.tryParse( map[fieldValue].toString())
+      ..value = double.tryParse(map[fieldValue].toString())
       ..unit = map[fieldUnit].toString().unitFromString;
+  }
+
+  copy() {
+    return ItemHarvest(icon, title)
+      ..value = value
+      ..unit = unit;
   }
 }
 
