@@ -54,6 +54,8 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
   late OverviewViewModel _overviewViewModel;
 
+  double _sheetHeight = screenHeight * 0.9;
+
   _initViewModel() {
     _overviewViewModel = Provider.of<OverviewViewModel>(context);
     _overviewViewModel.helper = OverviewHelper(
@@ -183,21 +185,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                     screenWidth,
                     screenHeight,
                     textName,
-                    max: 20
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: left(16),
-                        child: Text(
-                          textHiveType,
-                          style: boTS(color: colorPrimary),
-                        ),
-                      ),
-                      _hiveTypeDropDownWidget(state),
-                    ],
+                    max: 20,
                   ),
                   GestureDetector(
                     onTap: () => _datePickerWidget(),
@@ -208,20 +196,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                       textInstallationDate,
                       enabled: false,
                     ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: left(16),
-                        child: Text(
-                          textSpecies,
-                          style: boTS(color: colorPrimary),
-                        ),
-                      ),
-                      _speciesDropDownWidget(state),
-                    ],
                   ),
                   overviewSheetItemWidget(
                     _locationController,
@@ -256,6 +230,34 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                     ),
                     scrollController: _scrollController,
                     alignVertical: true,
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: left(16),
+                        child: Text(
+                          textHiveType,
+                          style: boTS(color: colorPrimary),
+                        ),
+                      ),
+                      _hiveTypeDropDownWidget(state),
+                    ],
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: left(16),
+                        child: Text(
+                          textSpecies,
+                          style: boTS(color: colorPrimary),
+                        ),
+                      ),
+                      _speciesDropDownWidget(state),
+                    ],
                   ),
                 ],
               ),
@@ -387,6 +389,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   }
 
   _datePickerWidget() async {
+    unFocus(context);
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -519,7 +522,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }).toList();
   }
 
-  _locationHandler() async {
+  /*_locationHandler() async {
     Location location = Location();
 
     bool _serviceEnabled;
@@ -543,20 +546,12 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }
 
     _locationData = await location.getLocation();
-  }
+  }*/
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error(LocationErrors.serviceDisabled);
-    }
+    Location location = Location();
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -568,6 +563,18 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
         return Future.error(LocationErrors.permissionDenied);
+      } else {
+        // Test if location services are enabled.
+        serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          // Location services are not enabled don't continue
+          // accessing the position and request users of the
+          // App to enable the location services.
+          serviceEnabled = await location.requestService();
+          if (!serviceEnabled) {
+            return Future.error(LocationErrors.serviceDisabled);
+          }
+        }
       }
     }
 
@@ -582,6 +589,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   }
 
   _getLocationName(Function(void Function()) state, {Marker? marker}) async {
+    unFocus(context);
     if (marker != null) {
       // returning from map
       final map = {
@@ -630,6 +638,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   }
 
   _showMap(Function(void Function()) state) async {
+    unFocus(context);
     _determinePosition().then((position) {
       Navigator.of(context).push(
         enterFromRight(
@@ -698,13 +707,13 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
   _animateScroll({bool reverse = false, bool shouldStop = false}) {
     logInfo('Should stop $shouldStop');
-    if (shouldStop) {
+    /*if (shouldStop) {
       _timer.cancel();
       _scrollFuture.ignore();
       //_animateScroll(reverse: reverse);
       return;
-    }
-    _timer = Timer(const Duration(milliseconds: 500), () {
+    }*/
+    /*_timer = Timer(const Duration(milliseconds: 500), () {
       _scrollFuture = _scrollController
           .animateTo(
         reverse
@@ -718,7 +727,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
           _animateScroll(reverse: !reverse);
         }
       });
-    });
+    });*/
   }
 }
 
