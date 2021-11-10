@@ -161,7 +161,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     _locationController.text =
         _hive.overview.position != null ? _hive.overview.location : '';
 
-    context.showCustomBottomSheet((_) {
+    context.showCustomScaffoldBottomSheet((_) {
       return StatefulBuilder(builder: (_, state) {
         locationState = state;
         final column = Column(
@@ -175,8 +175,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            Expanded(
-              flex: 7,
+            SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -196,6 +195,34 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                       textInstallationDate,
                       enabled: false,
                     ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: left(16),
+                        child: Text(
+                          textHiveType,
+                          style: boTS(color: colorPrimary),
+                        ),
+                      ),
+                      _hiveTypeDropDownWidget(state),
+                    ],
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: left(16),
+                        child: Text(
+                          textSpecies,
+                          style: boTS(color: colorPrimary),
+                        ),
+                      ),
+                      _speciesDropDownWidget(state),
+                    ],
                   ),
                   overviewSheetItemWidget(
                     _locationController,
@@ -230,34 +257,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                     ),
                     scrollController: _scrollController,
                     alignVertical: true,
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: left(16),
-                        child: Text(
-                          textHiveType,
-                          style: boTS(color: colorPrimary),
-                        ),
-                      ),
-                      _hiveTypeDropDownWidget(state),
-                    ],
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: left(16),
-                        child: Text(
-                          textSpecies,
-                          style: boTS(color: colorPrimary),
-                        ),
-                      ),
-                      _speciesDropDownWidget(state),
-                    ],
                   ),
                 ],
               ),

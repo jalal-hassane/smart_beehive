@@ -4,32 +4,32 @@ import 'colors.dart';
 import 'fonts.dart';
 
 const regularFontStyle = TextStyle(
-  fontFamily: montserratRegular,
+  fontFamily: robotoRegular,
   height: 1,
 );
 
 const mediumFontStyle = TextStyle(
-  fontFamily: montserratMedium,
+  fontFamily: robotoMedium,
   height: 1,
 );
 
 const boldFontStyle = TextStyle(
-  fontFamily: montserratBold,
+  fontFamily: robotoBold,
   height: 1,
 );
 
 const extraBoldFontStyle = TextStyle(
-  fontFamily: montserratExtraBold,
+  fontFamily: robotoExtraBold,
   height: 1,
 );
 
 const blackFontStyle = TextStyle(
-  fontFamily: montserratBlack,
+  fontFamily: robotoBlack,
   height: 1,
 );
 
 const semiBoldFontStyle = TextStyle(
-  fontFamily: montserratSemiBold,
+  fontFamily: robotoSemiBold,
   height: 1,
 );
 
