@@ -11,7 +11,7 @@ const defaultInputDecoration = InputDecoration(
 );
 
 final hintDecoration = defaultInputDecoration.copyWith(
-  hintStyle: rTS(color: colorHint),
+  hintStyle: mTS(size:18,color: colorBlack35),
 );
 
 final horizontalPaddingDecoration = hintDecoration.copyWith(

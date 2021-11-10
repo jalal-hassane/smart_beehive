@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:smart_beehive/composite/assets.dart';
+import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -109,13 +110,13 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _propertyItem(
-                svgCelsius,
+                pngTemperature,
                 _hive.properties.temperature?.toPrecision(2),
                 _doubleAnimation(_tempUpdateScaleController),
                 //colorAnimation(_tempUpdateScaleController),
               ),
               _propertyItem(
-                svgScale,
+                pngWeight,
                 _hive.properties.weight?.toPrecision(2),
                 _doubleAnimation(_weiUpdateScaleController),
                 //colorAnimation(_weiUpdateScaleController),
@@ -126,13 +127,13 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _propertyItem(
-                svgBees,
+                pngBeesCount,
                 _hive.properties.population,
                 _doubleAnimation(_popUpdateScaleController),
                 //colorAnimation(_popUpdateScaleController),
               ),
               _propertyItem(
-                svgHumidity,
+                pngHumidity,
                 '${_hive.properties.humidity?.toPrecision(2)}%',
                 _doubleAnimation(_humUpdateScaleController),
                 //colorAnimation(_humUpdateScaleController),
@@ -156,7 +157,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
             GestureDetector(
               onTap: () => _openAlerts(_hive),
               child: _propertyIconItem(
-                Icons.alarm,
+                pngAlert,
                 alerts,
                 () => _openAlerts(_hive),
               ),
@@ -209,7 +210,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
 
   // todo add color animation when updating values from database
   _propertyItem(
-    String svg,
+    String png,
     dynamic text,
     Animation<double> scale,
     //Animation<Color> color,
@@ -222,8 +223,8 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
           children: [
             Container(
               margin: bottom(10),
-              child: SvgPicture.asset(
-                svg,
+              child: Image.asset(
+                png,
                 width: screenHeight * 0.07,
                 height: screenHeight * 0.07,
               ),
@@ -241,7 +242,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     );
   }
 
-  _propertyIconItem(IconData data, String text, Function()? press) {
+  _propertyIconItem(String png, String text, Function()? press) {
     return SlideTransition(
       position: _iconOffsetAnimation,
       child: FadeTransition(
@@ -252,11 +253,17 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               margin: bottom(10),
               child: Padding(
                 padding: all(2),
-                child: Icon(data, size: screenHeight * 0.07),
+                child: Image.asset(png, width: screenHeight * 0.06,height: screenHeight * 0.06,),
               ),
             ),
             ElevatedButton(
               onPressed: press,
+              style: ElevatedButton.styleFrom(
+                  primary: colorPrimary,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(31)
+                  )
+              ),
               child: Text(text, style: mTS()),
             ),
           ],
@@ -279,28 +286,28 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
                 children: [
                   Padding(
                     padding: all(2),
-                    child: type != AlertType.swarming
-                        ? SvgPicture.asset(
-                            type.icon,
-                            width: screenHeight * 0.07,
-                            height: screenHeight * 0.07,
-                          )
-                        : Image.asset(
-                            type.icon,
-                            width: screenHeight * 0.07,
-                            height: screenHeight * 0.07,
-                          ),
+                    child: Image.asset(
+                      type.icon,
+                      width: screenHeight * type.size,
+                      height: screenHeight * type.size,
+                    ),
                   ),
-                  Icon(
+                  /*Icon(
                     Icons.bar_chart,
                     size: 18,
                     color: type.color,
-                  ),
+                  ),*/
                 ],
               ),
             ),
             ElevatedButton(
               onPressed: press,
+              style: ElevatedButton.styleFrom(
+                primary: colorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(31)
+                )
+              ),
               child: Text(
                 type.description,
                 style: mTS(),

@@ -91,15 +91,15 @@ extension E on AlertType {
   String get icon {
     switch (index) {
       case 0:
-        return svgCelsius;
+        return pngTemperature;
       case 1:
-        return svgHumidity;
+        return pngHumidity;
       case 2:
-        return svgBees;
+        return pngBeesCount;
       case 3:
-        return svgScale;
+        return pngWeight;
       case 4:
-        return pngQueenSwarmStatus;
+        return pngSwarming;
       default:
         return '';
     }
@@ -119,6 +119,15 @@ extension E on AlertType {
         return Colors.deepPurpleAccent;
       default:
         return colorWhite;
+    }
+  }
+
+  double get size{
+    switch (index) {
+      case 1: return 0.06;
+      case 3: return 0.06;
+      case 4: return 0.08;
+      default: return 0.07;
     }
   }
 }

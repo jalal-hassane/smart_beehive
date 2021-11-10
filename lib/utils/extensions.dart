@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/styles.dart';
@@ -65,36 +67,57 @@ extension ContextExtension on BuildContext {
     showModalBottomSheet(
       context: this,
       isScrollControlled: true,
-      barrierColor: Colors.transparent,
+      barrierColor: colorBlack.withOpacity(0.7),
       enableDrag: false,
       builder: (_) {
-        return GestureDetector(
-          onVerticalDragUpdate: (details) {
-            if (details.delta.dy > 1) Navigator.pop(_);
-          },
-          child: FractionallySizedBox(
-            heightFactor: 0.9,
-            child: Scaffold(
-              body: BottomSheet(
-                backgroundColor: colorBlack.withOpacity(0.7),
-                enableDrag: false,
-                constraints: BoxConstraints(
-                  maxHeight: screenHeight * 0.9,
-                  minHeight: screenHeight * 0.9,
-                ),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(26),
-                    topRight: Radius.circular(26),
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+          child: GestureDetector(
+            onVerticalDragUpdate: (details) {
+              if (details.delta.dy > 1) Navigator.pop(_);
+            },
+            child: FractionallySizedBox(
+              heightFactor: 0.75,
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                body: BottomSheet(
+                  backgroundColor: colorWhite,
+                  enableDrag: false,
+                  constraints: BoxConstraints(
+                    maxHeight: screenHeight * 0.75,
+                    minHeight: screenHeight * 0.75,
                   ),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(40),
+                      topRight: Radius.circular(40),
+                    ),
+                  ),
+                  onClosing: onClosing ?? () {},
+                  builder: builder,
                 ),
-                onClosing: onClosing ?? () {},
-                builder: builder,
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  show(Widget Function(BuildContext) builder,
+      {Function()? onClosing, bool wrap = false}) {
+    showMaterialModalBottomSheet(
+      context: this,
+      enableDrag: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      expand: false,
+      builder: builder,
     );
   }
 }

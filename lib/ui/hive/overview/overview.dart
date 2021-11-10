@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
@@ -76,71 +77,77 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
+    final editText = textEditHive + ' ${_hive.overview.name}';
     _initViewModel();
     _animationController.forward(from: 0);
     return Padding(
       padding: all(16),
       child: Column(
         children: [
-          Column(
-            children: [
-              _overviewItem(
-                textName,
-                _hive.overview.name,
-                _offsetAnimation(-1.0),
-              ),
-              //_divider,
-              _overviewItem(
-                textHiveType,
-                _hive.overview.hiveType,
-                _offsetAnimation(-2.0),
-              ),
-              //_divider,
-              _overviewItem(
-                textInstallationDate,
-                _hive.overview.installationDate,
-                _offsetAnimation(-3.0),
-              ),
-              //_divider,
-              _overviewItem(
-                textColonyAge,
-                _hive.overview.colonyAge,
-                _offsetAnimation(1.0),
-              ),
-              //_divider,
-              _overviewItem(
-                textSpecies,
-                _hive.overview.speciesType,
-                _offsetAnimation(2.0),
-              ),
-              //_divider,
-              _overviewItem(
-                textLocation,
-                _hive.overview.location,
-                _offsetAnimation(3.0),
-              ),
-            ],
+          Flexible(
+            flex: 35,
+            child: Column(
+              children: [
+                _overviewItem(
+                  textName,
+                  _hive.overview.name,
+                  _offsetAnimation(-1.0),
+                ),
+                _divider,
+                _overviewItem(
+                  textHiveType,
+                  _hive.overview.hiveType,
+                  _offsetAnimation(-2.0),
+                ),
+                _divider,
+                _overviewItem(
+                  textInstallationDate,
+                  _hive.overview.installationDate,
+                  _offsetAnimation(-3.0),
+                ),
+                _divider,
+                _overviewItem(
+                  textColonyAge,
+                  _hive.overview.colonyAge,
+                  _offsetAnimation(1.0),
+                ),
+                _divider,
+                _overviewItem(
+                  textSpecies,
+                  _hive.overview.speciesType,
+                  _offsetAnimation(2.0),
+                ),
+                _divider,
+                _overviewItem(
+                  textLocation,
+                  _hive.overview.location,
+                  _offsetAnimation(3.0),
+                ),
+              ],
+            ),
           ),
           Flexible(
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () => _showEditModal(),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.red[200],
+            flex: 15,
+            child: ElevatedButton(
+              onPressed: () => _showEditModal(),
+              style: ElevatedButton.styleFrom(
+                primary: colorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(31),
                 ),
-                child: AbsorbPointer(
-                  absorbing: true,
-                  child: TextButton.icon(
-                    icon: const Icon(
-                      Icons.edit,
-                      color: colorBlack,
-                    ),
-                    label: Text(
-                      textEditHive,
-                      style: rTS(),
-                    ),
-                    onPressed: () => {},
+              ),
+              child: AbsorbPointer(
+                absorbing: true,
+                child: TextButton.icon(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: colorBlack,
                   ),
+                  label: Text(
+                    editText.toUpperCase(),
+                    style: bTS(),
+                  ),
+                  onPressed: () => {},
                 ),
               ),
             ),
@@ -157,135 +164,160 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     _hiveType = _hive.overview.type;
     _species = _hive.overview.species;
     _dateController.text =
-        _hive.overview.date != null ? _hive.overview.installationDate : '';
+    _hive.overview.date != null ? _hive.overview.installationDate : '';
     _locationController.text =
-        _hive.overview.position != null ? _hive.overview.location : '';
+    _hive.overview.position != null ? _hive.overview.location : '';
 
-    context.showCustomScaffoldBottomSheet((_) {
+    context.show((_) {
       return StatefulBuilder(builder: (_, state) {
         locationState = state;
-        final column = Column(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Center(
-                child: Text(
-                  textEditHive,
-                  style: bTS(size: 24, color: colorPrimary),
-                ),
-              ),
-            ),
-            SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  overviewSheetItemWidget(
-                    _nameController,
-                    screenWidth,
-                    screenHeight,
-                    textName,
-                    max: 20,
-                  ),
-                  GestureDetector(
-                    onTap: () => _datePickerWidget(),
-                    child: overviewSheetItemWidget(
-                      _dateController,
-                      screenWidth,
-                      screenHeight,
-                      textInstallationDate,
-                      enabled: false,
+
+        final column = FractionallySizedBox(
+          heightFactor: 0.75,
+          child: Scaffold(
+            body: Column(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Text(
+                      textEditHive,
+                      style: bTS(size: 25, color: colorPrimary),
                     ),
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: left(16),
-                        child: Text(
-                          textHiveType,
-                          style: boTS(color: colorPrimary),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          margin: bottom(10),
+                          child: overviewSheetItemWidget(
+                            _nameController,
+                            screenWidth,
+                            screenHeight,
+                            textName,
+                            max: 20,
+                          ),
                         ),
-                      ),
-                      _hiveTypeDropDownWidget(state),
-                    ],
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: left(16),
-                        child: Text(
-                          textSpecies,
-                          style: boTS(color: colorPrimary),
-                        ),
-                      ),
-                      _speciesDropDownWidget(state),
-                    ],
-                  ),
-                  overviewSheetItemWidget(
-                    _locationController,
-                    screenWidth,
-                    screenHeight,
-                    textLocation,
-                    suffix: Container(
-                      margin: symmetric(0, 6),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          GestureDetector(
-                            onTap: () async => await _getLocationName(state),
-                            child: const Icon(
-                              Icons.my_location,
-                              color: colorWhite,
+                        Container(
+                          margin: bottom(10),
+                          child: GestureDetector(
+                            onTap: () => _datePickerWidget(),
+                            child: overviewSheetItemWidget(
+                              _dateController,
+                              screenWidth,
+                              screenHeight,
+                              textInstallationDate,
+                              enabled: false,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () async => await _showMap(state),
-                            child: Container(
-                              margin: left(6),
-                              child: const Icon(
-                                Icons.edit_location_outlined,
-                                color: colorWhite,
+                        ),
+                        Container(
+                          margin: bottom(10),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: left(16),
+                                child: Text(
+                                  textHiveType,
+                                  style: bTS(size: 14),
+                                ),
                               ),
+                              _hiveTypeDropDownWidget(state),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: bottom(10),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: left(16),
+                                child: Text(
+                                  textSpecies,
+                                  style: bTS(size: 14),
+                                ),
+                              ),
+                              _speciesDropDownWidget(state),
+                            ],
+                          ),
+                        ),
+                        overviewSheetItemWidget(
+                          _locationController,
+                          screenWidth,
+                          screenHeight,
+                          textLocation,
+                          suffix: Container(
+                            margin: symmetric(0, 6),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  onTap: () async =>
+                                  await _getLocationName(state),
+                                  child: const Icon(
+                                    Icons.my_location,
+                                    color: colorPrimary,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () async => await _showMap(state),
+                                  child: Container(
+                                    margin: left(6),
+                                    child: const Icon(
+                                      Icons.location_on,
+                                      color: colorPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                          scrollController: _scrollController,
+                          alignVertical: true,
+                        ),
+                      ],
                     ),
-                    scrollController: _scrollController,
-                    alignVertical: true,
                   ),
-                ],
-              ),
-            ),
-            Flexible(
-              flex: 2,
-              fit: FlexFit.tight,
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    state(() => _saveHiveDetails());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red[200],
-                  ),
-                  child: SizedBox(
-                    width: screenWidth * 0.4,
-                    height: screenHeight * 0.056,
-                    child: Center(
-                      child: Text(
-                        textSave,
-                        style: mTS(color: colorWhite),
+                ),
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.tight,
+                  child: Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        state(() => _saveHiveDetails());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: colorPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(31),
+                        ),
+                      ),
+                      child: SizedBox(
+                        width: screenWidth * 0.4,
+                        height: screenHeight * 0.056,
+                        child: Center(
+                          child: Text(
+                            textSave.toUpperCase(),
+                            style: bTS(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         );
         if (_locationController.text.isNotEmpty) {
           _animateScroll();
@@ -325,11 +357,11 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     });
   }
 
-  final _divider = const Flexible(
+  final _divider = Flexible(
     child: Divider(
       height: 1,
       indent: 3,
-      color: colorBlack,
+      color: colorPrimary30,
     ),
   );
 
@@ -403,18 +435,15 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }
   }
 
-  _dropDownButton(
-    Function(void Function()) state,
-    Function(String string) onChanged,
-    String current,
-    Widget hint,
-    List<DropdownMenuItem<String>> items,
-    List<String> options,
-  ) {
+  _dropDownButton(Function(void Function()) state,
+      Function(String string) onChanged,
+      String current,
+      Widget hint,
+      List<DropdownMenuItem<String>> items,
+      List<String> options,) {
     return DropdownButton<String>(
-      iconSize: 0,
       onChanged: (value) => state(() => onChanged.call(value!)),
-      dropdownColor: Colors.black87,
+      dropdownColor: colorPrimary,
       selectedItemBuilder: (BuildContext context) {
         return options.map((String value) {
           return DropdownMenuItem<String>(
@@ -424,7 +453,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
               margin: left(8),
               child: Text(
                 value,
-                style: rTS(),
+                style: rTS(size: 12),
               ),
             ),
           );
@@ -433,6 +462,8 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
       isExpanded: true,
       borderRadius: BorderRadius.circular(8),
       hint: hint,
+      iconDisabledColor: colorPrimary,
+      iconEnabledColor: colorPrimary,
       value: current.isNotEmpty ? current : null,
       items: items,
     );
@@ -443,13 +474,13 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
       child: Container(
         margin: symmetric(4, 16),
         decoration: BoxDecoration(
-          color: colorBgRegistrationTextField,
+          color: colorBgTextField,
           borderRadius: BorderRadius.circular(6),
         ),
         child: DropdownButtonHideUnderline(
           child: _dropDownButton(
             state,
-            (s) => _hiveType = s.hiveTypeFromString,
+                (s) => _hiveType = s.hiveTypeFromString,
             _hiveType?.description ?? '',
             _hintWidget(textHiveType),
             _hiveTypesDropDownItems(),
@@ -487,7 +518,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         padding: left(8),
         child: Text(
           text,
-          style: rTS(color: colorHint),
+          style: mTS(size: 12, color: colorBlack35),
         ),
       ),
     );
@@ -498,13 +529,13 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
       child: Container(
         margin: symmetric(4, 16),
         decoration: BoxDecoration(
-          color: colorBgRegistrationTextField,
+          color: colorBgTextField,
           borderRadius: BorderRadius.circular(6),
         ),
         child: DropdownButtonHideUnderline(
           child: _dropDownButton(
             state,
-            (s) => _species = s.speciesFromString,
+                (s) => _species = s.speciesFromString,
             _species?.description ?? '',
             _hintWidget(textSpecies),
             _speciesDropDownItems(),
@@ -623,12 +654,10 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }).catchError((error) => _catchLocationError(error));
   }
 
-  _getLocationFromLatLng(
-    double lat,
-    double long,
-  ) async {
+  _getLocationFromLatLng(double lat,
+      double long,) async {
     List<geo_coding.Placemark> locations =
-        await geo_coding.placemarkFromCoordinates(lat, long);
+    await geo_coding.placemarkFromCoordinates(lat, long);
     final mLocation = locations.first;
     return '${mLocation.country}, '
         '${mLocation.administrativeArea} - '

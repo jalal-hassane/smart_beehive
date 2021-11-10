@@ -92,4 +92,14 @@ const pngTrachealMitesDisease = 'assets/image/tracheal_mite_disease.jpg';
 const pngVarroaMitesDisease = 'assets/image/varroa_mite_disease.jpg';
 const pngWaxMothsDisease = 'assets/image/wax_moths_disease.jpg';
 
+// new design assets
+const pngHive = 'assets/image/hive.png';
+const pngHiveSelected = 'assets/image/hive_selected.png';
+const svgProperties = 'assets/image/properties.svg';
+const pngTemperature = 'assets/image/temperature.png';
+const pngBeesCount = 'assets/image/bees_count.png';
+const pngWeight = 'assets/image/weight.png';
+const pngHumidity = 'assets/image/humidity.png';
+const pngAlert = 'assets/image/alert.png';
+const pngSwarming = 'assets/image/swarming.png';
 

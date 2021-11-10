@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
+import 'package:page_view_indicators/circle_page_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:smart_beehive/composite/assets.dart';
@@ -36,8 +38,8 @@ class Farm extends StatefulWidget {
 
 class _Farm extends State<Farm> with TickerProviderStateMixin {
   Widget _properties = Container();
-  bool _propertyTitleVisibility = false;
-  int _selectedHiveIndex = -1;
+  bool _propertyTitleVisibility = true;
+  int _selectedHiveIndex = 0;
 
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   void Function(void Function())? _bottomState;
@@ -56,6 +58,8 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   late FarmViewModel _farmViewModel;
 
   late Widget listWidget;
+
+  final _currentItemNotifier = ValueNotifier<int>(0);
 
   showNotificationBadge() {
     setState(() {});
@@ -242,13 +246,33 @@ Navigator.popUntil(context, (route) => route.isFirst);
   Widget build(BuildContext context) {
     _initViewModel();
     listWidget = Container(
-      margin: left(10),
-      child: AnimatedList(
-        key: _listKey,
-        padding: all(6),
-        initialItemCount: beehives.length,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: _listItemWidget,
+      padding: symmetric(0,8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: screenHeight*0.2,
+            child: Center(
+              child: AnimatedList(
+                key: _listKey,
+                padding: all(6),
+                initialItemCount: beehives.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: _listItemWidget,
+              ),
+            ),
+          ),
+          CirclePageIndicator(
+            itemCount: beehives.length,
+            currentPageNotifier: _currentItemNotifier,
+            selectedDotColor: colorPrimary,
+            dotColor: colorPrimary70,
+            size: 8,
+            selectedSize: 11,
+            dotSpacing: 4,
+
+          ),
+        ],
       ),
     );
     return Scaffold(
@@ -287,14 +311,16 @@ Navigator.popUntil(context, (route) => route.isFirst);
   }
 
   _hiveListWidget() {
+    final hive = beehives[_selectedHiveIndex];
+    _properties = Details(
+      beehive: hive,
+      farmState: listStater,
+    );
     return Column(
       children: [
-        Expanded(
-          flex: 6,
+        Flexible(
+          flex: 11,
           child: listWidget,
-        ),
-        Expanded(
-          child: Container(),
         ),
         Expanded(
           flex: 25,
@@ -347,6 +373,46 @@ Navigator.popUntil(context, (route) => route.isFirst);
   Widget _listItemWidget(
       BuildContext context, int hiveIndex, Animation<double> animation) {
     final hive = beehives[hiveIndex];
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(-1, 0),
+        end: Offset.zero,
+      ).animate(animation),
+      child: GestureDetector(
+        onTap: () => _openHiveProperties(hiveIndex),
+        child: Container(
+          width: screenWidth * 0.25,
+          margin: right(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: bottom(12),
+                child: Image.asset(
+                  _selectedHiveIndex == hiveIndex ? pngHiveSelected : pngHive,
+                  width: screenWidth * 0.25,
+                ),
+              ),
+              Container(
+                padding: all(8),
+                decoration: BoxDecoration(
+                    color: _selectedHiveIndex == hiveIndex
+                        ? colorPrimary
+                        : colorWhite,
+                    borderRadius: BorderRadius.circular(9),
+                    border: Border.all(color: colorPrimary, width: 2)),
+                child: Center(
+                  child: Text(
+                    beehives[hiveIndex].overview.name!.toUpperCase(),
+                    style: bTS(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(-1, 0),
@@ -447,6 +513,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
     if (hive.hasNotifications) hive.hasNotifications = false;
     currentHiveId = hive.id;
     setState(() {
+      _currentItemNotifier.value = _selectedHiveIndex;
       _propertyTitleVisibility = true;
       _properties = Details(
         beehive: hive,
@@ -535,7 +602,17 @@ class _Details extends State<Details> with TickerProviderStateMixin {
         TabBar(
           tabs: [
             _tabWidget(Icons.remove_red_eye, textOverview),
-            _tabWidget(Icons.paste_rounded, textProperties),
+            Tab(
+              icon: SvgPicture.asset(
+                svgProperties,
+                width: 20,
+                height: 20,
+              ),
+              child: Text(
+                textProperties,
+                style: bTS(size: 10, color: colorPrimaryDark!),
+              ),
+            ),
             _tabWidget(Icons.bubble_chart, analysis),
             _tabWidget(Icons.library_books, textLogs),
           ],

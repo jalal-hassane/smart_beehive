@@ -123,8 +123,8 @@ Widget sheetTextField(
   return Container(
     margin: symmetric(4, 16),
     decoration: BoxDecoration(
-      color: colorBgRegistrationTextField,
-      borderRadius: BorderRadius.circular(6),
+      color: colorBgTextField,
+      borderRadius: BorderRadius.circular(4),
     ),
     child: Padding(
       padding: left(8),
@@ -137,12 +137,13 @@ Widget sheetTextField(
         textAlignVertical: alignVertical ? TextAlignVertical.center : null,
         textInputAction: last ? TextInputAction.done : TextInputAction.next,
         maxLines: 1,
-        style: rTS(),
+        style: mTS(size: 12),
         cursorColor: colorBlack,
         keyboardType: type,
         obscureText: shouldHideText ? true : false,
         decoration: hintDecoration.copyWith(
           hintText: hint,
+          hintStyle: mTS(size:12,color: colorBlack35),
           suffixIcon: suffix,
         ),
         inputFormatters: [
@@ -173,7 +174,7 @@ overviewSheetItemWidget(
     children: [
       Container(
         margin: left(16),
-        child: Text(text, style: boTS(color: colorPrimary)),
+        child: Text(text, style: bTS(size: 14)),
       ),
       sheetTextField(
         width,
