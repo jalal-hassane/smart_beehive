@@ -49,7 +49,6 @@ class _Registration extends State<Registration> {
     screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: colorPrimary,
         body: Stack(
           children: [
             Column(
@@ -93,16 +92,14 @@ class _Registration extends State<Registration> {
                             opacity: _proceedOpacity,
                             child: ElevatedButton(
                               onPressed: () => _proceed(),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.red[200],
-                              ),
+                              style: buttonStyle,
                               child: SizedBox(
                                 width: screenWidth * 0.4,
                                 height: screenHeight * 0.056,
                                 child: Center(
                                   child: Text(
                                     textRegisterLogin,
-                                    style: mTS(color: colorWhite),
+                                    style: mTS(),
                                   ),
                                 ),
                               ),

@@ -67,42 +67,6 @@ Widget registrationTextField(
   );
 }
 
-Widget proceedButton(double width, double height, String text,
-    {bool showShimmer = true}) {
-  final _center = Center(
-    child: Container(
-      width: width * 0.6,
-      height: height * 0.055,
-      decoration: BoxDecoration(
-        color: colorPrimary,
-        borderRadius: BorderRadius.circular(32),
-        image: const DecorationImage(
-          image: AssetImage(backgroundHoney_7),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Center(child: Text(text, style: mTS(size: 18))),
-    ),
-  );
-  return Stack(
-    children: [
-      _center,
-      Visibility(
-        visible: showShimmer,
-        maintainState: true,
-        maintainAnimation: true,
-        maintainSize: true,
-        child: Shimmer.fromColors(
-          child: _center,
-          period: const Duration(milliseconds: 2500),
-          baseColor: Colors.white10,
-          highlightColor: Colors.orangeAccent.withOpacity(0.5),
-        ),
-      ),
-    ],
-  );
-}
-
 Widget sheetTextField(
   double width,
   double height,

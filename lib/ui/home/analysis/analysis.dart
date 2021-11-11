@@ -179,13 +179,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
         floatingActionButton: widget.type == AlertType.population
             ? FloatingActionButton(
                 onPressed: _showAddBeesSheet,
-                child: Padding(
-                  padding: all(8),
-                  child: SvgPicture.asset(
-                    svgBees,
-                    color: colorBlack,
-                  ),
-                ),
+                child:const Icon(Icons.add),
                 backgroundColor: colorPrimary,
               )
             : null,
@@ -363,8 +357,8 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(
-            svgBees,
+          Image.asset(
+            pngBeesCount,
             width: screenWidth * 0.7,
             height: screenHeight * 0.5,
             color: Colors.green,
