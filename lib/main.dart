@@ -309,7 +309,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.yellow,
+          primarySwatch: Colors.orange,
+          primaryColor: colorPrimary
         ),
         initialRoute: '/',
         home: const Splash(),

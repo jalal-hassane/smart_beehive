@@ -189,12 +189,12 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                 backgroundColor: colorPrimary,
               )
             : null,
-        body: SingleChildScrollView(
-          child: widget.type == AlertType.swarming
-              ? _swarmingWidget()
-              : widget.type == AlertType.population
-                  ? _populationWidget()
-                  : StreamBuilder<DocumentSnapshot>(
+        body: widget.type == AlertType.swarming
+            ? _swarmingWidget()
+            : widget.type == AlertType.population
+                ? _populationWidget()
+                : SingleChildScrollView(
+                  child: StreamBuilder<DocumentSnapshot>(
                       stream: _collection.snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
@@ -214,7 +214,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                         return parseData(map);
                       },
                     ),
-        ),
+                ),
       ),
     );
   }
@@ -294,64 +294,63 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   final _amountController = TextEditingController();
 
   _showAddBeesSheet() {
-    context.showCustomScaffoldBottomSheet((_) {
+    context.show((_) {
       return StatefulBuilder(
         builder: (_, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                textAddBees,
-                style: bTS(size: 30, color: colorPrimary),
-              ),
-              sheetTextField(
-                screenWidth,
-                screenHeight,
-                _amountController,
-                textAddBees,
-                type: const TextInputType.numberWithOptions(
-                    decimal: false, signed: false),
-                align: TextAlign.center,
-                last: true,
-                //submit:(v)=> _updatePopulation(),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              Column(
-                children: [
-                  Container(
-                    margin: bottom(10),
-                    child: ElevatedButton(
-                      onPressed: () => state(() => _updatePopulation()),
-                      style: ElevatedButton.styleFrom(primary: Colors.red[200]),
-                      child: SizedBox(
-                        width: screenWidth * 0.4,
-                        height: screenHeight * 0.056,
-                        child: Center(
-                          child: Text(
-                            textAdd,
-                            style: mTS(color: colorWhite),
+          return FractionallySizedBox(
+            heightFactor: 0.75,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  textAddBees,
+                  style: bTS(size: 30, color: colorPrimary),
+                ),
+                sheetTextField(
+                  screenWidth,
+                  screenHeight,
+                  _amountController,
+                  textAddBees,
+                  type: const TextInputType.numberWithOptions(
+                      decimal: false, signed: false),
+                  align: TextAlign.center,
+                  last: true,
+                  //submit:(v)=> _updatePopulation(),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                Column(
+                  children: [
+                    Container(
+                      margin: bottom(10),
+                      child: ElevatedButton(
+                        onPressed: () => state(() => _updatePopulation()),
+                        style:buttonStyle,
+                        child: SizedBox(
+                          width: screenWidth * 0.4,
+                          height: screenHeight * 0.056,
+                          child: Center(
+                            child: Text(
+                              textAdd,
+                              style: mTS(),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => _updatePopulation(remove: true),
-                    style: ElevatedButton.styleFrom(primary: Colors.red[400]),
-                    child: SizedBox(
+                    SizedBox(
                       width: screenWidth * 0.3,
                       height: screenHeight * 0.05,
                       child: Center(
                         child: Text(
                           textRemove,
-                          style: mTS(color: colorWhite),
+                          style: mTS(),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           );
         },
       );
@@ -392,151 +391,67 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Image.asset(
-                    _hive.hiveIsSwarming
-                        ? pngQueenSwarmStatus
-                        : pngQueenSwarmStatusActive,
-                    height: screenHeight * 0.2,
-                    width: double.maxFinite,
-                    color: _hive.hiveIsSwarming ? Colors.red : null,
+        Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                _hive.hiveIsSwarming
+                    ? textHiveSwarming
+                    : textHiveNotSwarming,
+                style: sbTS(
+                  color:
+                      _hive.hiveIsSwarming ? Colors.red : Colors.green,
+                ),
+              ),
+              Visibility(
+                visible: _hive.hiveIsSwarming,
+                child: Container(
+                  margin: top(6),
+                  child: Text(
+                    'Date: ' +
+                        formatDate(
+                            swarmingTime!, [yyyy, ' ', M, ' ', dd]),
+                    style: sbTS(color: Colors.red),
                   ),
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Visibility(
-                        visible: _hive.hiveIsSwarming,
-                        child: Container(
-                          margin: trbl(0, 8, 0, 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                margin: bottom(6),
-                                child: const Icon(
-                                  Icons.warning_rounded,
-                                  color: Colors.red,
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: _stopSwarming,
-                                child: Text(textStop, style: mTS()),
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.green[200],
-                                  minimumSize: Size.zero,
-                                  padding: all(8),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _hive.hiveIsSwarming
-                            ? textHiveSwarming
-                            : textHiveNotSwarming,
-                        style: sbTS(
-                          color:
-                              _hive.hiveIsSwarming ? Colors.red : Colors.green,
-                        ),
-                      ),
-                      Visibility(
-                        visible: _hive.hiveIsSwarming,
-                        child: Container(
-                          margin: top(6),
-                          child: Text(
-                            'Date: ' +
-                                formatDate(
-                                    swarmingTime!, [yyyy, ' ', M, ' ', dd]),
-                            style: sbTS(color: Colors.red),
-                          ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: _hive.hiveIsSwarming,
-                        child: Container(
-                          margin: top(6),
-                          child: Text(
-                            'Time: ' +
-                                formatDate(
-                                    swarmingTime!, [hh, ':', nn, ' ', am]),
-                            style: sbTS(color: Colors.red),
-                          ),
-                        ),
-                      ),
-                    ],
+              ),
+              Visibility(
+                visible: _hive.hiveIsSwarming,
+                child: Container(
+                  margin: top(6),
+                  child: Text(
+                    'Time: ' +
+                        formatDate(
+                            swarmingTime!, [hh, ':', nn, ' ', am]),
+                    style: sbTS(color: Colors.red),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              Visibility(
+                visible: _hive.hiveIsSwarming,
+                child: ElevatedButton(
+                onPressed: _stopSwarming,
+                child: Text(textStop, style: mTS()),
+                style: buttonStyle,
+              ),)
+            ],
+          ),
         ),
-        Container(
-          margin: top(10),
-          child: Padding(
-            padding: all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      textBeekeeperTips,
-                      style: bTS(size: 24),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        if (stateExpanded) {
-                          _analysisScaleController.reverse();
-                          _analysisFadeController.forward().whenComplete(() {
-                            setState(() => stateExpanded = false);
-                            _analysisFadeController.reverse();
-                          });
-                        } else {
-                          _analysisScaleController.forward();
-                          _analysisFadeController.forward().whenComplete(() {
-                            setState(() => stateExpanded = true);
-                            _analysisFadeController.reverse();
-                          });
-                        }
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: Colors.black12),
-                        padding: all(4),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FadeTransition(
-                              opacity: _analysisFadeAnimation,
-                              child: Text(
-                                stateExpanded ? textLess : textMore,
-                                style: rTS(),
-                              ),
-                            ),
-                            RotationTransition(
-                              turns: _analysisRotationAnimation,
-                              child: const Icon(Icons.arrow_drop_down_sharp),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizeTransition(
-                  sizeFactor: _analysisScaleAnimation,
-                  child: Padding(
+        Expanded(
+          child: SingleChildScrollView(
+            child: Container(
+              margin: top(10),
+              padding: all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    textBeekeeperTips,
+                    style: bTS(size: 24),
+                  ),
+                  Padding(
                     padding: all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -573,7 +488,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                                       padding: all(8),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           _bulletPointWidget(
                                               textAvoidCongestion1, null),
@@ -598,7 +513,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                                       padding: all(8),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           _bulletPointWidget(
                                               textGoodVentilation1, null),
@@ -610,7 +525,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                                             padding: all(16),
                                             child: Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: [
                                                 _bulletPointWidget(
                                                     textHotWeather1, null),
@@ -650,7 +565,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                                       padding: all(8),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           _bulletPointWidget(textDo1, null),
                                           _bulletPointWidget(textDo2, top(6)),
@@ -666,13 +581,11 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                                       padding: all(8),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           _bulletPointWidget(textDoNot1, null),
-                                          _bulletPointWidget(
-                                              textDoNot2, top(6)),
-                                          _bulletPointWidget(
-                                              textDoNot3, top(6)),
+                                          _bulletPointWidget(textDoNot2, top(6)),
+                                          _bulletPointWidget(textDoNot3, top(6)),
                                         ],
                                       ),
                                     ),
@@ -708,11 +621,12 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
+
       ],
     );
   }

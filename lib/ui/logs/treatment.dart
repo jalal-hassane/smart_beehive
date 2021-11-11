@@ -99,16 +99,14 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
                   _logTreatment?.clear();
                 });
               },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red[200],
-              ),
+              style: buttonStyle,
               child: SizedBox(
                 width: screenWidth * 0.4,
                 height: screenHeight * 0.056,
                 child: Center(
                   child: Text(
                     textClear,
-                    style: mTS(color: colorWhite),
+                    style: mTS(),
                   ),
                 ),
               ),
@@ -126,68 +124,69 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
   _generateTaps() {
     for (ItemTreatment item in _logTreatment!.logs2) {
       f() {
-        return context.showCustomBottomSheet((p0) {
+        return context.show((p0) {
           return StatefulBuilder(
             builder: (context, state) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        item.id!,
-                        style: bTS(size: 30, color: colorPrimary),
+              return FractionallySizedBox(
+                heightFactor: 0.75,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          item.id!,
+                          style: bTS(size: 30, color: colorPrimary),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 7,
-                    child: Center(
-                      child: ListView.separated(
-                        //key: UniqueKey(),
-                        itemCount: item.treatments.length,
-                        shrinkWrap: true,
-                        controller: _controller,
-                        padding: all(12),
-                        itemBuilder: (context, index) {
-                          return _itemBuilder(item.treatments[index], state);
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return const Divider(
-                            endIndent: 8,
-                            indent: 8,
-                            height: 1,
-                            color: colorPrimary,
-                          );
-                        },
+                    Expanded(
+                      flex: 7,
+                      child: Center(
+                        child: ListView.separated(
+                          //key: UniqueKey(),
+                          itemCount: item.treatments.length,
+                          shrinkWrap: true,
+                          controller: _controller,
+                          padding: all(12),
+                          itemBuilder: (context, index) {
+                            return _itemBuilder(item.treatments[index], state);
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const Divider(
+                              endIndent: 8,
+                              indent: 8,
+                              height: 1,
+                              color: colorPrimary,
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        state(() {
-                          item.reset();
-                        });
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.red[200],
-                      ),
-                      child: SizedBox(
-                        width: screenWidth * 0.4,
-                        height: screenHeight * 0.056,
-                        child: Center(
-                          child: Text(
-                            textClear,
-                            style: mTS(color: colorWhite),
+                    Flexible(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          state(() {
+                            item.reset();
+                          });
+                          Navigator.pop(context);
+                        },
+                        style: buttonStyle,
+                        child: SizedBox(
+                          width: screenWidth * 0.4,
+                          height: screenHeight * 0.056,
+                          child: Center(
+                            child: Text(
+                              textClear,
+                              style: mTS(color: colorWhite),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           );

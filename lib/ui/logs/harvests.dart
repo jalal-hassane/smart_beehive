@@ -1,3 +1,4 @@
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
@@ -35,6 +36,8 @@ class _Harvests extends State<Harvests> {
     if (_logHarvests?.isActive ?? false) return 1.0;
     return 0.5;
   }
+
+  final _unitExpandableController = ExpandableController();
 
   late LogsViewModel _logsViewModel;
 
@@ -103,9 +106,7 @@ class _Harvests extends State<Harvests> {
                           _saveHarvest();
                         });
                       },
-                      /*style: ElevatedButton.styleFrom(
-                        primary: Colors.red[200],
-                      ),*/
+                      style: buttonStyle,
                       child: SizedBox(
                         width: screenWidth * 0.5,
                         height: screenHeight * 0.056,
@@ -121,23 +122,20 @@ class _Harvests extends State<Harvests> {
                 ),
                 Container(
                   margin: top(16),
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: GestureDetector(
+                    onTap: () {
                       setState(() {
                         _logHarvests?.clear();
                         _logsViewModel.updateLogs();
                       });
                     },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red[200],
-                    ),
                     child: SizedBox(
                       width: screenWidth * 0.35,
                       height: screenHeight * 0.056,
                       child: Center(
                         child: Text(
                           textClear,
-                          style: mTS(color: colorWhite),
+                          style: mTS(),
                         ),
                       ),
                     ),
@@ -179,78 +177,158 @@ class _Harvests extends State<Harvests> {
     for (ItemHarvest item in _logHarvests!.logs2) {
       f() {
         _generateSingleTap(item);
-        return context.showCustomBottomSheet(
+        return context.show(
           (p0) {
             return StatefulBuilder(
               builder: (context, state) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Center(
-                      child: Text(
-                        item.id!,
-                        style: bTS(size: 30, color: colorPrimary),
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _dropDownWidget(state),
-                        sheetTextField(
-                          screenWidth,
-                          screenHeight,
-                          _textController,
-                          item.title,
-                          type: const TextInputType.numberWithOptions(
-                            decimal: true,
+                return FractionallySizedBox(
+                  heightFactor: 0.75,
+                  child: Scaffold(
+                    body: WillPopScope(
+                      onWillPop: () async {
+                        if (_unitExpandableController.expanded) {
+                          _unitExpandableController.toggle();
+                        }
+                        return true;
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Center(
+                            child: Text(
+                              item.id!,
+                              style: bTS(size: 30, color: colorPrimary),
+                            ),
                           ),
-                          last: true,
-                          submit: (string) => _closeSheetAndSave(item),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Container(
-                          margin: bottom(10),
-                          child: ElevatedButton(
-                            onPressed: () => _closeSheetAndSave(item),
-                            child: SizedBox(
-                              width: screenWidth * 0.4,
-                              height: screenHeight * 0.056,
-                              child: Center(
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                margin: left(16),
                                 child: Text(
-                                  textSave,
-                                  style: mTS(color: colorWhite),
+                                  textUnit,
+                                  style: bTS(),
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            state(() {
-                              item.reset();
-                            });
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.red[200],
-                          ),
-                          child: SizedBox(
-                            width: screenWidth * 0.3,
-                            height: screenHeight * 0.05,
-                            child: Center(
-                              child: Text(
-                                textClear,
-                                style: mTS(color: colorWhite),
+                              Container(
+                                margin: symmetric(4, 16),
+                                padding: left(8),
+                                decoration: BoxDecoration(
+                                  color: colorBgTextField,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: ExpandableNotifier(
+                                  controller: _unitExpandableController,
+                                  child: Padding(
+                                    padding: symmetric(4, 0),
+                                    child: ScrollOnExpand(
+                                      child: Column(
+                                        children: <Widget>[
+                                          ExpandablePanel(
+                                            theme: const ExpandableThemeData(
+                                              headerAlignment:
+                                                  ExpandablePanelHeaderAlignment
+                                                      .center,
+                                              tapBodyToExpand: true,
+                                              tapBodyToCollapse: true,
+                                              hasIcon: false,
+                                            ),
+                                            header: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    _unit.description,
+                                                    style: rTS(),
+                                                  ),
+                                                ),
+                                                ExpandableIcon(
+                                                  theme:
+                                                      const ExpandableThemeData(
+                                                    expandIcon:
+                                                        Icons.arrow_drop_down,
+                                                    collapseIcon:
+                                                        Icons.arrow_drop_down,
+                                                    iconColor: colorPrimary,
+                                                    iconSize: 24.0,
+                                                    hasIcon: false,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            collapsed: Container(),
+                                            expanded: ListView.separated(
+                                              itemCount: Unit.values.length,
+                                              shrinkWrap: true,
+                                              padding: EdgeInsets.zero,
+                                              itemBuilder: (context, index) =>
+                                                  _dropDown(index, state),
+                                              separatorBuilder:
+                                                  (context, index) => divider,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                              sheetTextField(
+                                screenWidth,
+                                screenHeight,
+                                _textController,
+                                item.title,
+                                type: const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                last: true,
+                                submit: (string) => _closeSheetAndSave(item),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          Column(
+                            children: [
+                              Container(
+                                margin: bottom(10),
+                                child: ElevatedButton(
+                                  onPressed: () => _closeSheetAndSave(item),
+                                  style: buttonStyle,
+                                  child: SizedBox(
+                                    width: screenWidth * 0.4,
+                                    height: screenHeight * 0.056,
+                                    child: Center(
+                                      child: Text(
+                                        textSave,
+                                        style: mTS(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  state(() {
+                                    item.reset();
+                                  });
+                                  Navigator.pop(context);
+                                },
+                                child: SizedBox(
+                                  width: screenWidth * 0.3,
+                                  height: screenHeight * 0.05,
+                                  child: Center(
+                                    child: Text(
+                                      textClear,
+                                      style: mTS(),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 );
               },
             );
@@ -318,38 +396,30 @@ class _Harvests extends State<Harvests> {
     }
   }
 
-  _dropDownWidget(void Function(void Function()) state) {
-    return Center(
-      child: Container(
-        margin: symmetric(0, 16),
-        child: DropdownButton<String>(
-          iconSize: 0,
-          value: _unit.description,
-          onChanged: (String? newValue) {
-            state(() {
-              _unit = newValue!.unitFromString!;
-            });
-          },
-          dropdownColor: Colors.black87,
-          isExpanded: true,
-          borderRadius: BorderRadius.circular(8),
-          icon: const Icon(Icons.arrow_downward),
-          items: _dropDownItems(),
-        ),
+  _dropDownItemWidget2(String value) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      margin: symmetric(16, 0),
+      decoration: BoxDecoration(
+        color: colorBgTextField,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        value,
+        style: rTS(size: 12),
       ),
     );
   }
 
-  _dropDownItems() {
-    return Unit.values.map<DropdownMenuItem<String>>((Unit value) {
-      return DropdownMenuItem<String>(
-        alignment: Alignment.center,
-        value: value.description,
-        child: Text(
-          value.description,
-          style: rTS(color: colorPrimary),
-        ),
-      );
-    }).toList();
+  _dropDown(int index, void Function(void Function()) state) {
+    return GestureDetector(
+      onTap: () {
+        state(() {
+          _unit = Unit.values[index];
+        });
+        _unitExpandableController.toggle();
+      },
+      child: _dropDownItemWidget2(Unit.values[index].description),
+    );
   }
 }

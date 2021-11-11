@@ -400,8 +400,7 @@ extension WidgetsGenerator on List<ItemLog> {
           child: Text(
             itemLog.title,
             style: mTS(
-              size: 10,
-              color: colorWhite,
+              size: 10
             ),
           ),
         ),
@@ -429,7 +428,7 @@ extension WidgetsGenerator on List<ItemLog> {
             style: mTS(
               size: 10,
               color: stayActive
-                  ? colorWhite
+                  ? colorBlack
                   : itemLog.isActive
                       ? colorBlack
                       : Colors.blueGrey,

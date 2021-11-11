@@ -174,7 +174,7 @@ overviewSheetItemWidget(
     children: [
       Container(
         margin: left(16),
-        child: Text(text, style: bTS(size: 14)),
+        child: Text(text, style: bTS()),
       ),
       sheetTextField(
         width,
@@ -191,3 +191,11 @@ overviewSheetItemWidget(
     ],
   );
 }
+
+final divider = Flexible(
+  child: Divider(
+    height: 1,
+    indent: 3,
+    color: colorPrimary30,
+  ),
+);

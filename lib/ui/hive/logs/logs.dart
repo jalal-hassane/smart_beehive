@@ -7,7 +7,6 @@ import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/beehive.dart';
 import 'package:smart_beehive/main.dart';
 import 'package:smart_beehive/ui/logs/feeds.dart';
-import 'package:smart_beehive/ui/logs/general.dart';
 import 'package:smart_beehive/ui/logs/harvests.dart';
 import 'package:smart_beehive/ui/logs/queen.dart';
 import 'package:smart_beehive/ui/logs/treatment.dart';
@@ -31,28 +30,22 @@ class _Logs extends State<Logs> {
     _hive = widget.beehive;
     return Padding(
       padding: all(8),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                //_itemLogWidget(pngGeneral, logGeneral, () => _openPage(0)),
-                _itemLogWidget(pngQueen, logQueen, () => _openPage(1)),
-                _itemLogWidget(pngHarvests, logHarvests, () => _openPage(2)),
-              ],
-            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _itemLogWidget(pngQueen, logQueen, () => _openPage(1)),
+              _itemLogWidget(pngFeeds, logFeeds, () => _openPage(3)),
+            ],
           ),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _itemLogWidget(pngFeeds, logFeeds, () => _openPage(3)),
-                _itemLogWidget(pngTreatment, logTreatment, () => _openPage(4)),
-              ],
-            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _itemLogWidget(pngHarvests, logHarvests, () => _openPage(2)),
+              _itemLogWidget(pngTreatment, logTreatment, () => _openPage(4)),
+            ],
           ),
         ],
       ),
@@ -62,11 +55,6 @@ class _Logs extends State<Logs> {
   _openPage(int page) {
     Widget _screen;
     switch (page) {
-      case 0:
-        _screen = General(
-          logGeneral: _hive.logs.general,
-        );
-        break;
       case 1:
         _screen = Queen(
           logQueen: _hive.logs.queen,
@@ -94,26 +82,23 @@ class _Logs extends State<Logs> {
   _itemLogWidget(String asset, String title, Function() onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: CircleAvatar(
-        radius: screenHeight * 0.06,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              asset,
-              width: screenHeight * 0.04,
-              height: screenHeight * 0.04,
-              fit: BoxFit.contain,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            asset,
+            width: screenHeight * 0.07,
+            height: screenHeight * 0.07,
+            fit: BoxFit.contain,
+          ),
+          Container(
+            margin: top(12),
+            child: Text(
+              title,
+              style: rTS(size: 12),
             ),
-            Container(
-              margin: top(12),
-              child: Text(
-                title,
-                style: rTS(size: 12),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

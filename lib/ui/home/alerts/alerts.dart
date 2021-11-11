@@ -1,7 +1,10 @@
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -33,6 +36,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   AlertType _alertType = AlertType.temperature;
 
   late AlertsViewModel _alertsViewModel;
+  final _alertExpandableController = ExpandableController();
 
   @override
   void initState() {
@@ -57,7 +61,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
         floatingActionButton: FloatingActionButton(
           onPressed: _addAlert,
           child: const Icon(
-            Icons.add_alarm,
+            Icons.add,
             color: colorBlack,
           ),
           backgroundColor: colorPrimary,
@@ -92,9 +96,10 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.add_alarm,
-                size: 100,
+              Image.asset(
+                pngAlert,
+                width: 100,
+                height: 100,
               ),
               Text(
                 textNoAlertsHint,
@@ -177,8 +182,6 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     _alertsViewModel.updateProperties();
   }
 
-  _changeSound(int index) {}
-
   _alertLeadingIcon(Alert alert) {
     Widget _icon;
     if (alert.svg != null) {
@@ -212,37 +215,15 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     alerts.addAll(AlertType.values);
     alerts.removeLast();
     return alerts.map<DropdownMenuItem<String>>((AlertType value) {
-      Widget icon;
-      if (value.icon.isPng()) {
-        icon = Image.asset(
-          value.icon,
-          color: value.color,
-          width: 24,
-          height: 24,
-        );
-      } else {
-        icon = SvgPicture.asset(
-          value.icon,
-          color: value.color,
-          width: 24,
-          height: 24,
-        );
-      }
       return DropdownMenuItem<String>(
-        alignment: Alignment.center,
+        alignment: Alignment.centerLeft,
         value: value.description,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon,
-            Container(
-              margin: left(8),
-              child: Text(
-                value.description,
-                style: rTS(color: value.color),
-              ),
-            ),
-          ],
+        child: Container(
+          margin: left(8),
+          child: Text(
+            value.description,
+            style: rTS(size: 12),
+          ),
         ),
       );
     }).toList();
@@ -255,66 +236,158 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       _highestController.text = alert.upperBound!.toString();
       setState(() {});
     }
-    context.showCustomScaffoldBottomSheet((_) {
+    context.show((_) {
       return StatefulBuilder(
-        builder: (_, setState) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                edit ? textEditAlert : textCreateAlert,
-                style: bTS(size: 30, color: colorPrimary),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: left(16),
-                    child: Text(
-                      textType,
-                      style: boTS(color: colorPrimary),
+        builder: (_, state) {
+          return FractionallySizedBox(
+            heightFactor: 0.75,
+            child: Scaffold(
+              body: WillPopScope(
+                onWillPop: () async {
+                  if (_alertExpandableController.expanded) {
+                    _alertExpandableController.toggle();
+                  }
+                  _alertType = AlertType.temperature;
+                  _lowestController.clear();
+                  _highestController.clear();
+                  return true;
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      edit ? textEditAlert : textCreateAlert,
+                      style: bTS(size: 30, color: colorPrimary),
                     ),
-                  ),
-                  Container(
-                    margin: symmetric(0, 16),
-                    child: _dropDownWidget(setState),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  _sheetItemWidget(_lowestController, textLowest),
-                  Container(
-                    margin: top(16),
-                    child: _sheetItemWidget(
-                      _highestController,
-                      textHighest,
-                      isLast: true,
+                    SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: bottom(10),
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  margin: left(16),
+                                  child: Text(
+                                    textType,
+                                    style: bTS(),
+                                  ),
+                                ),
+                                Container(
+                                  margin: symmetric(4, 16),
+                                  padding: left(8),
+                                  decoration: BoxDecoration(
+                                    color: colorBgTextField,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: ExpandableNotifier(
+                                    controller: _alertExpandableController,
+                                    child: Padding(
+                                      padding: symmetric(4, 0),
+                                      child: ScrollOnExpand(
+                                        child: Column(
+                                          children: <Widget>[
+                                            ExpandablePanel(
+                                              theme: const ExpandableThemeData(
+                                                headerAlignment:
+                                                    ExpandablePanelHeaderAlignment
+                                                        .center,
+                                                tapBodyToExpand: true,
+                                                tapBodyToCollapse: true,
+                                                hasIcon: false,
+                                              ),
+                                              header: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      _alertType.description,
+                                                      style: rTS(
+                                                        color: colorBlack,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  ExpandableIcon(
+                                                    theme:
+                                                        const ExpandableThemeData(
+                                                      expandIcon:
+                                                          Icons.arrow_drop_down,
+                                                      collapseIcon:
+                                                          Icons.arrow_drop_down,
+                                                      iconColor: colorPrimary,
+                                                      iconSize: 24.0,
+                                                      hasIcon: false,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              collapsed: Container(),
+                                              expanded: ListView.separated(
+                                                itemCount:
+                                                    AlertType.values.length - 1,
+                                                shrinkWrap: true,
+                                                padding: EdgeInsets.zero,
+                                                itemBuilder: (context, index) =>
+                                                    _dropDown(index, state),
+                                                separatorBuilder:
+                                                    (context, index) => divider,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            margin: bottom(10),
+                            child:
+                                _sheetItemWidget(_lowestController, textLowest),
+                          ),
+                          _sheetItemWidget(
+                            _highestController,
+                            textHighest,
+                            isLast: true,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () => _createAlert(edit: edit, alert: alert),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.red[200],
-                  /*shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)
+                    /*Column(
+                      children: [
+                        _sheetItemWidget(_lowestController, textLowest),
+                        Container(
+                          margin: top(16),
+                          child: _sheetItemWidget(
+                            _highestController,
+                            textHighest,
+                            isLast: true,
+                          ),
+                        ),
+                      ],
                     ),*/
-                ),
-                child: SizedBox(
-                  width: screenWidth * 0.4,
-                  height: screenHeight * 0.056,
-                  child: Center(
-                    child: Text(
-                      edit ? textSaveAlert : textCreateAlert,
-                      style: mTS(color: colorWhite),
+                    ElevatedButton(
+                      onPressed: () => _createAlert(edit: edit, alert: alert),
+                      style: buttonStyle,
+                      child: SizedBox(
+                        width: screenWidth * 0.4,
+                        height: screenHeight * 0.056,
+                        child: Center(
+                          child: Text(
+                            edit ? textSaveAlert : textCreateAlert,
+                            style: mTS(),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-            ],
+            ),
           );
         },
       );
@@ -323,19 +396,27 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
 
   _dropDownWidget(void Function(void Function()) state) {
     return Center(
-      child: DropdownButton<String>(
-        iconSize: 0,
-        value: _alertType.description,
-        onChanged: (String? newValue) {
-          state(() {
-            _alertType = newValue!.alertFromString;
-          });
-        },
-        dropdownColor: Colors.black87,
-        isExpanded: true,
-        borderRadius: BorderRadius.circular(8),
-        icon: const Icon(Icons.arrow_downward),
-        items: _dropDownItems(),
+      child: Container(
+        margin: symmetric(4, 16),
+        decoration: BoxDecoration(
+          color: colorBgTextField,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: _alertType.description,
+            onChanged: (String? newValue) {
+              state(() {
+                _alertType = newValue!.alertFromString;
+              });
+            },
+            isExpanded: true,
+            borderRadius: BorderRadius.circular(4),
+            iconEnabledColor: colorPrimary,
+            iconDisabledColor: colorPrimary,
+            items: _dropDownItems(),
+          ),
+        ),
       ),
     );
   }
@@ -354,7 +435,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           margin: left(16),
           child: Text(
             text,
-            style: boTS(color: colorPrimary),
+            style: boTS(),
           ),
         ),
         sheetTextField(
@@ -364,6 +445,9 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           text,
           type: type,
           last: isLast,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9].'))
+          ],
         ),
       ],
     );
@@ -372,10 +456,10 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   _createAlert({bool edit = false, Alert? alert}) {
     final lowest = _lowestController.text;
     final highest = _highestController.text;
-    try{
+    try {
       assert(!lowest.isNullOrEmpty);
       assert(!highest.isNullOrEmpty);
-    }catch(e){
+    } catch (e) {
       _showError('All fields are required');
       logError(e.toString());
       return;
@@ -384,9 +468,9 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     final lb = double.parse(lowest.toString());
     final ub = double.parse(highest.toString());
 
-    try{
+    try {
       assert(lb < ub);
-    }catch(e){
+    } catch (e) {
       _showError('Lowest should be less than highest');
       logError(e.toString());
       return;
@@ -431,7 +515,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     logError('alert: $error');
   }
 
-  _showError(String content){
+  _showError(String content) {
     showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -456,6 +540,36 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           actionsPadding: all(8),
         );
       },
+    );
+  }
+
+  _dropDownItemWidget2(String value) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      margin: symmetric(16, 0),
+      decoration: BoxDecoration(
+        color: colorBgTextField,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        value,
+        style: rTS(size: 12),
+      ),
+    );
+  }
+
+  _dropDown(int index, void Function(void Function()) state) {
+    final alerts = <AlertType>[];
+    alerts.addAll(AlertType.values);
+    alerts.removeLast();
+    return GestureDetector(
+      onTap: () {
+        state(() {
+          _alertType = AlertType.values[index];
+        });
+        _alertExpandableController.toggle();
+      },
+      child: _dropDownItemWidget2(AlertType.values[index].description),
     );
   }
 }

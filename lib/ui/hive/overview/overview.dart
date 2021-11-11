@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_format/date_format.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo_coding;
@@ -57,6 +59,9 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
   double _sheetHeight = screenHeight * 0.9;
 
+  final _hiveTypeExpandableController = ExpandableController();
+  final _speciesExpandableController = ExpandableController();
+
   _initViewModel() {
     _overviewViewModel = Provider.of<OverviewViewModel>(context);
     _overviewViewModel.helper = OverviewHelper(
@@ -93,31 +98,31 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                   _hive.overview.name,
                   _offsetAnimation(-1.0),
                 ),
-                _divider,
+                divider,
                 _overviewItem(
                   textHiveType,
                   _hive.overview.hiveType,
                   _offsetAnimation(-2.0),
                 ),
-                _divider,
+                divider,
                 _overviewItem(
                   textInstallationDate,
                   _hive.overview.installationDate,
                   _offsetAnimation(-3.0),
                 ),
-                _divider,
+                divider,
                 _overviewItem(
                   textColonyAge,
                   _hive.overview.colonyAge,
                   _offsetAnimation(1.0),
                 ),
-                _divider,
+                divider,
                 _overviewItem(
                   textSpecies,
                   _hive.overview.speciesType,
                   _offsetAnimation(2.0),
                 ),
-                _divider,
+                divider,
                 _overviewItem(
                   textLocation,
                   _hive.overview.location,
@@ -130,12 +135,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
             flex: 15,
             child: ElevatedButton(
               onPressed: () => _showEditModal(),
-              style: ElevatedButton.styleFrom(
-                primary: colorPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(31),
-                ),
-              ),
+              style: buttonStyle,
               child: AbsorbPointer(
                 absorbing: true,
                 child: TextButton.icon(
@@ -143,8 +143,11 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                     Icons.edit,
                     color: colorBlack,
                   ),
-                  label: Text(
+                  label: AutoSizeText(
                     editText.toUpperCase(),
+                    maxFontSize: 14,
+                    minFontSize: 10,
+                    maxLines: 1,
                     style: bTS(),
                   ),
                   onPressed: () => {},
@@ -164,9 +167,9 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     _hiveType = _hive.overview.type;
     _species = _hive.overview.species;
     _dateController.text =
-    _hive.overview.date != null ? _hive.overview.installationDate : '';
+        _hive.overview.date != null ? _hive.overview.installationDate : '';
     _locationController.text =
-    _hive.overview.position != null ? _hive.overview.location : '';
+        _hive.overview.position != null ? _hive.overview.location : '';
 
     context.show((_) {
       return StatefulBuilder(builder: (_, state) {
@@ -175,147 +178,286 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         final column = FractionallySizedBox(
           heightFactor: 0.75,
           child: Scaffold(
-            body: Column(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Center(
-                    child: Text(
-                      textEditHive,
-                      style: bTS(size: 25, color: colorPrimary),
+            body: WillPopScope(
+              onWillPop: () async {
+                if (_hiveTypeExpandableController.expanded) {
+                  _hiveTypeExpandableController.toggle();
+                }
+                if (_speciesExpandableController.expanded) {
+                  _speciesExpandableController.toggle();
+                }
+                return true;
+              },
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Center(
+                      child: Text(
+                        textEditHive,
+                        style: bTS(size: 25, color: colorPrimary),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 7,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Container(
-                          margin: bottom(10),
-                          child: overviewSheetItemWidget(
-                            _nameController,
-                            screenWidth,
-                            screenHeight,
-                            textName,
-                            max: 20,
-                          ),
-                        ),
-                        Container(
-                          margin: bottom(10),
-                          child: GestureDetector(
-                            onTap: () => _datePickerWidget(),
+                  Expanded(
+                    flex: 7,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            margin: bottom(10),
                             child: overviewSheetItemWidget(
-                              _dateController,
+                              _nameController,
                               screenWidth,
                               screenHeight,
-                              textInstallationDate,
-                              enabled: false,
+                              textName,
+                              max: 20,
                             ),
                           ),
-                        ),
-                        Container(
-                          margin: bottom(10),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: left(16),
-                                child: Text(
-                                  textHiveType,
-                                  style: bTS(size: 14),
-                                ),
+                          Container(
+                            margin: bottom(10),
+                            child: GestureDetector(
+                              onTap: () => _datePickerWidget(),
+                              child: overviewSheetItemWidget(
+                                _dateController,
+                                screenWidth,
+                                screenHeight,
+                                textInstallationDate,
+                                enabled: false,
                               ),
-                              _hiveTypeDropDownWidget(state),
-                            ],
+                            ),
                           ),
-                        ),
-                        Container(
-                          margin: bottom(10),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: left(16),
-                                child: Text(
-                                  textSpecies,
-                                  style: bTS(size: 14),
-                                ),
-                              ),
-                              _speciesDropDownWidget(state),
-                            ],
-                          ),
-                        ),
-                        overviewSheetItemWidget(
-                          _locationController,
-                          screenWidth,
-                          screenHeight,
-                          textLocation,
-                          suffix: Container(
-                            margin: symmetric(0, 6),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                          Container(
+                            margin: bottom(10),
+                            child: Column(
                               mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                GestureDetector(
-                                  onTap: () async =>
-                                  await _getLocationName(state),
-                                  child: const Icon(
-                                    Icons.my_location,
-                                    color: colorPrimary,
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  margin: left(16),
+                                  child: Text(
+                                    textHiveType,
+                                    style: bTS(),
                                   ),
                                 ),
-                                GestureDetector(
-                                  onTap: () async => await _showMap(state),
-                                  child: Container(
-                                    margin: left(6),
-                                    child: const Icon(
-                                      Icons.location_on,
-                                      color: colorPrimary,
+                                Container(
+                                  margin: symmetric(4, 16),
+                                  padding: left(8),
+                                  decoration: BoxDecoration(
+                                    color: colorBgTextField,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: ExpandableNotifier(
+                                    controller: _hiveTypeExpandableController,
+                                    child: Padding(
+                                      padding: symmetric(4, 0),
+                                      child: ScrollOnExpand(
+                                        child: Column(
+                                          children: <Widget>[
+                                            ExpandablePanel(
+                                              theme: const ExpandableThemeData(
+                                                headerAlignment:
+                                                    ExpandablePanelHeaderAlignment
+                                                        .center,
+                                                tapBodyToExpand: true,
+                                                tapBodyToCollapse: true,
+                                                hasIcon: false,
+                                              ),
+                                              header: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      _hiveType == null
+                                                          ? textHiveType
+                                                          : _hiveType!
+                                                              .description,
+                                                      style: rTS(
+                                                        color: _hiveType == null
+                                                            ? colorBlack35
+                                                            : colorBlack,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  ExpandableIcon(
+                                                    theme:
+                                                        const ExpandableThemeData(
+                                                      expandIcon:
+                                                          Icons.arrow_drop_down,
+                                                      collapseIcon:
+                                                          Icons.arrow_drop_down,
+                                                      iconColor: colorPrimary,
+                                                      iconSize: 24.0,
+                                                      hasIcon: false,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              collapsed: Container(),
+                                              expanded: ListView.separated(
+                                                itemCount: HiveType.values.length,
+                                                shrinkWrap: true,
+                                                padding: EdgeInsets.zero,
+                                                itemBuilder: (context, index) => _hiveDropDown(index,state),
+                                                separatorBuilder: (context, index) => divider,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          scrollController: _scrollController,
-                          alignVertical: true,
-                        ),
-                      ],
+                          Container(
+                            margin: bottom(10),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  margin: left(16),
+                                  child: Text(
+                                    textSpecies,
+                                    style: bTS(),
+                                  ),
+                                ),
+                                Container(
+                                  margin: symmetric(4, 16),
+                                  padding: left(8),
+                                  decoration: BoxDecoration(
+                                    color: colorBgTextField,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: ExpandableNotifier(
+                                    controller: _speciesExpandableController,
+                                    child: Padding(
+                                      padding: symmetric(4, 0),
+                                      child: ScrollOnExpand(
+                                        child: Column(
+                                          children: <Widget>[
+                                            ExpandablePanel(
+                                              theme: const ExpandableThemeData(
+                                                headerAlignment:
+                                                    ExpandablePanelHeaderAlignment
+                                                        .center,
+                                                tapBodyToExpand: true,
+                                                tapBodyToCollapse: true,
+                                                hasIcon: false,
+                                              ),
+                                              header: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      _species == null
+                                                          ? textSpecies
+                                                          : _species!.description,
+                                                      style: rTS(
+                                                        color: _species == null
+                                                            ? colorBlack35
+                                                            : colorBlack,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  ExpandableIcon(
+                                                    theme:
+                                                        const ExpandableThemeData(
+                                                      expandIcon:
+                                                          Icons.arrow_drop_down,
+                                                      collapseIcon:
+                                                          Icons.arrow_drop_down,
+                                                      iconColor: colorPrimary,
+                                                      iconSize: 24.0,
+                                                      hasIcon: false,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              collapsed: Container(),
+                                              expanded: ListView.separated(
+                                                itemCount: Species.values.length,
+                                                shrinkWrap: true,
+                                                padding: EdgeInsets.zero,
+                                                itemBuilder: (context, index) => _speciesDropDown(index,state),
+                                                separatorBuilder: (context, index) => divider,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          overviewSheetItemWidget(
+                            _locationController,
+                            screenWidth,
+                            screenHeight,
+                            textLocation,
+                            suffix: Container(
+                              margin: symmetric(0, 6),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async =>
+                                        await _getLocationName(state),
+                                    child: const Icon(
+                                      Icons.my_location,
+                                      color: colorPrimary,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () async => await _showMap(state),
+                                    child: Container(
+                                      margin: left(6),
+                                      child: const Icon(
+                                        Icons.location_on,
+                                        color: colorPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            scrollController: _scrollController,
+                            alignVertical: true,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Flexible(
-                  flex: 2,
-                  fit: FlexFit.tight,
-                  child: Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        state(() => _saveHiveDetails());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: colorPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(31),
-                        ),
-                      ),
-                      child: SizedBox(
-                        width: screenWidth * 0.4,
-                        height: screenHeight * 0.056,
-                        child: Center(
-                          child: Text(
-                            textSave.toUpperCase(),
-                            style: bTS(),
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.tight,
+                    child: Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          state(() => _saveHiveDetails());
+                        },
+                        style: buttonStyle,
+                        child: SizedBox(
+                          width: screenWidth * 0.4,
+                          height: screenHeight * 0.056,
+                          child: Center(
+                            child: Text(
+                              textSave.toUpperCase(),
+                              style: bTS(),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -357,13 +499,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     });
   }
 
-  final _divider = Flexible(
-    child: Divider(
-      height: 1,
-      indent: 3,
-      color: colorPrimary30,
-    ),
-  );
+  
 
   _overviewItem(String title, String? value, Animation<Offset> tween) {
     return SlideTransition(
@@ -435,148 +571,46 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }
   }
 
-  _dropDownButton(Function(void Function()) state,
-      Function(String string) onChanged,
-      String current,
-      Widget hint,
-      List<DropdownMenuItem<String>> items,
-      List<String> options,) {
-    return DropdownButton<String>(
-      onChanged: (value) => state(() => onChanged.call(value!)),
-      dropdownColor: colorPrimary,
-      selectedItemBuilder: (BuildContext context) {
-        return options.map((String value) {
-          return DropdownMenuItem<String>(
-            alignment: Alignment.centerLeft,
-            value: value,
-            child: Container(
-              margin: left(8),
-              child: Text(
-                value,
-                style: rTS(size: 12),
-              ),
-            ),
-          );
-        }).toList();
+  _hiveDropDown(int index, void Function(void Function()) state){
+    logInfo('drop down');
+    logInfo('drop down ${HiveType.values[index].description}');
+    return GestureDetector(
+      onTap: () {
+        state(() {
+          _hiveType = HiveType.values[index];
+        });
+        _hiveTypeExpandableController.toggle();
       },
-      isExpanded: true,
-      borderRadius: BorderRadius.circular(8),
-      hint: hint,
-      iconDisabledColor: colorPrimary,
-      iconEnabledColor: colorPrimary,
-      value: current.isNotEmpty ? current : null,
-      items: items,
+      child: _dropDownItemWidget2(HiveType.values[index].description),
     );
   }
 
-  _hiveTypeDropDownWidget(void Function(void Function()) state) {
-    return Center(
-      child: Container(
-        margin: symmetric(4, 16),
-        decoration: BoxDecoration(
-          color: colorBgTextField,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: _dropDownButton(
-            state,
-                (s) => _hiveType = s.hiveTypeFromString,
-            _hiveType?.description ?? '',
-            _hintWidget(textHiveType),
-            _hiveTypesDropDownItems(),
-            HiveType.values.map((e) => e.description).toList(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  _hiveTypesDropDownItems() {
-    return HiveType.values.map<DropdownMenuItem<String>>((HiveType value) {
-      return _dropDownItemWidget(value.description);
-    }).toList();
-  }
-
-  _dropDownItemWidget(String value) {
-    return DropdownMenuItem<String>(
-      alignment: Alignment.centerLeft,
-      value: value,
-      child: Container(
-        margin: left(8),
-        child: Text(
-          value,
-          style: rTS(color: colorWhite),
-        ),
-      ),
-    );
-  }
-
-  _hintWidget(String text) {
+  _dropDownItemWidget2(String value) {
     return Container(
       alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: left(8),
-        child: Text(
-          text,
-          style: mTS(size: 12, color: colorBlack35),
-        ),
+      margin: symmetric(16, 0),
+      decoration: BoxDecoration(
+        color: colorBgTextField,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        value,
+        style: rTS(size: 12),
       ),
     );
   }
 
-  _speciesDropDownWidget(void Function(void Function()) state) {
-    return Center(
-      child: Container(
-        margin: symmetric(4, 16),
-        decoration: BoxDecoration(
-          color: colorBgTextField,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: _dropDownButton(
-            state,
-                (s) => _species = s.speciesFromString,
-            _species?.description ?? '',
-            _hintWidget(textSpecies),
-            _speciesDropDownItems(),
-            Species.values.map((e) => e.description).toList(),
-          ),
-        ),
-      ),
+  _speciesDropDown(int index,void Function(void Function()) state){
+    return GestureDetector(
+      onTap: () {
+        state(() {
+          _species = Species.values[index];
+        });
+        _speciesExpandableController.toggle();
+      },
+      child: _dropDownItemWidget2(Species.values[index].description),
     );
   }
-
-  _speciesDropDownItems() {
-    return Species.values.map<DropdownMenuItem<String>>((Species value) {
-      return _dropDownItemWidget(value.description);
-    }).toList();
-  }
-
-  /*_locationHandler() async {
-    Location location = Location();
-
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _locationData = await location.getLocation();
-  }*/
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
@@ -654,10 +688,12 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }).catchError((error) => _catchLocationError(error));
   }
 
-  _getLocationFromLatLng(double lat,
-      double long,) async {
+  _getLocationFromLatLng(
+    double lat,
+    double long,
+  ) async {
     List<geo_coding.Placemark> locations =
-    await geo_coding.placemarkFromCoordinates(lat, long);
+        await geo_coding.placemarkFromCoordinates(lat, long);
     final mLocation = locations.first;
     return '${mLocation.country}, '
         '${mLocation.administrativeArea} - '

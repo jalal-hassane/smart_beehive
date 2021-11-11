@@ -91,16 +91,14 @@ class _Feeds extends State<Feeds> {
                   _logsViewModel.updateLogs();
                 });
               },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red[200],
-              ),
+              style: buttonStyle,
               child: SizedBox(
                 width: screenWidth * 0.4,
                 height: screenHeight * 0.056,
                 child: Center(
                   child: Text(
                     textClear,
-                    style: mTS(color: colorWhite),
+                    style: mTS(),
                   ),
                 ),
               ),
@@ -152,47 +150,48 @@ class _Feeds extends State<Feeds> {
           break;
         default:
           f = () {
-            return context.showCustomBottomSheet((p0) {
+            return context.show((p0) {
               return StatefulBuilder(
                 builder: (context, state) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        item.id!,
-                        style: bTS(size: 30, color: colorPrimary),
-                      ),
-                      Center(
-                        child: GridView.count(
-                          key: UniqueKey(),
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          padding: all(12),
-                          children: _processItem(item, state),
+                  return FractionallySizedBox(
+                    heightFactor: 0.75,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          item.id!,
+                          style: bTS(size: 30, color: colorPrimary),
                         ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          state(() {
-                            _resetItem(item);
-                          });
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.red[200],
+                        Center(
+                          child: GridView.count(
+                            key: UniqueKey(),
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            padding: all(12),
+                            children: _processItem(item, state),
+                          ),
                         ),
-                        child: SizedBox(
-                          width: screenWidth * 0.4,
-                          height: screenHeight * 0.056,
-                          child: Center(
-                            child: Text(
-                              textClear,
-                              style: mTS(color: colorWhite),
+                        ElevatedButton(
+                          onPressed: () {
+                            state(() {
+                              _resetItem(item);
+                            });
+                            Navigator.pop(context);
+                          },
+                          style: buttonStyle,
+                          child: SizedBox(
+                            width: screenWidth * 0.4,
+                            height: screenHeight * 0.056,
+                            child: Center(
+                              child: Text(
+                                textClear,
+                                style: mTS(color: colorWhite),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 },
               );

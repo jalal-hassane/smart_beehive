@@ -22,10 +22,10 @@ const soundSuccess = 'assets/sound/success-sound-effect.mp3';
 
 // logs
 const pngGeneral = 'assets/image/beehive.png';
-const pngQueen = 'assets/image/crown.png';
-const pngHarvests = 'assets/image/honey.png';
-const pngFeeds = 'assets/image/syrup.png';
-const pngTreatment = 'assets/image/treatment.png';
+const pngQueen = 'assets/image/queen.png';
+const pngHarvests = 'assets/image/harvests.png';
+const pngFeeds = 'assets/image/feeds.png';
+const pngTreatment = 'assets/image/treatments.png';
 
 // logs - queen
 const pngQueenStatus = 'assets/image/queen_less.png';
@@ -94,7 +94,7 @@ const pngWaxMothsDisease = 'assets/image/wax_moths_disease.jpg';
 
 // new design assets
 const pngHive = 'assets/image/hive.png';
-const pngHiveSelected = 'assets/image/hive_selected.png';
+const pngHiveSelected = 'assets/image/selectedbh.png';
 const svgProperties = 'assets/image/properties.svg';
 const pngTemperature = 'assets/image/temperature.png';
 const pngBeesCount = 'assets/image/bees_count.png';

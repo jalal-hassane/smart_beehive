@@ -78,6 +78,7 @@ class _Home extends State<Home> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -87,7 +88,7 @@ class _Home extends State<Home> with WidgetsBindingObserver {
           ),
           centerTitle: true,
         ),
-        drawer: _drawer(),
+        //drawer: _drawer(),
         //bottomNavigationBar: _bnv(),
         body: _screen(_selectedIndex),
       ),

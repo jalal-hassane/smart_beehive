@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'colors.dart';
 import 'fonts.dart';
@@ -35,42 +36,42 @@ const semiBoldFontStyle = TextStyle(
 
 // black textStyle
 TextStyle bTS({
-  double size = 15,
+  double size = 14,
   Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
 
 // regular textStyle
 TextStyle rTS({
-  double size = 15,
+  double size = 14,
   Color color = colorBlack,
 }) =>
     regularFontStyle.copyWith(fontSize: size, color: color);
 
 // medium textStyle
 TextStyle mTS({
-  double size = 15,
+  double size = 14,
   Color color = colorBlack,
 }) =>
     mediumFontStyle.copyWith(fontSize: size, color: color);
 
 // bold textStyle
 TextStyle boTS({
-  double size = 15,
+  double size = 14,
   Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
 
 // semiBold textStyle
 TextStyle sbTS({
-  double size = 15,
+  double size = 14,
   Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
 
 // extraBold textStyle
 TextStyle ebTS({
-  double size = 15,
+  double size = 14,
   Color color = colorBlack,
 }) =>
     blackFontStyle.copyWith(fontSize: size, color: color);
@@ -78,4 +79,11 @@ TextStyle ebTS({
 final bottomNavigationTextStyle = regularFontStyle.copyWith(
   color: colorPrimary,
   fontSize: 12,
+);
+
+final buttonStyle = ElevatedButton.styleFrom(
+  primary: colorPrimary,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(31),
+  ),
 );

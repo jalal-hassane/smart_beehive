@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -246,12 +247,12 @@ Navigator.popUntil(context, (route) => route.isFirst);
   Widget build(BuildContext context) {
     _initViewModel();
     listWidget = Container(
-      padding: symmetric(0,8),
+      padding: symmetric(0, 8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: screenHeight*0.2,
+            height: screenHeight * 0.2,
             child: Center(
               child: AnimatedList(
                 key: _listKey,
@@ -262,20 +263,23 @@ Navigator.popUntil(context, (route) => route.isFirst);
               ),
             ),
           ),
-          CirclePageIndicator(
-            itemCount: beehives.length,
-            currentPageNotifier: _currentItemNotifier,
-            selectedDotColor: colorPrimary,
-            dotColor: colorPrimary70,
-            size: 8,
-            selectedSize: 11,
-            dotSpacing: 4,
-
+          Visibility(
+            visible: beehives.length > 3,
+            child: CirclePageIndicator(
+              itemCount: beehives.length,
+              currentPageNotifier: _currentItemNotifier,
+              selectedDotColor: colorPrimary,
+              dotColor: colorPrimary70,
+              size: 8,
+              selectedSize: 11,
+              dotSpacing: 4,
+            ),
           ),
         ],
       ),
     );
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       floatingActionButton: FloatingActionButton(
         onPressed: _addHive,
         child: const Icon(
@@ -312,6 +316,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
 
   _hiveListWidget() {
     final hive = beehives[_selectedHiveIndex];
+    currentHiveId = hive.id;
     _properties = Details(
       beehive: hive,
       farmState: listStater,
@@ -402,8 +407,11 @@ Navigator.popUntil(context, (route) => route.isFirst);
                     borderRadius: BorderRadius.circular(9),
                     border: Border.all(color: colorPrimary, width: 2)),
                 child: Center(
-                  child: Text(
+                  child: AutoSizeText(
                     beehives[hiveIndex].overview.name!.toUpperCase(),
+                    maxLines: 2,
+                    minFontSize: 7,
+                    maxFontSize: 15,
                     style: bTS(),
                   ),
                 ),
@@ -523,37 +531,40 @@ Navigator.popUntil(context, (route) => route.isFirst);
   }
 
   _addHive() {
-    context.showCustomBottomSheet(
+    context.show(
       (mContext) {
         return StatefulBuilder(
           builder: (con, state) {
             _bottomState = state;
             _bottomContext = con;
-            return Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      textScanQr,
-                      style: bTS(size: 24, color: colorPrimary),
+            return FractionallySizedBox(
+              heightFactor: 0.75,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        textScanQr,
+                        style: bTS(size: 24, color: colorPrimary),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 9,
-                  child: QRView(
-                    key: qrKey,
-                    onQRViewCreated: _onQRViewCreated,
-                    overlay: QrScannerOverlayShape(
-                      borderColor: colorPrimary,
-                      borderWidth: 5,
-                      borderRadius: 5,
-                      cutOutSize: screenWidth * 0.75,
+                  Expanded(
+                    flex: 9,
+                    child: QRView(
+                      key: qrKey,
+                      onQRViewCreated: _onQRViewCreated,
+                      overlay: QrScannerOverlayShape(
+                        borderColor: colorPrimary,
+                        borderWidth: 5,
+                        borderRadius: 5,
+                        cutOutSize: screenWidth * 0.75,
+                      ),
+                      formatsAllowed: const [BarcodeFormat.qrcode],
                     ),
-                    formatsAllowed: const [BarcodeFormat.qrcode],
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         );

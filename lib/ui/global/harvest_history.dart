@@ -77,10 +77,10 @@ class _HarvestHistory extends State<HarvestHistory> {
                       ),
                       //_dropDownWidget((p0) {}),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
+                        style: buttonStyle/*.copyWith(
                           minimumSize: Size.zero,
                           padding: all(1),
-                        ),
+                        )*/,
                         onPressed: () {
                           //_datePickerWidget(year: true);
                         },
@@ -99,10 +99,10 @@ class _HarvestHistory extends State<HarvestHistory> {
                       Opacity(
                         opacity: _allTimeOpacity,
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
+                          style: buttonStyle/*.styleFrom(
                             minimumSize: Size.zero,
                             padding: all(6),
-                          ),
+                          )*/,
                           onPressed: () {
                             _enableDatePickers();
                           },
@@ -127,10 +127,10 @@ class _HarvestHistory extends State<HarvestHistory> {
                         child: Opacity(
                           opacity: _yearOpacity,
                           child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
+                            style: buttonStyle/*.styleFrom(
                               minimumSize: Size.zero,
                               padding: all(6),
-                            ),
+                            )*/,
                             onPressed: () {
                               _datePickerWidget(year: true);
                             },
@@ -156,13 +156,11 @@ class _HarvestHistory extends State<HarvestHistory> {
                         child: Opacity(
                           opacity: _monthOpacity,
                           child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
+                            style: buttonStyle/*.styleFrom(
                               minimumSize: Size.zero,
                               padding: all(1),
-                            ),
-                            onPressed: () {
-                              //_datePickerWidget(year: true);
-                            },
+                            )*/,
+                            onPressed: () {},
                             child: Center(
                               child: _monthDropDownWidget(),
                             ),

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
@@ -147,11 +146,14 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     }
   }
 
+  _gridItem(){}
+
+
   _showOnlyAnalysis() {
-    return Row(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Column(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
@@ -163,6 +165,18 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               ),
             ),
             GestureDetector(
+              onTap: () => _openAnalysis(_hive, AlertType.swarming),
+              child: _analysisItem(
+                AlertType.swarming,
+                () => _openAnalysis(_hive, AlertType.swarming),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            GestureDetector(
               onTap: () => _openAnalysis(_hive, AlertType.temperature),
               child: _analysisItem(
                 AlertType.temperature,
@@ -170,29 +184,22 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               ),
             ),
             GestureDetector(
-              onTap: () => _openAnalysis(_hive, AlertType.weight),
-              child: _analysisItem(
-                AlertType.weight,
-                () => _openAnalysis(_hive, AlertType.weight),
-              ),
-            ),
-          ],
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            GestureDetector(
-              onTap: () => _openAnalysis(_hive, AlertType.swarming),
-              child: _analysisItem(
-                AlertType.swarming,
-                () => _openAnalysis(_hive, AlertType.swarming),
-              ),
-            ),
-            GestureDetector(
               onTap: () => _openAnalysis(_hive, AlertType.humidity),
               child: _analysisItem(
                 AlertType.humidity,
                 () => _openAnalysis(_hive, AlertType.humidity),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            GestureDetector(
+              onTap: () => _openAnalysis(_hive, AlertType.weight),
+              child: _analysisItem(
+                AlertType.weight,
+                () => _openAnalysis(_hive, AlertType.weight),
               ),
             ),
             GestureDetector(
@@ -247,73 +254,55 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
       position: _iconOffsetAnimation,
       child: FadeTransition(
         opacity: _fadeInAnimation,
-        child: Column(
-          children: [
-            Container(
-              margin: bottom(10),
-              child: Padding(
-                padding: all(2),
-                child: Image.asset(png, width: screenHeight * 0.06,height: screenHeight * 0.06,),
+        child: SizedBox(
+          width: screenWidth*0.3,
+          height: screenWidth*0.3,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Image.asset(
+                png,
+                width: screenHeight * 0.06,
+                height: screenHeight * 0.06,
               ),
-            ),
-            ElevatedButton(
-              onPressed: press,
-              style: ElevatedButton.styleFrom(
-                  primary: colorPrimary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(31)
-                  )
+              ElevatedButton(
+                onPressed: press,
+                style: buttonStyle,
+                child: Text(text, style: mTS()),
               ),
-              child: Text(text, style: mTS()),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  _analysisItem(AlertType type, Function()? press) {
+  _analysisItem(AlertType type, Function()? press,) {
     return SlideTransition(
       position: _iconOffsetAnimation,
       child: FadeTransition(
         opacity: _fadeInAnimation,
-        child: Column(
-          children: [
-            Container(
-              margin: bottom(10),
-              child: Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Padding(
-                    padding: all(2),
-                    child: Image.asset(
-                      type.icon,
-                      width: screenHeight * type.size,
-                      height: screenHeight * type.size,
-                    ),
-                  ),
-                  /*Icon(
-                    Icons.bar_chart,
-                    size: 18,
-                    color: type.color,
-                  ),*/
-                ],
+        child: SizedBox(
+          width: screenWidth*0.3,
+          height: screenWidth*0.3,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Image.asset(
+                type.icon,
+                width: screenHeight * type.size,
+                height: screenHeight * type.size,
               ),
-            ),
-            ElevatedButton(
-              onPressed: press,
-              style: ElevatedButton.styleFrom(
-                primary: colorPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(31)
-                )
+              ElevatedButton(
+                onPressed: press,
+                style: buttonStyle,
+                child: Text(
+                  type.description,
+                  style: mTS(),
+                ),
               ),
-              child: Text(
-                type.description,
-                style: mTS(),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -12,6 +12,7 @@ class AlertsViewModel extends ChangeNotifier {
   CollectionReference properties = fireStore.collection(collectionProperties);
 
   updateProperties() async {
+    logInfo('currentId $currentHiveId');
     final updatedHive =
         beehives.firstWhere((element) => element.id == currentHiveId);
 

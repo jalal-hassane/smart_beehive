@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
+import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/beekeeper.dart';
@@ -34,7 +35,7 @@ class _Splash extends State<Splash> {
     screenBottomPadding = MediaQuery.of(context).padding.bottom;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.yellow,
+        backgroundColor: colorPrimary,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

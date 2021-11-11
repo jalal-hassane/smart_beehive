@@ -71,6 +71,7 @@ const textColonyAge = 'Colony Age';
 const textSpecies = 'Species';
 const textLocation = 'Location';
 const textOther = 'Other';
+const textUnit = 'Unit';
 
 // textFields  hints
 const hintUsername = 'username';
