@@ -64,16 +64,13 @@ class _Map extends State<LocationMap> {
                       Navigator.pop(context);
                       widget.getLocationCallback.call(_markers.first);
                     },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red[200],
-                      minimumSize: Size.zero,
-                    ),
+                    style: buttonStyle,
                     child: SizedBox(
                       height: screenHeight * .06,
                       child: Center(
                         child: Text(
                           textGetLocation,
-                          style: mTS(color: colorWhite),
+                          style: mTS(),
                         ),
                       ),
                     ),
@@ -85,16 +82,13 @@ class _Map extends State<LocationMap> {
                       Navigator.pop(context);
                       widget.myLocationCallback.call();
                     },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red[200],
-                      minimumSize: Size.zero,
-                    ),
+                    style: buttonStyle,
                     child: SizedBox(
                       height: screenHeight * .06,
                       child: Center(
                         child: Text(
                           textUseMyLocation,
-                          style: mTS(color: colorWhite),
+                          style: mTS(),
                         ),
                       ),
                     ),
