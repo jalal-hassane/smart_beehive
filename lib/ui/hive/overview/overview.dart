@@ -588,7 +588,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   _dropDownItemWidget2(String value) {
     return Container(
       alignment: Alignment.centerLeft,
-      margin: symmetric(16, 0),
+      padding: all(10),
       decoration: BoxDecoration(
         color: colorBgTextField,
         borderRadius: BorderRadius.circular(4),
