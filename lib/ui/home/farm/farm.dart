@@ -5,7 +5,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:lottie/lottie.dart';
 import 'package:page_view_indicators/circle_page_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -450,31 +449,35 @@ Navigator.popUntil(context, (route) => route.isFirst);
             _bottomContext = con;
             return FractionallySizedBox(
               heightFactor: 0.75,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        textScanQr,
-                        style: bTS(size: 24, color: colorPrimary),
+              child: GestureDetector(
+                onTap: () => unFocus(con),
+                onPanDown: (details) => unFocus(con),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          textScanQr,
+                          style: bTS(size: 24, color: colorPrimary),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 9,
-                    child: QRView(
-                      key: qrKey,
-                      onQRViewCreated: _onQRViewCreated,
-                      overlay: QrScannerOverlayShape(
-                        borderColor: colorPrimary,
-                        borderWidth: 5,
-                        borderRadius: 5,
-                        cutOutSize: screenWidth * 0.75,
+                    Expanded(
+                      flex: 9,
+                      child: QRView(
+                        key: qrKey,
+                        onQRViewCreated: _onQRViewCreated,
+                        overlay: QrScannerOverlayShape(
+                          borderColor: colorPrimary,
+                          borderWidth: 5,
+                          borderRadius: 5,
+                          cutOutSize: screenWidth * 0.75,
+                        ),
+                        formatsAllowed: const [BarcodeFormat.qrcode],
                       ),
-                      formatsAllowed: const [BarcodeFormat.qrcode],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },

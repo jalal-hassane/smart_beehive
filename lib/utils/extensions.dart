@@ -229,7 +229,7 @@ extension HarvestWidgetsGenerator on List<ItemHarvest> {
                 children: [
                   Text(
                     this[index].value?.toString() ?? '',
-                    style: sbTS(size: 12),
+                    style: bTS(size: 12),
                   ),
                   Text(
                     this[index].unit?.description ?? '',

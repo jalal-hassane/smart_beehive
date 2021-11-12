@@ -257,14 +257,9 @@ class _Harvests extends State<Harvests> {
                                               ],
                                             ),
                                             collapsed: Container(),
-                                            expanded: ListView.separated(
-                                              itemCount: Unit.values.length,
-                                              shrinkWrap: true,
-                                              padding: EdgeInsets.zero,
-                                              itemBuilder: (context, index) =>
-                                                  _dropDown(index, state),
-                                              separatorBuilder:
-                                                  (context, index) => divider,
+                                            expanded: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: _dropDown(state),
                                             ),
                                           ),
                                         ],
@@ -411,15 +406,24 @@ class _Harvests extends State<Harvests> {
     );
   }
 
-  _dropDown(int index, void Function(void Function()) state) {
-    return GestureDetector(
-      onTap: () {
-        state(() {
-          _unit = Unit.values[index];
-        });
-        _unitExpandableController.toggle();
-      },
-      child: _dropDownItemWidget2(Unit.values[index].description),
-    );
+  _dropDown(void Function(void Function()) state) {
+    final widgets = <Widget>[];
+    for(Unit unit in Unit.values){
+      widgets.add(
+          GestureDetector(
+            onTap: () {
+              state(() {
+                _unit = unit;
+              });
+              _unitExpandableController.toggle();
+            },
+            child: _dropDownItemWidget2(unit.description),
+          )
+      );
+      if (unit != Unit.values.last) {
+        widgets.add(divider);
+      }
+    }
+    return widgets;
   }
 }

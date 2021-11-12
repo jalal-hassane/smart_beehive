@@ -172,9 +172,8 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         _hive.overview.position != null ? _hive.overview.location : '';
 
     context.show((_) {
-      return StatefulBuilder(builder: (_, state) {
+      return StatefulBuilder(builder: (con, state) {
         locationState = state;
-
         final column = FractionallySizedBox(
           heightFactor: 0.75,
           child: Scaffold(
@@ -188,275 +187,273 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                 }
                 return true;
               },
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Center(
-                      child: Text(
-                        textEditHive,
-                        style: bTS(size: 25, color: colorPrimary),
+              child: GestureDetector(
+                onTap: () => unFocus(con),
+                onPanDown: (details) => unFocus(con),
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Text(
+                          textEditHive,
+                          style: bTS(size: 25, color: colorPrimary),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 7,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            margin: bottom(10),
-                            child: overviewSheetItemWidget(
-                              _nameController,
-                              screenWidth,
-                              screenHeight,
-                              textName,
-                              max: 20,
-                            ),
-                          ),
-                          Container(
-                            margin: bottom(10),
-                            child: GestureDetector(
-                              onTap: () => _datePickerWidget(),
+                    Expanded(
+                      flex: 7,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              margin: bottom(10),
                               child: overviewSheetItemWidget(
-                                _dateController,
+                                _nameController,
                                 screenWidth,
                                 screenHeight,
-                                textInstallationDate,
-                                enabled: false,
+                                textName,
+                                max: 20,
                               ),
                             ),
-                          ),
-                          Container(
-                            margin: bottom(10),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  margin: left(16),
-                                  child: Text(
-                                    textHiveType,
-                                    style: bTS(),
-                                  ),
+                            Container(
+                              margin: bottom(10),
+                              child: GestureDetector(
+                                onTap: () => _datePickerWidget(),
+                                child: overviewSheetItemWidget(
+                                  _dateController,
+                                  screenWidth,
+                                  screenHeight,
+                                  textInstallationDate,
+                                  enabled: false,
                                 ),
-                                Container(
-                                  margin: symmetric(4, 16),
-                                  padding: left(8),
-                                  decoration: BoxDecoration(
-                                    color: colorBgTextField,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: ExpandableNotifier(
-                                    controller: _hiveTypeExpandableController,
-                                    child: Padding(
-                                      padding: symmetric(4, 0),
-                                      child: ScrollOnExpand(
-                                        child: Column(
-                                          children: <Widget>[
-                                            ExpandablePanel(
-                                              theme: const ExpandableThemeData(
-                                                headerAlignment:
-                                                    ExpandablePanelHeaderAlignment
-                                                        .center,
-                                                tapBodyToExpand: true,
-                                                tapBodyToCollapse: true,
-                                                hasIcon: false,
-                                              ),
-                                              header: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      _hiveType == null
-                                                          ? textHiveType
-                                                          : _hiveType!
-                                                              .description,
-                                                      style: rTS(
-                                                        color: _hiveType == null
-                                                            ? colorBlack35
-                                                            : colorBlack,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  ExpandableIcon(
-                                                    theme:
-                                                        const ExpandableThemeData(
-                                                      expandIcon:
-                                                          Icons.arrow_drop_down,
-                                                      collapseIcon:
-                                                          Icons.arrow_drop_down,
-                                                      iconColor: colorPrimary,
-                                                      iconSize: 24.0,
-                                                      hasIcon: false,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              collapsed: Container(),
-                                              expanded: ListView.separated(
-                                                itemCount: HiveType.values.length,
-                                                shrinkWrap: true,
-                                                padding: EdgeInsets.zero,
-                                                itemBuilder: (context, index) => _hiveDropDown(index,state),
-                                                separatorBuilder: (context, index) => divider,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                          Container(
-                            margin: bottom(10),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  margin: left(16),
-                                  child: Text(
-                                    textSpecies,
-                                    style: bTS(),
-                                  ),
-                                ),
-                                Container(
-                                  margin: symmetric(4, 16),
-                                  padding: left(8),
-                                  decoration: BoxDecoration(
-                                    color: colorBgTextField,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: ExpandableNotifier(
-                                    controller: _speciesExpandableController,
-                                    child: Padding(
-                                      padding: symmetric(4, 0),
-                                      child: ScrollOnExpand(
-                                        child: Column(
-                                          children: <Widget>[
-                                            ExpandablePanel(
-                                              theme: const ExpandableThemeData(
-                                                headerAlignment:
-                                                    ExpandablePanelHeaderAlignment
-                                                        .center,
-                                                tapBodyToExpand: true,
-                                                tapBodyToCollapse: true,
-                                                hasIcon: false,
-                                              ),
-                                              header: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      _species == null
-                                                          ? textSpecies
-                                                          : _species!.description,
-                                                      style: rTS(
-                                                        color: _species == null
-                                                            ? colorBlack35
-                                                            : colorBlack,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  ExpandableIcon(
-                                                    theme:
-                                                        const ExpandableThemeData(
-                                                      expandIcon:
-                                                          Icons.arrow_drop_down,
-                                                      collapseIcon:
-                                                          Icons.arrow_drop_down,
-                                                      iconColor: colorPrimary,
-                                                      iconSize: 24.0,
-                                                      hasIcon: false,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              collapsed: Container(),
-                                              expanded: ListView.separated(
-                                                itemCount: Species.values.length,
-                                                shrinkWrap: true,
-                                                padding: EdgeInsets.zero,
-                                                itemBuilder: (context, index) => _speciesDropDown(index,state),
-                                                separatorBuilder: (context, index) => divider,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          overviewSheetItemWidget(
-                            _locationController,
-                            screenWidth,
-                            screenHeight,
-                            textLocation,
-                            suffix: Container(
-                              margin: symmetric(0, 6),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                            Container(
+                              margin: bottom(10),
+                              child: Column(
                                 mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  GestureDetector(
-                                    onTap: () async =>
-                                        await _getLocationName(state),
-                                    child: const Icon(
-                                      Icons.my_location,
-                                      color: colorPrimary,
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    margin: left(16),
+                                    child: Text(
+                                      textHiveType,
+                                      style: bTS(),
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () async => await _showMap(state),
-                                    child: Container(
-                                      margin: left(6),
-                                      child: const Icon(
-                                        Icons.location_on,
-                                        color: colorPrimary,
+                                  Container(
+                                    margin: symmetric(4, 16),
+                                    padding: left(8),
+                                    decoration: BoxDecoration(
+                                      color: colorBgTextField,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: ExpandableNotifier(
+                                      controller: _hiveTypeExpandableController,
+                                      child: Padding(
+                                        padding: symmetric(4, 0),
+                                        child: ScrollOnExpand(
+                                          child: Column(
+                                            children: <Widget>[
+                                              ExpandablePanel(
+                                                theme:
+                                                    const ExpandableThemeData(
+                                                  headerAlignment:
+                                                      ExpandablePanelHeaderAlignment
+                                                          .center,
+                                                  tapBodyToExpand: true,
+                                                  tapBodyToCollapse: true,
+                                                  hasIcon: false,
+                                                ),
+                                                header: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        _hiveType == null
+                                                            ? textHiveType
+                                                            : _hiveType!
+                                                                .description,
+                                                        style: rTS(
+                                                          color:
+                                                              _hiveType == null
+                                                                  ? colorBlack35
+                                                                  : colorBlack,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    ExpandableIcon(
+                                                      theme:
+                                                          const ExpandableThemeData(
+                                                        expandIcon: Icons
+                                                            .arrow_drop_down,
+                                                        collapseIcon: Icons
+                                                            .arrow_drop_down,
+                                                        iconColor: colorPrimary,
+                                                        iconSize: 24.0,
+                                                        hasIcon: false,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                collapsed: Container(),
+                                                expanded: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children:
+                                                      _hiveTypeWidgets(state),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            scrollController: _scrollController,
-                            alignVertical: true,
-                          ),
-                        ],
+                            Container(
+                              margin: bottom(10),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    margin: left(16),
+                                    child: Text(
+                                      textSpecies,
+                                      style: bTS(),
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: symmetric(4, 16),
+                                    padding: left(8),
+                                    decoration: BoxDecoration(
+                                      color: colorBgTextField,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: ExpandableNotifier(
+                                      controller: _speciesExpandableController,
+                                      child: Padding(
+                                        padding: symmetric(4, 0),
+                                        child: ScrollOnExpand(
+                                          child: ExpandablePanel(
+                                            theme: const ExpandableThemeData(
+                                              headerAlignment:
+                                                  ExpandablePanelHeaderAlignment
+                                                      .center,
+                                              tapBodyToExpand: true,
+                                              tapBodyToCollapse: true,
+                                              hasIcon: false,
+                                            ),
+                                            header: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    _species == null
+                                                        ? textSpecies
+                                                        : _species!.description,
+                                                    style: rTS(
+                                                      color: _species == null
+                                                          ? colorBlack35
+                                                          : colorBlack,
+                                                    ),
+                                                  ),
+                                                ),
+                                                ExpandableIcon(
+                                                  theme:
+                                                      const ExpandableThemeData(
+                                                    expandIcon:
+                                                        Icons.arrow_drop_down,
+                                                    collapseIcon:
+                                                        Icons.arrow_drop_down,
+                                                    iconColor: colorPrimary,
+                                                    iconSize: 24.0,
+                                                    hasIcon: false,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            collapsed: Container(),
+                                            expanded: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: _speciesWidgets(state),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            overviewSheetItemWidget(
+                              _locationController,
+                              screenWidth,
+                              screenHeight,
+                              textLocation,
+                              suffix: Container(
+                                margin: symmetric(0, 6),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () async =>
+                                          await _getLocationName(state),
+                                      child: const Icon(
+                                        Icons.my_location,
+                                        color: colorPrimary,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () async => await _showMap(state),
+                                      child: Container(
+                                        margin: left(6),
+                                        child: const Icon(
+                                          Icons.location_on,
+                                          color: colorPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              scrollController: _scrollController,
+                              alignVertical: true,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    fit: FlexFit.tight,
-                    child: Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          state(() => _saveHiveDetails());
-                        },
-                        style: buttonStyle,
-                        child: SizedBox(
-                          width: screenWidth * 0.4,
-                          height: screenHeight * 0.056,
-                          child: Center(
-                            child: Text(
-                              textSave.toUpperCase(),
-                              style: bTS(),
+                    Expanded(
+                      flex: 2,
+                      //fit: FlexFit.tight,
+                      child: Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            state(() => _saveHiveDetails());
+                          },
+                          style: buttonStyle,
+                          child: SizedBox(
+                            width: screenWidth * 0.4,
+                            height: screenHeight * 0.056,
+                            child: Center(
+                              child: Text(
+                                textSave.toUpperCase(),
+                                style: bTS(),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -498,8 +495,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
       Navigator.pop(context);
     });
   }
-
-  
 
   _overviewItem(String title, String? value, Animation<Offset> tween) {
     return SlideTransition(
@@ -571,18 +566,23 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     }
   }
 
-  _hiveDropDown(int index, void Function(void Function()) state){
-    logInfo('drop down');
-    logInfo('drop down ${HiveType.values[index].description}');
-    return GestureDetector(
-      onTap: () {
-        state(() {
-          _hiveType = HiveType.values[index];
-        });
-        _hiveTypeExpandableController.toggle();
-      },
-      child: _dropDownItemWidget2(HiveType.values[index].description),
-    );
+  _hiveTypeWidgets(void Function(void Function()) state) {
+    final widgets = <Widget>[];
+    for (HiveType type in HiveType.values) {
+      widgets.add(GestureDetector(
+        onTap: () {
+          state(() {
+            _hiveType = type;
+          });
+          _hiveTypeExpandableController.toggle();
+        },
+        child: _dropDownItemWidget2(type.description),
+      ));
+      if (type != HiveType.values.last) {
+        widgets.add(divider);
+      }
+    }
+    return widgets;
   }
 
   _dropDownItemWidget2(String value) {
@@ -600,16 +600,23 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     );
   }
 
-  _speciesDropDown(int index,void Function(void Function()) state){
-    return GestureDetector(
-      onTap: () {
-        state(() {
-          _species = Species.values[index];
-        });
-        _speciesExpandableController.toggle();
-      },
-      child: _dropDownItemWidget2(Species.values[index].description),
-    );
+  _speciesWidgets(void Function(void Function()) state) {
+    final widgets = <Widget>[];
+    for (Species species in Species.values) {
+      widgets.add(GestureDetector(
+        onTap: () {
+          state(() {
+            _species = species;
+          });
+          _speciesExpandableController.toggle();
+        },
+        child: _dropDownItemWidget2(species.description),
+      ));
+      if (species != Species.values.last) {
+        widgets.add(divider);
+      }
+    }
+    return widgets;
   }
 
   Future<Position> _determinePosition() async {

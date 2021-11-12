@@ -238,7 +238,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     }
     context.show((_) {
       return StatefulBuilder(
-        builder: (_, state) {
+        builder: (con, state) {
           return FractionallySizedBox(
             heightFactor: 0.75,
             child: Scaffold(
@@ -252,139 +252,126 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                   _highestController.clear();
                   return true;
                 },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      edit ? textEditAlert : textCreateAlert,
-                      style: bTS(size: 30, color: colorPrimary),
-                    ),
-                    SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: bottom(10),
-                            child: Column(
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  margin: left(16),
-                                  child: Text(
-                                    textType,
-                                    style: bTS(),
+                child: GestureDetector(
+                  onTap: () => unFocus(con),
+                  onPanDown: (details) => unFocus(con),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        edit ? textEditAlert : textCreateAlert,
+                        style: bTS(size: 30, color: colorPrimary),
+                      ),
+                      SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: bottom(10),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    margin: left(16),
+                                    child: Text(
+                                      textType,
+                                      style: bTS(),
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  margin: symmetric(4, 16),
-                                  padding: left(8),
-                                  decoration: BoxDecoration(
-                                    color: colorBgTextField,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: ExpandableNotifier(
-                                    controller: _alertExpandableController,
-                                    child: Padding(
-                                      padding: symmetric(4, 0),
-                                      child: ScrollOnExpand(
-                                        child: Column(
-                                          children: <Widget>[
-                                            ExpandablePanel(
-                                              theme: const ExpandableThemeData(
-                                                headerAlignment:
-                                                    ExpandablePanelHeaderAlignment
-                                                        .center,
-                                                tapBodyToExpand: true,
-                                                tapBodyToCollapse: true,
-                                                hasIcon: false,
-                                              ),
-                                              header: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      _alertType.description,
-                                                      style: rTS(
-                                                        color: colorBlack,
+                                  Container(
+                                    margin: symmetric(4, 16),
+                                    padding: left(8),
+                                    decoration: BoxDecoration(
+                                      color: colorBgTextField,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: ExpandableNotifier(
+                                      controller: _alertExpandableController,
+                                      child: Padding(
+                                        padding: symmetric(4, 0),
+                                        child: ScrollOnExpand(
+                                          child: Column(
+                                            children: <Widget>[
+                                              ExpandablePanel(
+                                                theme:
+                                                    const ExpandableThemeData(
+                                                  headerAlignment:
+                                                      ExpandablePanelHeaderAlignment
+                                                          .center,
+                                                  tapBodyToExpand: true,
+                                                  tapBodyToCollapse: true,
+                                                  hasIcon: false,
+                                                ),
+                                                header: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        _alertType.description,
+                                                        style: rTS(
+                                                          color: colorBlack,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  ExpandableIcon(
-                                                    theme:
-                                                        const ExpandableThemeData(
-                                                      expandIcon:
-                                                          Icons.arrow_drop_down,
-                                                      collapseIcon:
-                                                          Icons.arrow_drop_down,
-                                                      iconColor: colorPrimary,
-                                                      iconSize: 24.0,
-                                                      hasIcon: false,
+                                                    ExpandableIcon(
+                                                      theme:
+                                                          const ExpandableThemeData(
+                                                        expandIcon: Icons
+                                                            .arrow_drop_down,
+                                                        collapseIcon: Icons
+                                                            .arrow_drop_down,
+                                                        iconColor: colorPrimary,
+                                                        iconSize: 24.0,
+                                                        hasIcon: false,
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
+                                                collapsed: Container(),
+                                                expanded: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: _dropDown(state),
+                                                ),
                                               ),
-                                              collapsed: Container(),
-                                              expanded: ListView.separated(
-                                                itemCount:
-                                                    AlertType.values.length - 1,
-                                                shrinkWrap: true,
-                                                padding: EdgeInsets.zero,
-                                                itemBuilder: (context, index) =>
-                                                    _dropDown(index, state),
-                                                separatorBuilder:
-                                                    (context, index) => divider,
-                                              ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: bottom(10),
+                              child: _sheetItemWidget(
+                                  _lowestController, textLowest),
+                            ),
+                            _sheetItemWidget(
+                              _highestController,
+                              textHighest,
+                              isLast: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => _createAlert(edit: edit, alert: alert),
+                        style: buttonStyle,
+                        child: SizedBox(
+                          width: screenWidth * 0.4,
+                          height: screenHeight * 0.056,
+                          child: Center(
+                            child: Text(
+                              edit ? textSaveAlert : textCreateAlert,
+                              style: mTS(),
                             ),
                           ),
-                          Container(
-                            margin: bottom(10),
-                            child:
-                                _sheetItemWidget(_lowestController, textLowest),
-                          ),
-                          _sheetItemWidget(
-                            _highestController,
-                            textHighest,
-                            isLast: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                    /*Column(
-                      children: [
-                        _sheetItemWidget(_lowestController, textLowest),
-                        Container(
-                          margin: top(16),
-                          child: _sheetItemWidget(
-                            _highestController,
-                            textHighest,
-                            isLast: true,
-                          ),
-                        ),
-                      ],
-                    ),*/
-                    ElevatedButton(
-                      onPressed: () => _createAlert(edit: edit, alert: alert),
-                      style: buttonStyle,
-                      child: SizedBox(
-                        width: screenWidth * 0.4,
-                        height: screenHeight * 0.056,
-                        child: Center(
-                          child: Text(
-                            edit ? textSaveAlert : textCreateAlert,
-                            style: mTS(),
-                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -392,33 +379,6 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
         },
       );
     });
-  }
-
-  _dropDownWidget(void Function(void Function()) state) {
-    return Center(
-      child: Container(
-        margin: symmetric(4, 16),
-        decoration: BoxDecoration(
-          color: colorBgTextField,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _alertType.description,
-            onChanged: (String? newValue) {
-              state(() {
-                _alertType = newValue!.alertFromString;
-              });
-            },
-            isExpanded: true,
-            borderRadius: BorderRadius.circular(4),
-            iconEnabledColor: colorPrimary,
-            iconDisabledColor: colorPrimary,
-            items: _dropDownItems(),
-          ),
-        ),
-      ),
-    );
   }
 
   _sheetItemWidget(
@@ -446,7 +406,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           type: type,
           last: isLast,
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9].'))
+            FilteringTextInputFormatter.allow(RegExp(r"^\d*\.?\d*"))
           ],
         ),
       ],
@@ -558,18 +518,25 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     );
   }
 
-  _dropDown(int index, void Function(void Function()) state) {
+  _dropDown(void Function(void Function()) state) {
     final alerts = <AlertType>[];
     alerts.addAll(AlertType.values);
     alerts.removeLast();
-    return GestureDetector(
-      onTap: () {
-        state(() {
-          _alertType = AlertType.values[index];
-        });
-        _alertExpandableController.toggle();
-      },
-      child: _dropDownItemWidget2(AlertType.values[index].description),
-    );
+    final widgets = <Widget>[];
+    for (AlertType alert in alerts) {
+      widgets.add(GestureDetector(
+        onTap: () {
+          state(() {
+            _alertType = alert;
+          });
+          _alertExpandableController.toggle();
+        },
+        child: _dropDownItemWidget2(alert.description),
+      ));
+      if (alert != alerts.last) {
+        widgets.add(divider);
+      }
+    }
+    return widgets;
   }
 }

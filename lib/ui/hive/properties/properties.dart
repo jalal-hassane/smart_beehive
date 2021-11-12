@@ -240,7 +240,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
               scale: scale,
               child: Text(
                 '$text',
-                style: ebTS(),
+                style: bTS(),
               ),
             ),
           ],

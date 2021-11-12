@@ -188,10 +188,11 @@ class _HarvestHistory extends State<HarvestHistory> {
 
   _totalWidget(List<ItemHarvest> list) {
     if (list.isEmpty) return Container();
-    if (_typeFilterApplied && _filter.description != list.first.title)
+    if (_typeFilterApplied && _filter.description != list.first.title) {
       return Container();
+    }
     final _widgets = <Widget>[
-      Text(list.first.title, style: sbTS()),
+      Text(list.first.title, style: bTS()),
     ];
     for (ItemHarvest itemHarvest in list) {
       _widgets.add(
@@ -443,7 +444,7 @@ class _HarvestHistory extends State<HarvestHistory> {
                   builder: (data, point, series, pointIndex, seriesIndex) {
                     return Text(
                       (data as ItemHarvest).value.toString(),
-                      style: sbTS(size: 10),
+                      style: bTS(size: 10),
                     );
                   },
                 ),

@@ -37,19 +37,17 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
 
   late LogsViewModel _logsViewModel;
 
-  _initViewModel(){
+  _initViewModel() {
     _logsViewModel = Provider.of<LogsViewModel>(context);
     _logsViewModel.helper = LogsHelper(success: _success, failure: _failure);
   }
 
-  _success(){
-    setState(() {
-
-    });
+  _success() {
+    setState(() {});
     logInfo('success');
   }
 
-  _failure(String error){
+  _failure(String error) {
     logError('Error $error');
   }
 
@@ -117,8 +115,10 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
     );
   }
 
-  _openAbout() => Navigator.of(context)
-      .push(enterFromRight(About(items: _logTreatment!.info,treatment: true,)));
+  _openAbout() => Navigator.of(context).push(enterFromRight(About(
+        items: _logTreatment!.info,
+        treatment: true,
+      )));
   final _taps = <Function()>[];
 
   _generateTaps() {
@@ -190,7 +190,7 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
               );
             },
           );
-        },wrap: true);
+        }, wrap: true);
       }
 
       _taps.add(f);
@@ -217,11 +217,8 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
         onTap: () {
           state(() {
             item.isChecked = !item.isChecked;
-            setState(() {
-
-            });
+            setState(() {});
             _logsViewModel.updateLogs();
-
           });
         },
       ),

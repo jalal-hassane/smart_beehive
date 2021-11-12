@@ -19,18 +19,9 @@ const boldFontStyle = TextStyle(
   height: 1,
 );
 
-const extraBoldFontStyle = TextStyle(
-  fontFamily: robotoExtraBold,
-  height: 1,
-);
 
 const blackFontStyle = TextStyle(
   fontFamily: robotoBlack,
-  height: 1,
-);
-
-const semiBoldFontStyle = TextStyle(
-  fontFamily: robotoSemiBold,
   height: 1,
 );
 
@@ -60,21 +51,8 @@ TextStyle boTS({
   double size = 14,
   Color color = colorBlack,
 }) =>
-    blackFontStyle.copyWith(fontSize: size, color: color);
+    boldFontStyle.copyWith(fontSize: size, color: color);
 
-// semiBold textStyle
-TextStyle sbTS({
-  double size = 14,
-  Color color = colorBlack,
-}) =>
-    blackFontStyle.copyWith(fontSize: size, color: color);
-
-// extraBold textStyle
-TextStyle ebTS({
-  double size = 14,
-  Color color = colorBlack,
-}) =>
-    blackFontStyle.copyWith(fontSize: size, color: color);
 
 final bottomNavigationTextStyle = regularFontStyle.copyWith(
   color: colorPrimary,

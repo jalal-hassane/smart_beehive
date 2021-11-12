@@ -159,7 +159,7 @@ class _Home extends State<Home> with WidgetsBindingObserver {
                   margin: top(24),
                   child: Text(
                     'Welcome, ${me?.username}',
-                    style: sbTS(color: colorPrimary),
+                    style: bTS(color: colorPrimary),
                   ),
                 ),
               ],
@@ -170,7 +170,7 @@ class _Home extends State<Home> with WidgetsBindingObserver {
             alignment: Alignment.centerLeft,
             child: Text(
               navigation,
-              style: ebTS(size: 11),
+              style: bTS(size: 11),
             ),
           ),
           _divider,
@@ -183,7 +183,7 @@ class _Home extends State<Home> with WidgetsBindingObserver {
             alignment: Alignment.centerLeft,
             child: Text(
               settings,
-              style: ebTS(size: 11),
+              style: bTS(size: 11),
             ),
           ),
           _divider,
@@ -247,12 +247,12 @@ class _Home extends State<Home> with WidgetsBindingObserver {
         return _farmInstance;
       case 1:
         return Analysis(
-          hive: Beehive(uuid(), '',''),
+          hive: Beehive(uuid(), '', ''),
           type: AlertType.humidity,
         );
       case 2:
         return Alerts(
-          hive: Beehive(uuid(), '',''),
+          hive: Beehive(uuid(), '', ''),
         );
       default:
         return const Profile();
@@ -264,6 +264,7 @@ class _Home extends State<Home> with WidgetsBindingObserver {
       bottomNavigationVisibility = true;
     });
   }
+
   final _farmInstance = Farm();
 
   _navigate(int index, String page) {
