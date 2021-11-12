@@ -94,7 +94,7 @@ const notifications = 'Notifications';
 // data type
 const typeTemperature = 'Temperature';
 const typeHumidity = 'Humidity';
-const typePopulation = 'Population';
+const typePopulation = 'Bees Count';
 const typeSwarming = 'Swarming';
 const typeWeight = 'Weight';
 

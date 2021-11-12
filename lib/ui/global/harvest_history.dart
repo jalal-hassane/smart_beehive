@@ -1,12 +1,13 @@
-import 'dart:math';
-
-import 'package:date_format/date_format.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/assets.dart';
+import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/data/local/models/hive_logs.dart';
+import 'package:smart_beehive/main.dart';
+import 'package:smart_beehive/utils/extensions.dart';
 import 'package:smart_beehive/utils/log_utils.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -21,20 +22,17 @@ class HarvestHistory extends StatefulWidget {
   _HarvestHistory createState() => _HarvestHistory();
 }
 
-class _HarvestHistory extends State<HarvestHistory> {
-  String _selectedYear = formatDate(DateTime.now(), [yyyy]);
-  String _selectedMonth = formatDate(DateTime.now(), [M]);
-
-  double _allTimeOpacity = 1.0;
-  double _yearOpacity = 0.5;
-  double _monthOpacity = 0.5;
+class _HarvestHistory extends State<HarvestHistory>
+    with TickerProviderStateMixin {
+  String _selectedYear = 'All';
 
   HarvestFilter _filter = HarvestFilter.all;
   MonthFilter _month = MonthFilter.all;
 
   bool get _typeFilterApplied => _filter != HarvestFilter.all;
 
-  bool get _timeFilterApplied => _allTimeOpacity == 0.5;
+  bool get _timeFilterApplied =>
+      _month != MonthFilter.all || _selectedYear != 'All';
 
   bool get _filtersApplied => _typeFilterApplied && _timeFilterApplied;
 
@@ -45,8 +43,174 @@ class _HarvestHistory extends State<HarvestHistory> {
   final List<ItemHarvest> _totalPropolis = [];
   final List<ItemHarvest> _totalRoyalJelly = [];
 
+  int selectedTypeIndex = 0;
+  int selectedYearIndex = 0;
+  int selectedMonthIndex = 0;
+
+  List<String> get _years {
+    final list = <String>['All'];
+    for (int i = DateTime.now().year; i >= 1970; i--) {
+      list.add('$i');
+    }
+    return list;
+  }
+
+  late final AnimationController _fadeInController = animationController();
+  late final Animation<double> _fadeInAnimation =
+      doubleAnimation(_fadeInController);
+
+  _refreshData() {
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
+
+      setState(() {});
+    });
+  }
+
+  showPicker() {
+    context.show((BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async {
+          _refreshData();
+          return true;
+        },
+        child: FractionallySizedBox(
+          heightFactor: 0.3,
+          child: Container(
+            color: colorWhite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Text(
+                      'Harvest Type Filter',
+                      style: bTS(size: 16, color: colorPrimary),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: CupertinoPicker(
+                    magnification: 1.2,
+                    scrollController: FixedExtentScrollController(
+                        initialItem: selectedTypeIndex),
+                    onSelectedItemChanged: (value) {
+                      selectedTypeIndex = value;
+                      _filter = HarvestFilter.values[value];
+                    },
+                    itemExtent: 48.0,
+                    children: HarvestFilter.values
+                        .map((e) => Center(child: Text(e.description)))
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }, onClosing: () {
+      logInfo('closing bottom sheet');
+    });
+  }
+
+  showCupertinoYearPicker() {
+    context.show((BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async {
+          _refreshData();
+          return true;
+        },
+        child: FractionallySizedBox(
+          heightFactor: 0.3,
+          child: Container(
+            color: colorWhite,
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Text(
+                      'Year Filter',
+                      style: bTS(size: 16, color: colorPrimary),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: CupertinoPicker(
+                    backgroundColor: Colors.white,
+                    magnification: 1.2,
+                    scrollController: FixedExtentScrollController(
+                        initialItem: selectedYearIndex),
+                    onSelectedItemChanged: (value) {
+                      selectedYearIndex = value;
+                      _selectedYear = _years[value];
+                    },
+                    itemExtent: 48.0,
+                    children: [for (String i in _years) Center(child: Text(i))],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  showCupertinoMonthPicker() {
+    context.show((BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async {
+          _refreshData();
+          return true;
+        },
+        child: FractionallySizedBox(
+          heightFactor: 0.3,
+          child: Container(
+            color: colorWhite,
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Text(
+                      'Month Filter',
+                      style: bTS(size: 16, color: colorPrimary),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: CupertinoPicker(
+                    backgroundColor: Colors.white,
+                    magnification: 1.2,
+                    scrollController: FixedExtentScrollController(
+                        initialItem: selectedMonthIndex),
+                    onSelectedItemChanged: (value) {
+                      selectedMonthIndex = value;
+                      _month = MonthFilter.values[value];
+                    },
+                    itemExtent: 48.0,
+                    children: MonthFilter.values
+                        .map((e) => Center(child: Text(e.description)))
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _fadeInController.forward(from: 0);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -65,109 +229,81 @@ class _HarvestHistory extends State<HarvestHistory> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(
-                    textFilters,
-                    style: rTS(),
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        textType,
-                        style: rTS(),
-                      ),
-                      //_dropDownWidget((p0) {}),
-                      ElevatedButton(
-                        style: buttonStyle/*.copyWith(
-                          minimumSize: Size.zero,
-                          padding: all(1),
-                        )*/,
-                        onPressed: () {
-                          //_datePickerWidget(year: true);
-                        },
-                        child: Center(
-                          child: _dropDownWidget(),
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      children: [
+                        Text(
+                          textType,
+                          style: rTS(),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        textAllTime,
-                        style: rTS(),
-                      ),
-                      Opacity(
-                        opacity: _allTimeOpacity,
-                        child: ElevatedButton(
-                          style: buttonStyle/*.styleFrom(
-                            minimumSize: Size.zero,
-                            padding: all(6),
-                          )*/,
+                        ElevatedButton(
+                          style: buttonStyle,
                           onPressed: () {
-                            _enableDatePickers();
+                            showPicker();
+                          },
+                          child: Center(
+                              child: Text(
+                            _filter.description,
+                            style: mTS(size: 10),
+                          )),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: Container(),
+                  ),
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      children: [
+                        Text(
+                          textYear,
+                          style: rTS(),
+                        ),
+                        ElevatedButton(
+                          style: buttonStyle,
+                          onPressed: () {
+                            showCupertinoYearPicker();
                           },
                           child: Center(
                             child: Text(
-                              textAll,
+                              _selectedYear,
                               style: mTS(size: 10),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  Column(
-                    children: [
-                      Text(
-                        textYear,
-                        style: rTS(),
-                      ),
-                      AbsorbPointer(
-                        absorbing: _yearOpacity == 0.5,
-                        child: Opacity(
-                          opacity: _yearOpacity,
-                          child: ElevatedButton(
-                            style: buttonStyle/*.styleFrom(
-                              minimumSize: Size.zero,
-                              padding: all(6),
-                            )*/,
-                            onPressed: () {
-                              _datePickerWidget(year: true);
-                            },
-                            child: Center(
-                              child: Text(
-                                _selectedYear,
-                                style: mTS(size: 10),
-                              ),
+                  Expanded(
+                    flex: 5,
+                    child: Container(),
+                  ),
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      children: [
+                        Text(
+                          textMonth,
+                          style: rTS(),
+                        ),
+                        ElevatedButton(
+                          style: buttonStyle,
+                          onPressed: () {
+                            showCupertinoMonthPicker();
+                          },
+                          child: Center(
+                            child: Text(
+                              _month.description,
+                              style: mTS(size: 10),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        textMonth,
-                        style: rTS(),
-                      ),
-                      AbsorbPointer(
-                        absorbing: _monthOpacity == 0.5,
-                        child: Opacity(
-                          opacity: _monthOpacity,
-                          child: ElevatedButton(
-                            style: buttonStyle/*.styleFrom(
-                              minimumSize: Size.zero,
-                              padding: all(1),
-                            )*/,
-                            onPressed: () {},
-                            child: Center(
-                              child: _monthDropDownWidget(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -206,13 +342,6 @@ class _HarvestHistory extends State<HarvestHistory> {
       );
     }
     return Column(children: _widgets);
-    return Container(
-        color: Color.fromRGBO(
-            (Random().nextDouble() * 255).toInt(),
-            (Random().nextDouble() * 255).toInt(),
-            (Random().nextDouble() * 255).toInt(),
-            1.0),
-        child: Column(children: _widgets));
   }
 
   _generateWidgets(List<ItemHarvestHistory> list) {
@@ -220,7 +349,7 @@ class _HarvestHistory extends State<HarvestHistory> {
     _clearTotalLists();
     _getTotals(list);
     _logTotalLists();
-    final _totals = <Widget>[];
+    /*final _totals = <Widget>[];
     if (_totalBeeswax.isNotEmpty) {
       if (!_typeFilterApplied || _filter.description == logBeeswax) {
         _totals.add(_totalWidget(_totalBeeswax));
@@ -277,11 +406,16 @@ class _HarvestHistory extends State<HarvestHistory> {
       );
     } else {
       _widgets.add(
-        Center(
-          child: Text(textNoData, style: rTS()),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Text(textNoData, style: rTS()),
+            ),
+          ],
         ),
       );
-    }
+    }*/
     if (!_typeFilterApplied || _filter.description == logBeeswax) {
       if (_totalBeeswax.isNotEmpty) {
         _widgets.add(
@@ -348,51 +482,21 @@ class _HarvestHistory extends State<HarvestHistory> {
         );
       }
     }
-    /*for (ItemHarvestHistory item in list) {
+    if (_widgets.isEmpty) {
       _widgets.add(
-        Padding(
-          padding: all(12),
-          child: SfCartesianChart(
-            title: ChartTitle(
-              text: formatDate(
-                item.date,
-                [yyyy, ' ', M, ' ', dd, ' ', hh, ':', nn, ' ', am],
-              ),
-              textStyle: mTS(),
-            ),
-            primaryXAxis: CategoryAxis(
-              labelRotation: 45,
-              labelStyle: mTS(size: 10),
-            ),
-            primaryYAxis: NumericAxis(labelStyle: mTS(size: 10)),
-            tooltipBehavior: TooltipBehavior(
-              enable: true,
-              borderColor: Colors.red,
-            ),
-            series: <ColumnSeries<ItemHarvest?, String>>[
-              ColumnSeries<ItemHarvest?, String>(
-                name: logHarvests,
-                dataSource: item.history ?? [],
-                xValueMapper: (datum, index) =>
-                    '${datum?.title}' '\n(${datum?.unit!.description})',
-                yValueMapper: (datum, index) => datum?.value,
-                // Enable data label
-                dataLabelSettings: DataLabelSettings(
-                  isVisible: true,
-                  builder: (data, point, series, pointIndex, seriesIndex) {
-                    return Text(
-                      (data as ItemHarvest).value.toString(),
-                      style: sbTS(size: 10),
-                    );
-                  },
-                ),
-                width: 0.5,
+        SizedBox(
+          height: screenHeight * 0.5,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: Text(textNoData, style: rTS()),
               ),
             ],
           ),
         ),
       );
-    }*/
+    }
     return _widgets;
   }
 
@@ -401,58 +505,61 @@ class _HarvestHistory extends State<HarvestHistory> {
         _timeFilterApplied ? '${_month.description} $_selectedYear' : '';
     var title = harvest.first.title;
     title += filter.isNotEmpty ? ' - $filter' : '';
-    return Padding(
-      padding: all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                icon,
-                height: 20,
-                width: 20,
-              ),
-              Container(
-                margin: left(4),
-                child: Text(title, style: mTS()),
-              ),
-            ],
-          ),
-          SfCartesianChart(
-            /*title: ChartTitle(
-              text: harvest.first.title,
-              textStyle: mTS(),
-            ),*/
-            primaryXAxis: CategoryAxis(labelStyle: mTS(size: 10)),
-            primaryYAxis: NumericAxis(labelStyle: mTS(size: 10)),
-            tooltipBehavior: TooltipBehavior(
-              enable: true,
-              borderColor: Colors.red,
-            ),
-            series: <ColumnSeries<ItemHarvest?, String>>[
-              ColumnSeries<ItemHarvest?, String>(
-                name: harvest.first.title,
-                color: color,
-                dataSource: harvest,
-                xValueMapper: (datum, index) => '${datum?.unit!.description}',
-                yValueMapper: (datum, index) => datum?.value,
-                // Enable data label
-                dataLabelSettings: DataLabelSettings(
-                  isVisible: true,
-                  builder: (data, point, series, pointIndex, seriesIndex) {
-                    return Text(
-                      (data as ItemHarvest).value.toString(),
-                      style: bTS(size: 10),
-                    );
-                  },
+    return FadeTransition(
+      opacity: _fadeInAnimation,
+      child: Padding(
+        padding: all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  icon,
+                  height: 20,
+                  width: 20,
                 ),
-                width: 0.5,
+                Container(
+                  margin: left(4),
+                  child: Text(title, style: mTS()),
+                ),
+              ],
+            ),
+            SfCartesianChart(
+              /*title: ChartTitle(
+                text: harvest.first.title,
+                textStyle: mTS(),
+              ),*/
+              primaryXAxis: CategoryAxis(labelStyle: mTS(size: 10)),
+              primaryYAxis: NumericAxis(labelStyle: mTS(size: 10)),
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                borderColor: Colors.red,
               ),
-            ],
-          ),
-        ],
+              series: <ColumnSeries<ItemHarvest?, String>>[
+                ColumnSeries<ItemHarvest?, String>(
+                  name: harvest.first.title,
+                  color: color,
+                  dataSource: harvest,
+                  xValueMapper: (datum, index) => '${datum?.unit!.description}',
+                  yValueMapper: (datum, index) => datum?.value,
+                  // Enable data label
+                  dataLabelSettings: DataLabelSettings(
+                    isVisible: true,
+                    builder: (data, point, series, pointIndex, seriesIndex) {
+                      return Text(
+                        (data as ItemHarvest).value.toString(),
+                        style: bTS(size: 10),
+                      );
+                    },
+                  ),
+                  width: 0.5,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -467,12 +574,18 @@ class _HarvestHistory extends State<HarvestHistory> {
   }
 
   _logTotalLists() {
-    logInfo("total beeswax => " + _totalBeeswax.map((e) => e.toMapWithName()).toList().toString() );
-    logInfo("total honey => " + _totalHoney.map((e) => e.toMapWithName()).toList().toString() );
-    logInfo("total honeycomb => " + _totalHoneycomb.map((e) => e.toMapWithName()).toList().toString() );
-    logInfo("total pollen => " + _totalPollen.map((e) => e.toMapWithName()).toList().toString() );
-    logInfo("total propolis => " + _totalPropolis.map((e) => e.toMapWithName()).toList().toString() );
-    logInfo("total royal jelly => " + _totalRoyalJelly.map((e) => e.toMapWithName()).toList().toString() );
+    logInfo("total beeswax => " +
+        _totalBeeswax.map((e) => e.toMapWithName()).toList().toString());
+    logInfo("total honey => " +
+        _totalHoney.map((e) => e.toMapWithName()).toList().toString());
+    logInfo("total honeycomb => " +
+        _totalHoneycomb.map((e) => e.toMapWithName()).toList().toString());
+    logInfo("total pollen => " +
+        _totalPollen.map((e) => e.toMapWithName()).toList().toString());
+    logInfo("total propolis => " +
+        _totalPropolis.map((e) => e.toMapWithName()).toList().toString());
+    logInfo("total royal jelly => " +
+        _totalRoyalJelly.map((e) => e.toMapWithName()).toList().toString());
   }
 
   _getTotals(List<ItemHarvestHistory> list) {
@@ -601,7 +714,7 @@ class _HarvestHistory extends State<HarvestHistory> {
     final List<ItemHarvestHistory> _filteredHistory = [];
     for (ItemHarvestHistory item in widget.history) {
       if (item.history == null) continue;
-      if (item.year == _selectedYear) {
+      if (item.year == _selectedYear || _selectedYear == 'All') {
         if (_month == MonthFilter.all) {
           if (_filter == HarvestFilter.all) {
             _filteredHistory.add(item);
@@ -630,107 +743,9 @@ class _HarvestHistory extends State<HarvestHistory> {
     return _filteredHistory;
   }
 
-  _enableDatePickers() {
-    setState(() {
-      if (_allTimeOpacity == 1.0) {
-        _allTimeOpacity = 0.5;
-        _yearOpacity = 1.0;
-        _monthOpacity = 1.0;
-      } else {
-        _allTimeOpacity = 1.0;
-        _yearOpacity = 0.5;
-        _monthOpacity = 0.5;
-      }
-    });
-  }
-
-  _datePickerWidget({
-    bool year = false,
-  }) async {
-    DateTime? date = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        lastDate: DateTime.now(),
-        firstDate: DateTime(2000, 1, 1),
-        initialDatePickerMode: year ? DatePickerMode.year : DatePickerMode.day);
-    if (date != null) {
-      _selectedYear = date.year.toString();
-      _selectedMonth = formatDate(date, [MM]);
-      _month = _selectedMonth.monthFromString;
-      setState(() {});
-    }
-  }
-
-  _dropDownWidget() {
-    return Center(
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          iconSize: 0,
-          value: _filter.description,
-          onChanged: (String? newValue) {
-            setState(() {
-              _filter = newValue!.filterFromString;
-            });
-          },
-          style: mTS(size: 10),
-          isDense: true,
-          alignment: Alignment.center,
-          borderRadius: BorderRadius.circular(8),
-          icon: const Icon(Icons.arrow_downward),
-          items: _typeDropDownWidget(),
-        ),
-      ),
-    );
-  }
-
-  _monthDropDownWidget() {
-    return Center(
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          iconSize: 0,
-          value: _month.description,
-          onChanged: (String? newValue) {
-            setState(() {
-              _month = newValue!.monthFromString;
-            });
-          },
-          style: mTS(size: 10),
-          isDense: true,
-          alignment: Alignment.center,
-          borderRadius: BorderRadius.circular(8),
-          icon: const Icon(Icons.arrow_downward),
-          items: _monthDropDownItems(),
-        ),
-      ),
-    );
-  }
-
-  _typeDropDownWidget() {
-    return HarvestFilter.values
-        .map<DropdownMenuItem<String>>((HarvestFilter value) {
-      return DropdownMenuItem<String>(
-        alignment: Alignment.center,
-        value: value.description,
-        child: Text(
-          value.description,
-          style: mTS(size: 10),
-        ),
-      );
-    }).toList();
-  }
-
-  _monthDropDownItems() {
-    return MonthFilter.values
-        .map<DropdownMenuItem<String>>((MonthFilter value) {
-      return DropdownMenuItem<String>(
-        alignment: Alignment.center,
-        value: value.description,
-        child: Text(
-          value.description,
-          style: mTS(size: 10),
-        ),
-        onTap: () => setState(() {}),
-      );
-    }).toList();
+  @override
+  void dispose() {
+    _fadeInController.dispose();
+    super.dispose();
   }
 }

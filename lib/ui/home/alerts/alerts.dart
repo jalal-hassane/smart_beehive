@@ -80,13 +80,13 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   _checkAlerts() {
     if (_hive.properties.alerts!.isNotEmpty) {
       logInfo("Alerts ${_hive.properties.alerts!.length}");
-      return ListView.builder(
-        itemCount: _hive.properties.alerts!.length,
+      return GridView.count(
+        crossAxisCount: 2,
         shrinkWrap: true,
         padding: all(8),
-        itemBuilder: (context, index) {
-          return _alertWidget(index);
-        },
+        children: [
+          for (Alert i in _hive.properties.alerts!) _alertWidget(i),
+        ],
       );
     } else {
       // show add widget
@@ -113,19 +113,62 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     }
   }
 
-  _alertWidget(int index) {
+  _alertWidget(Alert alert) {
     //final beehive = beehives[widget.index];
-    final alert = _hive.properties.alerts![index];
 
-    return Slidable(
+    return  GestureDetector(
+      onTap: () => _addAlert(edit: true, alert: alert),
+      child: Container(
+        margin: all(12),
+          decoration: BoxDecoration(
+            color: colorWhite,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.16),
+                offset: const Offset(0.0, 3.0), //(x,y)
+                blurRadius: 6.0,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment:  CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex:2,
+                child: FractionallySizedBox(
+                  heightFactor: 0.5,
+                  child: Image.asset(
+                    alert.icon??'',
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  alert.type?.description??'',
+                  style: bTS(),
+                )
+              ),
+              Expanded(child:
+                Text(
+                  alert.description??'',
+                  style: mTS(),
+                ),),
+            ],
+          ),
+       ),
+    );
+    /*return Slidable(
       actionPane: const SlidableScrollActionPane(),
       closeOnScroll: true,
       secondaryActions: [
-        /*_secondaryActionWidget(
+        *//*_secondaryActionWidget(
           Icons.volume_up_rounded,
           btChange,
           () => _changeSound(index),
-        ),*/
+        ),*//*
         _secondaryActionWidget(
           Icons.delete_forever,
           btRemove,
@@ -157,7 +200,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           ),
         ),
       ),
-    );
+    );*/
   }
 
   _secondaryActionWidget(
@@ -177,24 +220,24 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     );
   }
 
-  _removeAlert(int index) {
-    _hive.properties.alerts?.removeAt(index);
+  _removeAlert(Alert alert) {
+    _hive.properties.alerts?.remove(alert);
     _alertsViewModel.updateProperties();
   }
 
   _alertLeadingIcon(Alert alert) {
     Widget _icon;
-    if (alert.svg != null) {
-      if (alert.svg!.isPng()) {
+    if (alert.icon != null) {
+      if (alert.icon!.isPng()) {
         _icon = Image.asset(
-          alert.svg!,
+          alert.icon!,
           width: 24,
           height: 24,
           color: alert.color,
         );
       } else {
         _icon = SvgPicture.asset(
-          alert.svg!,
+          alert.icon!,
           width: 24,
           height: 24,
           color: alert.color,
@@ -208,25 +251,6 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       );
     }
     return _icon;
-  }
-
-  _dropDownItems() {
-    final alerts = <AlertType>[];
-    alerts.addAll(AlertType.values);
-    alerts.removeLast();
-    return alerts.map<DropdownMenuItem<String>>((AlertType value) {
-      return DropdownMenuItem<String>(
-        alignment: Alignment.centerLeft,
-        value: value.description,
-        child: Container(
-          margin: left(8),
-          child: Text(
-            value.description,
-            style: rTS(size: 12),
-          ),
-        ),
-      );
-    }).toList();
   }
 
   _addAlert({bool edit = false, Alert? alert}) {
@@ -356,19 +380,38 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                           ],
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () => _createAlert(edit: edit, alert: alert),
-                        style: buttonStyle,
-                        child: SizedBox(
-                          width: screenWidth * 0.4,
-                          height: screenHeight * 0.056,
-                          child: Center(
-                            child: Text(
-                              edit ? textSaveAlert : textCreateAlert,
-                              style: mTS(),
+                      Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () => _createAlert(edit: edit, alert: alert),
+                            style: buttonStyle,
+                            child: SizedBox(
+                              width: screenWidth * 0.4,
+                              height: screenHeight * 0.056,
+                              child: Center(
+                                child: Text(
+                                  edit ? textSaveAlert : textCreateAlert,
+                                  style: mTS(),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          Visibility(
+                            visible: edit,
+                            child: GestureDetector(
+                              onTap: () => _removeAlert(alert!),
+                              child: Container(
+                                margin: top(16),
+                                child: Center(
+                                  child: Text(
+                                    textRemove,
+                                    style: mTS(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

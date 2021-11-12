@@ -10,12 +10,21 @@ class Alert {
   double? lowerBound;
   double? upperBound;
 
-  String? get svg => type?.icon;
+  String? get icon => type?.icon;
 
   Color? get color => type?.color;
 
   String get description {
-    return '$_type should be between $lowerBound and $upperBound';
+    if(type==AlertType.temperature) {
+      return '($lowerBound° - $upperBound°)';
+    }
+    if(type==AlertType.weight) {
+      return '($lowerBound' 'kg - $upperBound' 'kg)';
+    }
+    if(type==AlertType.population) {
+      return '(${lowerBound?.toInt()} - ${upperBound?.toInt()})';
+    }
+    return '($lowerBound - $upperBound)';
   }
 
   String get _type {
