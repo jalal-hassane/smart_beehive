@@ -64,6 +64,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   bool _showTempAlert = false;
   bool _highTemp = false;
   bool stateExpanded = false;
+  bool _showLoader = false;
 
   late AnalysisViewModel _analysisViewModel;
 
@@ -160,6 +161,12 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     );
   }
 
+  _snapshots() async{
+    _showLoader = true;
+    await Future.delayed(const Duration(milliseconds:500));
+    _showLoader = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     _hive = widget.hive;
@@ -187,25 +194,38 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
             : widget.type == AlertType.population
                 ? _populationWidget()
                 : SingleChildScrollView(
-                    child: StreamBuilder<DocumentSnapshot>(
-                      stream: _collection.snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return const Center(
-                            child: Text('Something went wrong'),
-                          );
-                        }
+                    child: FutureBuilder(
+                      future: _snapshots(),
+                      builder: (context, snapshot) => StreamBuilder<DocumentSnapshot>(
+                        stream: _collection.snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Center(
+                              child: Text('Something went wrong'),
+                            );
+                          }
 
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: Text("Collecting data"),
-                          );
-                        }
-                        final map =
-                            snapshot.requireData.data() as Map<String, dynamic>;
-                        return parseData(map);
-                      },
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting || _showLoader) {
+                            return SizedBox(
+                              height: screenHeight*0.5,
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const CircularProgressIndicator(color: colorPrimary,),
+                                    Container(margin:top(8),child: const Text("Collecting data")),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                          final map =
+                              snapshot.requireData.data() as Map<String, dynamic>;
+                          return parseData(map);
+                        },
+                      ),
                     ),
                   ),
       ),
