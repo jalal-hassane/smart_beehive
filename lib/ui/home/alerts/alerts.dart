@@ -116,59 +116,59 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   _alertWidget(Alert alert) {
     //final beehive = beehives[widget.index];
 
-    return  GestureDetector(
+    return GestureDetector(
       onTap: () => _addAlert(edit: true, alert: alert),
       child: Container(
         margin: all(12),
-          decoration: BoxDecoration(
-            color: colorWhite,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.16),
-                offset: const Offset(0.0, 3.0), //(x,y)
-                blurRadius: 6.0,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment:  CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex:2,
-                child: FractionallySizedBox(
-                  heightFactor: 0.5,
-                  child: Image.asset(
-                    alert.icon??'',
-                  ),
+        decoration: BoxDecoration(
+          color: colorWhite,
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.16),
+              offset: const Offset(0.0, 3.0), //(x,y)
+              blurRadius: 6.0,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 2,
+              child: FractionallySizedBox(
+                heightFactor: 0.5,
+                child: Image.asset(
+                  alert.icon ?? '',
                 ),
               ),
-              Expanded(
+            ),
+            Expanded(
                 child: Text(
-                  alert.type?.description??'',
-                  style: bTS(),
-                )
+              alert.type?.description ?? '',
+              style: bTS(),
+            )),
+            Expanded(
+              child: Text(
+                alert.description,
+                style: mTS(),
               ),
-              Expanded(child:
-                Text(
-                  alert.description,
-                  style: mTS(),
-                ),),
-            ],
-          ),
-       ),
+            ),
+          ],
+        ),
+      ),
     );
     /*return Slidable(
       actionPane: const SlidableScrollActionPane(),
       closeOnScroll: true,
       secondaryActions: [
-        *//*_secondaryActionWidget(
+        */ /*_secondaryActionWidget(
           Icons.volume_up_rounded,
           btChange,
           () => _changeSound(index),
-        ),*//*
+        ),*/ /*
         _secondaryActionWidget(
           Icons.delete_forever,
           btRemove,
@@ -267,10 +267,9 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
             heightFactor: 0.75,
             child: Scaffold(
               body: WillPopScope(
+                // todo fix onWillPop preventing bottom sheet from dragging
                 onWillPop: () async {
-                  if (_alertExpandableController.expanded) {
-                    _alertExpandableController.toggle();
-                  }
+                  _toggleController();
                   _alertType = AlertType.temperature;
                   _lowestController.clear();
                   _highestController.clear();
@@ -279,9 +278,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                 child: GestureDetector(
                   onTap: () => unFocus(con),
                   onPanDown: (details) {
-                    if (_alertExpandableController.expanded) {
-                      _alertExpandableController.toggle();
-                    }
+                    _toggleController();
                     unFocus(con);
                   },
                   child: Column(
@@ -388,7 +385,8 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                       Column(
                         children: [
                           ElevatedButton(
-                            onPressed: () => _createAlert(edit: edit, alert: alert),
+                            onPressed: () =>
+                                _createAlert(edit: edit, alert: alert),
                             style: buttonStyle,
                             child: SizedBox(
                               width: screenWidth * 0.4,
@@ -427,6 +425,12 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
         },
       );
     });
+  }
+
+  _toggleController() {
+    if (_alertExpandableController.expanded) {
+      _alertExpandableController.toggle();
+    }
   }
 
   _sheetItemWidget(
@@ -578,7 +582,6 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
           state(() {
             _alertType = alert;
           });
-          _alertExpandableController.toggle();
         },
         child: _dropDownItemWidget2(alert.description),
       ));

@@ -180,147 +180,155 @@ class _Harvests extends State<Harvests> {
         return context.show(
           (p0) {
             return StatefulBuilder(
-              builder: (context, state) {
+              builder: (con, state) {
                 return FractionallySizedBox(
                   heightFactor: 0.75,
                   child: Scaffold(
                     body: WillPopScope(
                       onWillPop: () async {
-                        if (_unitExpandableController.expanded) {
-                          _unitExpandableController.toggle();
-                        }
+                        _toggleController();
                         return true;
                       },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Center(
-                            child: Text(
-                              item.id!,
-                              style: bTS(size: 30, color: colorPrimary),
-                            ),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                margin: left(16),
-                                child: Text(
-                                  textUnit,
-                                  style: bTS(),
-                                ),
+                      child: GestureDetector(
+                        onTap: () {
+                          logInfo('tap');
+                          unFocus(con);
+                        },
+                        onPanDown: (details) {
+                            _toggleController();
+                          unFocus(con);
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Center(
+                              child: Text(
+                                item.id!,
+                                style: bTS(size: 30, color: colorPrimary),
                               ),
-                              Container(
-                                margin: symmetric(4, 16),
-                                padding: left(8),
-                                decoration: BoxDecoration(
-                                  color: colorBgTextField,
-                                  borderRadius: BorderRadius.circular(4),
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  margin: left(16),
+                                  child: Text(
+                                    textUnit,
+                                    style: bTS(),
+                                  ),
                                 ),
-                                child: ExpandableNotifier(
-                                  controller: _unitExpandableController,
-                                  child: Padding(
-                                    padding: symmetric(4, 0),
-                                    child: ScrollOnExpand(
-                                      child: Column(
-                                        children: <Widget>[
-                                          ExpandablePanel(
-                                            theme: const ExpandableThemeData(
-                                              headerAlignment:
-                                                  ExpandablePanelHeaderAlignment
-                                                      .center,
-                                              tapBodyToExpand: true,
-                                              tapBodyToCollapse: true,
-                                              hasIcon: false,
-                                            ),
-                                            header: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    _unit.description,
-                                                    style: rTS(),
+                                Container(
+                                  margin: symmetric(4, 16),
+                                  padding: left(8),
+                                  decoration: BoxDecoration(
+                                    color: colorBgTextField,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: ExpandableNotifier(
+                                    controller: _unitExpandableController,
+                                    child: Padding(
+                                      padding: symmetric(4, 0),
+                                      child: ScrollOnExpand(
+                                        child: Column(
+                                          children: <Widget>[
+                                            ExpandablePanel(
+                                              theme: const ExpandableThemeData(
+                                                headerAlignment:
+                                                    ExpandablePanelHeaderAlignment
+                                                        .center,
+                                                tapBodyToExpand: true,
+                                                tapBodyToCollapse: true,
+                                                hasIcon: false,
+                                              ),
+                                              header: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      _unit.description,
+                                                      style: rTS(),
+                                                    ),
                                                   ),
-                                                ),
-                                                ExpandableIcon(
-                                                  theme:
-                                                      const ExpandableThemeData(
-                                                    expandIcon:
-                                                        Icons.arrow_drop_down,
-                                                    collapseIcon:
-                                                        Icons.arrow_drop_down,
-                                                    iconColor: colorPrimary,
-                                                    iconSize: 24.0,
-                                                    hasIcon: false,
+                                                  ExpandableIcon(
+                                                    theme:
+                                                        const ExpandableThemeData(
+                                                      expandIcon:
+                                                          Icons.arrow_drop_down,
+                                                      collapseIcon:
+                                                          Icons.arrow_drop_down,
+                                                      iconColor: colorPrimary,
+                                                      iconSize: 24.0,
+                                                      hasIcon: false,
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
+                                              collapsed: Container(),
+                                              expanded: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: _dropDown(state),
+                                              ),
                                             ),
-                                            collapsed: Container(),
-                                            expanded: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: _dropDown(state),
-                                            ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              sheetTextField(
-                                screenWidth,
-                                screenHeight,
-                                _textController,
-                                item.title,
-                                type: const TextInputType.numberWithOptions(
-                                  decimal: true,
+                                sheetTextField(
+                                  screenWidth,
+                                  screenHeight,
+                                  _textController,
+                                  item.title,
+                                  type: const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                                  last: true,
+                                  submit: (string) => _closeSheetAndSave(item),
                                 ),
-                                last: true,
-                                submit: (string) => _closeSheetAndSave(item),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Container(
-                                margin: bottom(10),
-                                child: ElevatedButton(
-                                  onPressed: () => _closeSheetAndSave(item),
-                                  style: buttonStyle,
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  margin: bottom(10),
+                                  child: ElevatedButton(
+                                    onPressed: () => _closeSheetAndSave(item),
+                                    style: buttonStyle,
+                                    child: SizedBox(
+                                      width: screenWidth * 0.4,
+                                      height: screenHeight * 0.056,
+                                      child: Center(
+                                        child: Text(
+                                          textSave,
+                                          style: mTS(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    state(() {
+                                      item.reset();
+                                    });
+                                    Navigator.pop(context);
+                                  },
                                   child: SizedBox(
-                                    width: screenWidth * 0.4,
-                                    height: screenHeight * 0.056,
+                                    width: screenWidth * 0.3,
+                                    height: screenHeight * 0.05,
                                     child: Center(
                                       child: Text(
-                                        textSave,
+                                        textClear,
                                         style: mTS(),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  state(() {
-                                    item.reset();
-                                  });
-                                  Navigator.pop(context);
-                                },
-                                child: SizedBox(
-                                  width: screenWidth * 0.3,
-                                  height: screenHeight * 0.05,
-                                  child: Center(
-                                    child: Text(
-                                      textClear,
-                                      style: mTS(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -332,6 +340,12 @@ class _Harvests extends State<Harvests> {
       }
 
       _taps.add(f);
+    }
+  }
+
+  _toggleController(){
+    if (_unitExpandableController.expanded) {
+      _unitExpandableController.toggle();
     }
   }
 
@@ -417,7 +431,6 @@ class _Harvests extends State<Harvests> {
               state(() {
                 _unit = unit;
               });
-              _unitExpandableController.toggle();
             },
             child: _dropDownItemWidget2(unit.description),
           )

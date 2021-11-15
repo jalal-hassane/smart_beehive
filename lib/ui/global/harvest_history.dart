@@ -237,16 +237,22 @@ class _HarvestHistory extends State<HarvestHistory>
                           textType,
                           style: rTS(),
                         ),
-                        ElevatedButton(
-                          style: buttonStyle,
-                          onPressed: () {
-                            showPicker();
-                          },
-                          child: Center(
-                              child: Text(
-                            _filter.description,
-                            style: mTS(size: 10),
-                          )),
+                        AbsorbPointer(
+                          absorbing: widget.history.isEmpty,
+                          child: Opacity(
+                            opacity: widget.history.isEmpty ? 0.5 : 1.0,
+                            child: ElevatedButton(
+                              style: buttonStyle,
+                              onPressed: () {
+                                showPicker();
+                              },
+                              child: Center(
+                                  child: Text(
+                                _filter.description,
+                                style: mTS(size: 10),
+                              )),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -263,15 +269,21 @@ class _HarvestHistory extends State<HarvestHistory>
                           textYear,
                           style: rTS(),
                         ),
-                        ElevatedButton(
-                          style: buttonStyle,
-                          onPressed: () {
-                            showCupertinoYearPicker();
-                          },
-                          child: Center(
-                            child: Text(
-                              _selectedYear,
-                              style: mTS(size: 10),
+                        AbsorbPointer(
+                          absorbing: widget.history.isEmpty,
+                          child: Opacity(
+                            opacity: widget.history.isEmpty ? 0.5 : 1.0,
+                            child: ElevatedButton(
+                              style: buttonStyle,
+                              onPressed: () {
+                                showCupertinoYearPicker();
+                              },
+                              child: Center(
+                                child: Text(
+                                  _selectedYear,
+                                  style: mTS(size: 10),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -290,15 +302,21 @@ class _HarvestHistory extends State<HarvestHistory>
                           textMonth,
                           style: rTS(),
                         ),
-                        ElevatedButton(
-                          style: buttonStyle,
-                          onPressed: () {
-                            showCupertinoMonthPicker();
-                          },
-                          child: Center(
-                            child: Text(
-                              _month.description,
-                              style: mTS(size: 10),
+                        AbsorbPointer(
+                          absorbing: widget.history.isEmpty,
+                          child: Opacity(
+                            opacity: widget.history.isEmpty ? 0.5 : 1.0,
+                            child: ElevatedButton(
+                              style: buttonStyle,
+                              onPressed: () {
+                                showCupertinoMonthPicker();
+                              },
+                              child: Center(
+                                child: Text(
+                                  _month.description,
+                                  style: mTS(size: 10),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -683,7 +701,18 @@ class _HarvestHistory extends State<HarvestHistory>
   }
 
   _processItems() {
-    if (widget.history.isEmpty) return <Widget>[];
+    if (widget.history.isEmpty) {
+      return <Widget>[
+        SizedBox(
+          height: screenHeight * 0.5,
+          child: Center(
+              child: Text(
+            'No Harvest History',
+            style: rTS(),
+          )),
+        )
+      ];
+    }
     List<ItemHarvestHistory> _list = [];
 
     if (_filtersApplied || _timeFilterApplied) {

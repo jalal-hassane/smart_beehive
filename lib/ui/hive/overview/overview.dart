@@ -179,12 +179,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
           child: Scaffold(
             body: WillPopScope(
               onWillPop: () async {
-                if (_hiveTypeExpandableController.expanded) {
-                  _hiveTypeExpandableController.toggle();
-                }
-                if (_speciesExpandableController.expanded) {
-                  _speciesExpandableController.toggle();
-                }
+                _toggleController();
                 return true;
               },
               child: GestureDetector(
@@ -193,16 +188,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                   unFocus(con);
                 },
                 onPanDown: (details) {
-                  if (details.globalPosition.dy != 0) {
-                    logInfo('dy is ${details.globalPosition.dy}');
-                    if (_hiveTypeExpandableController.expanded) {
-                      _hiveTypeExpandableController.toggle();
-                    }
-                    if (_speciesExpandableController.expanded) {
-                      logInfo('expanded state');
-                      _speciesExpandableController.toggle();
-                    }
-                  }
+                 _toggleController();
                   unFocus(con);
                 },
                 child: Column(
@@ -481,6 +467,15 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
     });
   }
 
+  _toggleController(){
+    if (_hiveTypeExpandableController.expanded) {
+      _hiveTypeExpandableController.toggle();
+    }
+    if (_speciesExpandableController.expanded) {
+      _speciesExpandableController.toggle();
+    }
+  }
+
   late final _scrollController = ScrollController();
 
   _saveHiveDetails() {
@@ -589,7 +584,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
           state(() {
             _hiveType = type;
           });
-          //_hiveTypeExpandableController.toggle();
         },
         child: _dropDownItemWidget2(type.description),
       ));
@@ -623,7 +617,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
           state(() {
             _species = species;
           });
-          //_speciesExpandableController.toggle();
         },
         child: _dropDownItemWidget2(species.description),
       ));
