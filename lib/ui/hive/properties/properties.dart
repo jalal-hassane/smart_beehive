@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_beehive/composite/assets.dart';
-import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/routes.dart';
 import 'package:smart_beehive/composite/strings.dart';
@@ -146,8 +145,7 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     }
   }
 
-  _gridItem(){}
-
+  _gridItem() {}
 
   _showOnlyAnalysis() {
     return Column(
@@ -255,8 +253,8 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
       child: FadeTransition(
         opacity: _fadeInAnimation,
         child: SizedBox(
-          width: screenWidth*0.3,
-          height: screenWidth*0.3,
+          width: screenWidth * 0.3,
+          height: screenWidth * 0.3,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -277,14 +275,17 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     );
   }
 
-  _analysisItem(AlertType type, Function()? press,) {
+  _analysisItem(
+    AlertType type,
+    Function()? press,
+  ) {
     return SlideTransition(
       position: _iconOffsetAnimation,
       child: FadeTransition(
         opacity: _fadeInAnimation,
         child: SizedBox(
-          width: screenWidth*0.3,
-          height: screenWidth*0.3,
+          width: screenWidth * 0.3,
+          height: screenWidth * 0.3,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

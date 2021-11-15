@@ -193,7 +193,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                   unFocus(con);
                 },
                 onPanDown: (details) {
-                  if(details.globalPosition.dy!=0) {
+                  if (details.globalPosition.dy != 0) {
                     logInfo('dy is ${details.globalPosition.dy}');
                     if (_hiveTypeExpandableController.expanded) {
                       _hiveTypeExpandableController.toggle();

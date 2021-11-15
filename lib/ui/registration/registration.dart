@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:smart_beehive/composite/colors.dart';
 import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
@@ -87,7 +86,6 @@ class _Registration extends State<Registration> {
                             submit: (_) => _proceed(),
                           ),
                         ),
-
                       ],
                     ),
                   ),
