@@ -185,7 +185,7 @@ class _Feeds extends State<Feeds> {
                             child: Center(
                               child: Text(
                                 textClear,
-                                style: mTS(color: colorWhite),
+                                style: mTS(),
                               ),
                             ),
                           ),

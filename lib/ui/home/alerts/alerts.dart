@@ -325,15 +325,17 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                                                   headerAlignment:
                                                       ExpandablePanelHeaderAlignment
                                                           .center,
+                                                  tapHeaderToExpand: true,
                                                   tapBodyToExpand: true,
-                                                  tapBodyToCollapse: true,
+                                                  tapBodyToCollapse: false,
                                                   hasIcon: false,
                                                 ),
                                                 header: Row(
                                                   children: [
                                                     Expanded(
                                                       child: Text(
-                                                        _alertType.description,
+                                                        _alertType
+                                                            .description,
                                                         style: rTS(
                                                           color: colorBlack,
                                                         ),
@@ -346,7 +348,8 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                                                             .arrow_drop_down,
                                                         collapseIcon: Icons
                                                             .arrow_drop_down,
-                                                        iconColor: colorPrimary,
+                                                        iconColor:
+                                                            colorPrimary,
                                                         iconSize: 24.0,
                                                         hasIcon: false,
                                                       ),
@@ -559,7 +562,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   _dropDownItemWidget2(String value) {
     return Container(
       alignment: Alignment.centerLeft,
-      margin: symmetric(16, 0),
+      padding: all(10),
       decoration: BoxDecoration(
         color: colorBgTextField,
         borderRadius: BorderRadius.circular(4),

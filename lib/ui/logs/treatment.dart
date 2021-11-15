@@ -179,7 +179,7 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
                           child: Center(
                             child: Text(
                               textClear,
-                              style: mTS(color: colorWhite),
+                              style: mTS(),
                             ),
                           ),
                         ),

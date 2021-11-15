@@ -29,6 +29,7 @@ class Harvests extends StatefulWidget {
 
 class _Harvests extends State<Harvests> {
   late LogHarvests? _logHarvests;
+  Unit _oldUnit = Unit.g;
   Unit _unit = Unit.g;
   late TextEditingController _textController;
 
@@ -195,7 +196,7 @@ class _Harvests extends State<Harvests> {
                           unFocus(con);
                         },
                         onPanDown: (details) {
-                            _toggleController();
+                          _toggleController();
                           unFocus(con);
                         },
                         child: Column(
@@ -237,8 +238,8 @@ class _Harvests extends State<Harvests> {
                                                 headerAlignment:
                                                     ExpandablePanelHeaderAlignment
                                                         .center,
-                                                tapBodyToExpand: true,
-                                                tapBodyToCollapse: true,
+                                                tapBodyToExpand: false,
+                                                tapBodyToCollapse: false,
                                                 hasIcon: false,
                                               ),
                                               header: Row(
@@ -343,7 +344,7 @@ class _Harvests extends State<Harvests> {
     }
   }
 
-  _toggleController(){
+  _toggleController() {
     if (_unitExpandableController.expanded) {
       _unitExpandableController.toggle();
     }
@@ -410,7 +411,7 @@ class _Harvests extends State<Harvests> {
   _dropDownItemWidget2(String value) {
     return Container(
       alignment: Alignment.centerLeft,
-      margin: symmetric(16, 0),
+      padding: all(10),
       decoration: BoxDecoration(
         color: colorBgTextField,
         borderRadius: BorderRadius.circular(4),
@@ -424,17 +425,16 @@ class _Harvests extends State<Harvests> {
 
   _dropDown(void Function(void Function()) state) {
     final widgets = <Widget>[];
-    for(Unit unit in Unit.values){
-      widgets.add(
-          GestureDetector(
-            onTap: () {
-              state(() {
-                _unit = unit;
-              });
-            },
-            child: _dropDownItemWidget2(unit.description),
-          )
-      );
+    for (Unit unit in Unit.values) {
+      widgets.add(GestureDetector(
+        onTap: () {
+          state(() {
+            _oldUnit = _unit;
+            _unit = unit;
+          });
+        },
+        child: _dropDownItemWidget2(unit.description),
+      ));
       if (unit != Unit.values.last) {
         widgets.add(divider);
       }

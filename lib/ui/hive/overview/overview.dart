@@ -266,7 +266,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                                                       ExpandablePanelHeaderAlignment
                                                           .center,
                                                   tapBodyToExpand: true,
-                                                  tapBodyToCollapse: true,
+                                                  tapBodyToCollapse: false,
                                                   hasIcon: false,
                                                 ),
                                                 header: Row(
@@ -348,7 +348,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                                                   ExpandablePanelHeaderAlignment
                                                       .center,
                                               tapBodyToExpand: true,
-                                              tapBodyToCollapse: true,
+                                              tapBodyToCollapse: false,
                                               hasIcon: false,
                                             ),
                                             header: Row(
