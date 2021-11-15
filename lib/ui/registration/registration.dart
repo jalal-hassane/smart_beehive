@@ -54,13 +54,14 @@ class _Registration extends State<Registration> {
             Column(
               children: [
                 Expanded(
-                  flex: 4,
+                  flex: 3,
                   child: inAppLogo(),
                 ),
                 Expanded(
-                  flex: 6,
+                  flex: 10,
                   child: Center(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
                           margin: bottom(16),
@@ -86,36 +87,31 @@ class _Registration extends State<Registration> {
                             submit: (_) => _proceed(),
                           ),
                         ),
-                        AbsorbPointer(
-                          absorbing: _proceedDisabled,
-                          child: Opacity(
-                            opacity: _proceedOpacity,
-                            child: ElevatedButton(
-                              onPressed: () => _proceed(),
-                              style: buttonStyle,
-                              child: SizedBox(
-                                width: screenWidth * 0.4,
-                                height: screenHeight * 0.056,
-                                child: Center(
-                                  child: Text(
-                                    textRegisterLogin,
-                                    style: mTS(),
-                                  ),
-                                ),
-                              ),
+
+                      ],
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 3,
+                  child: AbsorbPointer(
+                    absorbing: _proceedDisabled,
+                    child: Opacity(
+                      opacity: _proceedOpacity,
+                      child: ElevatedButton(
+                        onPressed: () => _proceed(),
+                        style: buttonStyle,
+                        child: SizedBox(
+                          width: screenWidth * 0.4,
+                          height: screenHeight * 0.056,
+                          child: Center(
+                            child: Text(
+                              textRegisterLogin,
+                              style: mTS(),
                             ),
-                            /*child: GestureDetector(
-                              onTap: _proceed,
-                              child: proceedButton(
-                                screenWidth,
-                                screenHeight,
-                                textRegisterLogin,
-                                showShimmer: _showShimmer,
-                              ),
-                            ),*/
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

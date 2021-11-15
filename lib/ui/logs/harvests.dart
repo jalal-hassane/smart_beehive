@@ -348,6 +348,7 @@ class _Harvests extends State<Harvests> {
 
     _logHarvests!.history.add(ItemHarvestHistory(_history));
     _logHarvests!.clear();
+    setState(() {});
     _logsViewModel.updateLogs();
   }
 
@@ -386,6 +387,7 @@ class _Harvests extends State<Harvests> {
       _textController.clear();
       logInfo('harvests ${_logHarvests?.toMap()}');
       _logsViewModel.updateLogs();
+      setState(() {});
     } catch (e) {
       showSnackBar(context, 'Value entered is malformed!');
     }

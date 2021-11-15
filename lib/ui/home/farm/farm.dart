@@ -256,6 +256,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
               child: AnimatedList(
                 key: _listKey,
                 padding: all(6),
+                shrinkWrap: true,
                 initialItemCount: beehives.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: _listItemWidget,

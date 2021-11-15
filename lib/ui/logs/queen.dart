@@ -30,17 +30,17 @@ class _Queen extends State<Queen> {
 
   late LogsViewModel _logsViewModel;
 
-  _initViewModel(){
+  _initViewModel() {
     _logsViewModel = Provider.of<LogsViewModel>(context);
     _logsViewModel.helper = LogsHelper(success: _success, failure: _failure);
   }
 
-  _success(){
-    setState(() {});
+  _success() {
+    //setState(() {});
     logInfo('success');
   }
 
-  _failure(String error){
+  _failure(String error) {
     logError('Error $error');
   }
 
@@ -87,6 +87,7 @@ class _Queen extends State<Queen> {
             ElevatedButton(
               onPressed: () {
                 _logQueen?.clear();
+                setState(() {});
                 _logsViewModel.updateLogs();
               },
               style: buttonStyle,
@@ -107,8 +108,10 @@ class _Queen extends State<Queen> {
     );
   }
 
-  _openAbout() =>
-      Navigator.of(context).push(enterFromRight(About(items: _logQueen!.info,treatment: false,)));
+  _openAbout() => Navigator.of(context).push(enterFromRight(About(
+        items: _logQueen!.info,
+        treatment: false,
+      )));
 
   final _taps = <Function()>[];
 
@@ -130,6 +133,7 @@ class _Queen extends State<Queen> {
                 : logQueenWingsNotClipped;
             _logQueen!.logs[1].setData(icon, title);
 
+            setState(() {});
             _logsViewModel.updateLogs();
           };
           break;
@@ -146,6 +150,7 @@ class _Queen extends State<Queen> {
             String title =
                 _logQueen!.queenExcluder! ? logExcluder : logNoExcluder;
             _logQueen!.logs.last.setData(icon, title);
+            setState(() {});
             _logsViewModel.updateLogs();
           };
           break;
@@ -237,15 +242,16 @@ class _Queen extends State<Queen> {
   _itemLogWidget(String icon, String text) {}
 
   _queenStatusWidgets(ItemLog itemLog, Function(void Function()) state) {
-    f(String icon, String title, QueenStatus status,Color? color) {
+    f(String icon, String title, QueenStatus status, Color? color) {
       for (ItemLog it in Status.logs) {
         it.isActive = false;
       }
       Navigator.pop(context);
-        _logQueen!.status = status;
-        itemLog.setData(icon, title);
-        itemLog.setColor(color);
-        _logsViewModel.updateLogs();
+      _logQueen!.status = status;
+      itemLog.setData(icon, title);
+      itemLog.setColor(color);
+      setState(() {});
+      _logsViewModel.updateLogs();
     }
 
     return Status.logs.generateQueenStatusWidgets(f);
@@ -258,9 +264,10 @@ class _Queen extends State<Queen> {
       }
 
       Navigator.pop(context);
-        _logQueen!.marking = marking;
-        itemLog.setData(icon, title);
-        _logsViewModel.updateLogs();
+      _logQueen!.marking = marking;
+      itemLog.setData(icon, title);
+      setState(() {});
+      _logsViewModel.updateLogs();
     }
 
     return Marking.logs.generateMarkingWidgets(f);
@@ -272,24 +279,26 @@ class _Queen extends State<Queen> {
         it.isActive = false;
       }
       Navigator.pop(context);
-        _logQueen!.cells = cells;
-        itemLog.setData(icon, title);
-        _logsViewModel.updateLogs();
+      _logQueen!.cells = cells;
+      itemLog.setData(icon, title);
+      setState(() {});
+      _logsViewModel.updateLogs();
     }
 
     return Cells.logs.generateCellsWidgets(f);
   }
 
   _swarmStatusWidgets(ItemLog itemLog) {
-    f(String icon, String title, SwarmStatus status,Color? color) {
+    f(String icon, String title, SwarmStatus status, Color? color) {
       for (ItemLog it in Swarm.logs) {
         it.isActive = false;
       }
       Navigator.pop(context);
-        _logQueen!.swarmStatus = status;
-        itemLog.setData(icon, title);
-        itemLog.setColor(color);
-        _logsViewModel.updateLogs();
+      _logQueen!.swarmStatus = status;
+      itemLog.setData(icon, title);
+      itemLog.setColor(color);
+      setState(() {});
+      _logsViewModel.updateLogs();
     }
 
     return Swarm.logs.generateSwarmStatusWidgets(f);

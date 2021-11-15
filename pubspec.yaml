@@ -102,24 +102,6 @@ flutter:
     - assets/image/
     - assets/sound/
   fonts:
-  - family: MontserratRegular
-    fonts:
-      - asset: assets/font/montserrat_regular.ttf
-  - family: MontserratBold
-    fonts:
-      - asset: assets/font/montserrat_bold.ttf
-  - family: MontserratMedium
-    fonts:
-      - asset: assets/font/montserrat_medium.ttf
-  - family: MontserratBlack
-    fonts:
-      - asset: assets/font/montserrat_black.ttf
-  - family: MontserratExtraBold
-    fonts:
-      - asset: assets/font/montserrat_extrabold.ttf
-  - family: MontserratSemiBold
-    fonts:
-      - asset: assets/font/montserrat_semibold.ttf
   - family: RobotoRegular
     fonts:
         - asset: assets/font/Roboto-Regular.ttf
@@ -132,12 +114,6 @@ flutter:
   - family: RobotoBlack
     fonts:
         - asset: assets/font/Roboto-Black.ttf
-  - family: RobotoExtraBold
-    fonts:
-        - asset: assets/font/montserrat_extrabold.ttf
-  - family: RobotoSemiBold
-    fonts:
-        - asset: assets/font/montserrat_semibold.ttf
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

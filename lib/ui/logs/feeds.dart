@@ -36,7 +36,7 @@ class _Feeds extends State<Feeds> {
   }
 
   _success() {
-    setState(() {});
+    //setState(() {});
     logInfo('success');
   }
 
@@ -129,8 +129,8 @@ class _Feeds extends State<Feeds> {
             }
             String icon = _logFeeds!.honey! ? pngFeedHoneyActive : pngFeedHoney;
             _logFeeds!.logs[1].setIcon(icon, _logFeeds!.honey!);
-            _logsViewModel.updateLogs();
             setState(() {});
+            _logsViewModel.updateLogs();
           };
           break;
         case logProbiotics:
@@ -144,8 +144,8 @@ class _Feeds extends State<Feeds> {
                 ? pngFeedProbioticsActive
                 : pngFeedProbiotics;
             _logFeeds!.logs.last.setIcon(icon, _logFeeds!.probiotics!);
-            _logsViewModel.updateLogs();
             setState(() {});
+            _logsViewModel.updateLogs();
           };
           break;
         default:

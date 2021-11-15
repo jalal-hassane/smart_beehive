@@ -153,7 +153,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
               ),
               Expanded(child:
                 Text(
-                  alert.description??'',
+                  alert.description,
                   style: mTS(),
                 ),),
             ],
@@ -278,7 +278,12 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                 },
                 child: GestureDetector(
                   onTap: () => unFocus(con),
-                  onPanDown: (details) => unFocus(con),
+                  onPanDown: (details) {
+                    if (_alertExpandableController.expanded) {
+                      _alertExpandableController.toggle();
+                    }
+                    unFocus(con);
+                  },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -515,6 +520,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   }
 
   _failure(String error) {
+    showSnackBar(context, error);
     logError('alert: $error');
   }
 

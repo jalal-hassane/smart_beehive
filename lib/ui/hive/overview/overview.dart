@@ -188,8 +188,23 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                 return true;
               },
               child: GestureDetector(
-                onTap: () => unFocus(con),
-                onPanDown: (details) => unFocus(con),
+                onTap: () {
+                  logInfo('tap');
+                  unFocus(con);
+                },
+                onPanDown: (details) {
+                  if(details.globalPosition.dy!=0) {
+                    logInfo('dy is ${details.globalPosition.dy}');
+                    if (_hiveTypeExpandableController.expanded) {
+                      _hiveTypeExpandableController.toggle();
+                    }
+                    if (_speciesExpandableController.expanded) {
+                      logInfo('expanded state');
+                      _speciesExpandableController.toggle();
+                    }
+                  }
+                  unFocus(con);
+                },
                 child: Column(
                   children: [
                     Expanded(
@@ -574,7 +589,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
           state(() {
             _hiveType = type;
           });
-          _hiveTypeExpandableController.toggle();
+          //_hiveTypeExpandableController.toggle();
         },
         child: _dropDownItemWidget2(type.description),
       ));
@@ -608,7 +623,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
           state(() {
             _species = species;
           });
-          _speciesExpandableController.toggle();
+          //_speciesExpandableController.toggle();
         },
         child: _dropDownItemWidget2(species.description),
       ));
