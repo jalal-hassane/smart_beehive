@@ -546,11 +546,7 @@ class _Details extends State<Details> with TickerProviderStateMixin {
           indicatorPadding: symmetric(0, 8),
           controller: _tabController,
           onTap: (value) {
-            _tabsPageController!.animateToPage(
-              value,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeIn,
-            );
+            _tabsPageController!.jumpToPage(value);
           },
         ),
         Expanded(
@@ -571,14 +567,8 @@ class _Details extends State<Details> with TickerProviderStateMixin {
               ),
               Logs(beehive: _hive),
             ],
-            //todo fix tab switch
             onPageChanged: (value) {
-              logInfo('onPageChanged $value');
-              logInfo('onPageChanged2 ${_tabController!.index}');
-              if (!_tabController!.indexIsChanging) {
-                _tabController!.animateTo(value);
-              }
-              //_selectedTabIndex = value;
+              _tabController!.animateTo(value);
             },
           ),
         ),

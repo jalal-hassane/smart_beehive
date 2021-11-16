@@ -170,6 +170,7 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
                           state(() {
                             item.reset();
                           });
+                          _logsViewModel.updateLogs();
                           Navigator.pop(context);
                         },
                         style: buttonStyle,

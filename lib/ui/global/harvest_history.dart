@@ -69,142 +69,128 @@ class _HarvestHistory extends State<HarvestHistory>
 
   showPicker() {
     context.show((BuildContext context) {
-      return WillPopScope(
-        onWillPop: () async {
-          _refreshData();
-          return true;
-        },
-        child: FractionallySizedBox(
-          heightFactor: 0.3,
-          child: Container(
-            color: colorWhite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Center(
-                    child: Text(
-                      'Harvest Type Filter',
-                      style: bTS(size: 16, color: colorPrimary),
-                    ),
+      return FractionallySizedBox(
+        heightFactor: 0.3,
+        child: Container(
+          color: colorWhite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Center(
+                  child: Text(
+                    'Harvest Type Filter',
+                    style: bTS(size: 16, color: colorPrimary),
                   ),
                 ),
-                Expanded(
-                  flex: 3,
-                  child: CupertinoPicker(
-                    magnification: 1.2,
-                    scrollController: FixedExtentScrollController(
-                        initialItem: selectedTypeIndex),
-                    onSelectedItemChanged: (value) {
-                      selectedTypeIndex = value;
-                      _filter = HarvestFilter.values[value];
-                    },
-                    itemExtent: 48.0,
-                    children: HarvestFilter.values
-                        .map((e) => Center(child: Text(e.description)))
-                        .toList(),
-                  ),
+              ),
+              Expanded(
+                flex: 3,
+                child: CupertinoPicker(
+                  magnification: 1.2,
+                  scrollController: FixedExtentScrollController(
+                      initialItem: selectedTypeIndex),
+                  onSelectedItemChanged: (value) {
+                    selectedTypeIndex = value;
+                    _filter = HarvestFilter.values[value];
+                  },
+                  itemExtent: 48.0,
+                  children: HarvestFilter.values
+                      .map((e) => Center(child: Text(e.description)))
+                      .toList(),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
     }, onClosing: () {
-      logInfo('closing bottom sheet');
+      _refreshData();
     });
   }
 
   showCupertinoYearPicker() {
     context.show((BuildContext context) {
-      return WillPopScope(
-        onWillPop: () async {
-          _refreshData();
-          return true;
-        },
-        child: FractionallySizedBox(
-          heightFactor: 0.3,
-          child: Container(
-            color: colorWhite,
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Center(
-                    child: Text(
-                      'Year Filter',
-                      style: bTS(size: 16, color: colorPrimary),
-                    ),
+      return FractionallySizedBox(
+        heightFactor: 0.3,
+        child: Container(
+          color: colorWhite,
+          child: Column(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Center(
+                  child: Text(
+                    'Year Filter',
+                    style: bTS(size: 16, color: colorPrimary),
                   ),
                 ),
-                Expanded(
-                  flex: 3,
-                  child: CupertinoPicker(
-                    backgroundColor: Colors.white,
-                    magnification: 1.2,
-                    scrollController: FixedExtentScrollController(
-                        initialItem: selectedYearIndex),
-                    onSelectedItemChanged: (value) {
-                      selectedYearIndex = value;
-                      _selectedYear = _years[value];
-                    },
-                    itemExtent: 48.0,
-                    children: [for (String i in _years) Center(child: Text(i))],
-                  ),
+              ),
+              Expanded(
+                flex: 3,
+                child: CupertinoPicker(
+                  backgroundColor: Colors.white,
+                  magnification: 1.2,
+                  scrollController: FixedExtentScrollController(
+                      initialItem: selectedYearIndex),
+                  onSelectedItemChanged: (value) {
+                    selectedYearIndex = value;
+                    _selectedYear = _years[value];
+                  },
+                  itemExtent: 48.0,
+                  children: [for (String i in _years) Center(child: Text(i))],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
+    }, onClosing: () {
+      _refreshData();
     });
   }
 
   showCupertinoMonthPicker() {
     context.show((BuildContext context) {
-      return WillPopScope(
-        onWillPop: () async {
-          _refreshData();
-          return true;
-        },
-        child: FractionallySizedBox(
-          heightFactor: 0.3,
-          child: Container(
-            color: colorWhite,
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Center(
-                    child: Text(
-                      'Month Filter',
-                      style: bTS(size: 16, color: colorPrimary),
-                    ),
+      return FractionallySizedBox(
+        heightFactor: 0.3,
+        child: Container(
+          color: colorWhite,
+          child: Column(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Center(
+                  child: Text(
+                    'Month Filter',
+                    style: bTS(size: 16, color: colorPrimary),
                   ),
                 ),
-                Expanded(
-                  flex: 3,
-                  child: CupertinoPicker(
-                    backgroundColor: Colors.white,
-                    magnification: 1.2,
-                    scrollController: FixedExtentScrollController(
-                        initialItem: selectedMonthIndex),
-                    onSelectedItemChanged: (value) {
-                      selectedMonthIndex = value;
-                      _month = MonthFilter.values[value];
-                    },
-                    itemExtent: 48.0,
-                    children: MonthFilter.values
-                        .map((e) => Center(child: Text(e.description)))
-                        .toList(),
-                  ),
+              ),
+              Expanded(
+                flex: 3,
+                child: CupertinoPicker(
+                  backgroundColor: Colors.white,
+                  magnification: 1.2,
+                  scrollController: FixedExtentScrollController(
+                      initialItem: selectedMonthIndex),
+                  onSelectedItemChanged: (value) {
+                    selectedMonthIndex = value;
+                    _month = MonthFilter.values[value];
+                  },
+                  itemExtent: 48.0,
+                  children: MonthFilter.values
+                      .map((e) => Center(child: Text(e.description)))
+                      .toList(),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
+    }, onClosing: () {
+      _refreshData();
     });
   }
 

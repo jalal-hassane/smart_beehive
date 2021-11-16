@@ -118,7 +118,11 @@ extension ContextExtension on BuildContext {
       clipBehavior: Clip.antiAlias,
       expand: false,
       builder: builder,
-    );
+    ).whenComplete((){
+      if(onClosing!=null){
+        onClosing();
+      }
+    });
   }
 }
 
