@@ -57,8 +57,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
   late OverviewViewModel _overviewViewModel;
 
-  double _sheetHeight = screenHeight * 0.9;
-
   final _hiveTypeExpandableController = ExpandableController();
   final _speciesExpandableController = ExpandableController();
 
@@ -82,7 +80,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     _hive = widget.beehive;
-    final editText = textEditHive + ' ${_hive.overview.name}';
+    final editText = textEdit + ' ${_hive.overview.name}';
     _initViewModel();
     _animationController.forward(from: 0);
     return Padding(
@@ -188,7 +186,7 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
                   unFocus(con);
                 },
                 onPanDown: (details) {
-                 _toggleController();
+                  _toggleController();
                   unFocus(con);
                 },
                 child: Column(
@@ -459,15 +457,12 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
             ),
           ),
         );
-        if (_locationController.text.isNotEmpty) {
-          _animateScroll();
-        }
         return column;
       });
     });
   }
 
-  _toggleController(){
+  _toggleController() {
     if (_hiveTypeExpandableController.expanded) {
       _hiveTypeExpandableController.toggle();
     }
@@ -683,7 +678,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
       state(() {
         _locationController.text = location;
-        _animateScroll(shouldStop: true);
       });
       return;
     }
@@ -698,7 +692,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
 
       state(() {
         _locationController.text = location;
-        _animateScroll(shouldStop: true);
       });
     }).catchError((error) => _catchLocationError(error));
   }
@@ -778,35 +771,6 @@ class _Overview extends State<Overview> with TickerProviderStateMixin {
         );
       },
     );
-  }
-
-  late ScrollPosition _scrollPosition;
-  late Timer _timer;
-  late Future _scrollFuture;
-
-  _animateScroll({bool reverse = false, bool shouldStop = false}) {
-    logInfo('Should stop $shouldStop');
-    /*if (shouldStop) {
-      _timer.cancel();
-      _scrollFuture.ignore();
-      //_animateScroll(reverse: reverse);
-      return;
-    }*/
-    /*_timer = Timer(const Duration(milliseconds: 500), () {
-      _scrollFuture = _scrollController
-          .animateTo(
-        reverse
-            ? _scrollController.position.minScrollExtent
-            : _scrollController.position.maxScrollExtent,
-        duration: const Duration(seconds: 3),
-        curve: Curves.ease,
-      )
-          .whenComplete(() {
-        if (!shouldStop) {
-          _animateScroll(reverse: !reverse);
-        }
-      });
-    });*/
   }
 }
 

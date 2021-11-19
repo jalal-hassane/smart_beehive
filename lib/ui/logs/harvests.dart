@@ -29,7 +29,6 @@ class Harvests extends StatefulWidget {
 
 class _Harvests extends State<Harvests> {
   late LogHarvests? _logHarvests;
-  Unit _oldUnit = Unit.g;
   Unit _unit = Unit.g;
   late TextEditingController _textController;
 
@@ -429,7 +428,6 @@ class _Harvests extends State<Harvests> {
       widgets.add(GestureDetector(
         onTap: () {
           state(() {
-            _oldUnit = _unit;
             _unit = unit;
           });
         },

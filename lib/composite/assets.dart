@@ -4,6 +4,8 @@ const lottieBee = 'assets/lottie/bee-lounging.json';
 const lottieBelieve = 'assets/lottie/bee-lieve.json';
 const lottieSplashLetsBee = 'assets/lottie/lets-bee-splash.json';
 const lottieGoldScores = 'assets/lottie/gold-scores-icon.json';
+const lottieBeeEntrance = 'assets/lottie/bee-entrando.json';
+const lottieBeeFlying = 'assets/lottie/honey-bee-flying.json';
 
 // sounds
 const soundAlert = 'assets/sound/alert.mp3';

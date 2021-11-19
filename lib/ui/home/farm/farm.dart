@@ -47,7 +47,6 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
   Beehive? insertedHive;
   Barcode? result;
   QRViewController? controller;
-  String _warning = '';
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
@@ -182,7 +181,6 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
           if (_selectedHiveIndex == -1 ||
               beehives[_selectedHiveIndex].id != beehive.id) {
             beehive.hasNotifications = true;
-            _warning = analysis;
           }
         });
       }
@@ -215,20 +213,6 @@ class _Farm extends State<Farm> with TickerProviderStateMixin {
       audioPlayer.seek(const Duration(milliseconds: 0));
       audioPlayer.play();
     });
-    /*_bottomState!(() {
-      logInfo('Result ${result!.code}');
-Navigator.popUntil(context, (route) => route.isFirst);
-    setState(() {
-      logInfo('next item $_nextItem');
-      final index = _nextItem;
-      beehives.insert(index, insertedHive!);
-      logInfo('next item $_nextItem');
-      logInfo('next item ${_listKey.currentState == null}');
-      _listKey.currentState?.insertItem(index);
-      audioPlayer.seek(const Duration(milliseconds: 0));
-      audioPlayer.play();
-    });
-    });*/
   }
 
   _failure(String error) {
@@ -279,6 +263,7 @@ Navigator.popUntil(context, (route) => route.isFirst);
       ),
     );
     return Scaffold(
+      backgroundColor: colorWhite,
       resizeToAvoidBottomInset: false,
       floatingActionButton: FloatingActionButton(
         onPressed: _addHive,
@@ -377,7 +362,6 @@ Navigator.popUntil(context, (route) => route.isFirst);
 
   Widget _listItemWidget(
       BuildContext context, int hiveIndex, Animation<double> animation) {
-    final hive = beehives[hiveIndex];
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(-1, 0),

@@ -1,8 +1,6 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
@@ -49,6 +47,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
     _initViewModel();
     return SafeArea(
       child: Scaffold(
+        backgroundColor: colorWhite,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -78,14 +77,14 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
   }
 
   _checkAlerts() {
-    if (_hive.properties.alerts!.isNotEmpty) {
-      logInfo("Alerts ${_hive.properties.alerts!.length}");
+    if (_hive.properties.alerts.isNotEmpty) {
+      logInfo("Alerts ${_hive.properties.alerts.length}");
       return GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
         padding: all(8),
         children: [
-          for (Alert i in _hive.properties.alerts!) _alertWidget(i),
+          for (Alert i in _hive.properties.alerts) _alertWidget(i),
         ],
       );
     } else {
@@ -160,97 +159,11 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
         ),
       ),
     );
-    /*return Slidable(
-      actionPane: const SlidableScrollActionPane(),
-      closeOnScroll: true,
-      secondaryActions: [
-        */ /*_secondaryActionWidget(
-          Icons.volume_up_rounded,
-          btChange,
-          () => _changeSound(index),
-        ),*/ /*
-        _secondaryActionWidget(
-          Icons.delete_forever,
-          btRemove,
-          () => _removeAlert(index),
-        ),
-      ],
-      actionExtentRatio: 1 / 5,
-      child: GestureDetector(
-        onTap: () => _addAlert(edit: true, alert: alert),
-        child: SizedBox(
-          height: screenHeight * 0.1,
-          child: Card(
-            margin: bottom(10),
-            shadowColor: colorPrimary,
-            elevation: 2,
-            child: ListTile(
-              horizontalTitleGap: 10,
-              leading: SizedBox(
-                height: double.maxFinite,
-                child: _alertLeadingIcon(alert),
-              ),
-              title: Center(
-                child: Text(
-                  alert.description,
-                  style: rTS(size: 16),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );*/
-  }
-
-  _secondaryActionWidget(
-    IconData icon,
-    String caption,
-    Function()? onTap,
-  ) {
-    return Container(
-      margin: bottom(10),
-      child: IconSlideAction(
-        color: colorBlack,
-        icon: icon,
-        caption: caption,
-        foregroundColor: colorPrimary,
-        onTap: onTap,
-      ),
-    );
   }
 
   _removeAlert(Alert alert) {
-    _hive.properties.alerts?.remove(alert);
+    _hive.properties.alerts.remove(alert);
     _alertsViewModel.updateProperties();
-  }
-
-  _alertLeadingIcon(Alert alert) {
-    Widget _icon;
-    if (alert.icon != null) {
-      if (alert.icon!.isPng()) {
-        _icon = Image.asset(
-          alert.icon!,
-          width: 24,
-          height: 24,
-          color: alert.color,
-        );
-      } else {
-        _icon = SvgPicture.asset(
-          alert.icon!,
-          width: 24,
-          height: 24,
-          color: alert.color,
-        );
-      }
-    } else {
-      _icon = Icon(
-        Icons.notifications_active,
-        size: 24,
-        color: alert.color,
-      );
-    }
-    return _icon;
   }
 
   _addAlert({bool edit = false, Alert? alert}) {
@@ -334,8 +247,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                                                   children: [
                                                     Expanded(
                                                       child: Text(
-                                                        _alertType
-                                                            .description,
+                                                        _alertType.description,
                                                         style: rTS(
                                                           color: colorBlack,
                                                         ),
@@ -348,8 +260,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                                                             .arrow_drop_down,
                                                         collapseIcon: Icons
                                                             .arrow_drop_down,
-                                                        iconColor:
-                                                            colorPrimary,
+                                                        iconColor: colorPrimary,
                                                         iconSize: 24.0,
                                                         hasIcon: false,
                                                       ),
@@ -405,7 +316,10 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
                           Visibility(
                             visible: edit,
                             child: GestureDetector(
-                              onTap: () => _removeAlert(alert!),
+                              onTap: () {
+                                Navigator.pop(con);
+                                _removeAlert(alert!);
+                              },
                               child: Container(
                                 margin: top(16),
                                 child: Center(
@@ -497,7 +411,7 @@ class _Alerts extends State<Alerts> with TickerProviderStateMixin {
       alert.upperBound = ub;
       Navigator.pop(context);
     } else {
-      _hive.properties.alerts?.insert(
+      _hive.properties.alerts.insert(
         0,
         Alert(
           t: _alertType,

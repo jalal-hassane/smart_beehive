@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -123,17 +125,6 @@ void main() async {
 
 initializeFirebaseApp() async {
   await Firebase.initializeApp();
-  return;
-
-  await Firebase.initializeApp(
-    //name: 'Smart Beehive',
-    options: const FirebaseOptions(
-      apiKey: 'AIzaSyBsdcX6OYVkB_Ty5ZkSJYLBgQP7R8OA7-Y',
-      appId: '1:33277488295:android:eb5054d23e50d14816ff82',
-      messagingSenderId: '33277488295',
-      projectId: 'talabak3enna-cadee',
-    ),
-  );
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -228,14 +219,6 @@ handleRefreshFirebaseToken() async {
 void handleNotifications() async {
   await _configureLocalTimeZone();
 
-  final NotificationAppLaunchDetails? notificationAppLaunchDetails =
-      await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  /*String initialRoute = HomePage.routeName;
-  if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-    selectedNotificationPayload = notificationAppLaunchDetails!.payload;
-    initialRoute = SecondPage.routeName;
-  }*/
-
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('app_icon');
 
@@ -307,7 +290,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: AnalysisViewModel()),
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Smart Beehive',
         theme: ThemeData(
           primarySwatch: Colors.orange,
           primaryColor: colorPrimary

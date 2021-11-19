@@ -145,8 +145,6 @@ class _Properties extends State<Properties> with TickerProviderStateMixin {
     }
   }
 
-  _gridItem() {}
-
   _showOnlyAnalysis() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

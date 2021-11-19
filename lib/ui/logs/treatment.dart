@@ -128,65 +128,78 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
           return StatefulBuilder(
             builder: (context, state) {
               return FractionallySizedBox(
-                heightFactor: 0.75,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          item.id!,
-                          style: bTS(size: 30, color: colorPrimary),
+                heightFactor: item.treatments.length <= 3
+                    ? 0.5
+                    : item.treatments.length <= 12
+                        ? 0.75
+                        : 1,
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Center(
+                          child: Text(
+                            item.id!,
+                            style: bTS(size: 30, color: colorPrimary),
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 7,
-                      child: Center(
-                        child: ListView.separated(
+                      Flexible(
+                        flex: item.treatments.length <= 3 ? 5 : 9,
+                        child: GridView.count(
                           //key: UniqueKey(),
-                          itemCount: item.treatments.length,
+                          crossAxisCount: 3,
+                          children: item.treatments
+                              .map((e) => _itemBuilder(e, state))
+                              .toList(),
                           shrinkWrap: true,
                           controller: _controller,
                           padding: all(12),
-                          itemBuilder: (context, index) {
-                            return _itemBuilder(item.treatments[index], state);
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const Divider(
-                              endIndent: 8,
-                              indent: 8,
-                              height: 1,
-                              color: colorPrimary,
-                            );
-                          },
                         ),
                       ),
-                    ),
-                    Flexible(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          state(() {
-                            item.reset();
-                          });
-                          _logsViewModel.updateLogs();
-                          Navigator.pop(context);
-                        },
-                        style: buttonStyle,
-                        child: SizedBox(
-                          width: screenWidth * 0.4,
-                          height: screenHeight * 0.056,
-                          child: Center(
-                            child: Text(
-                              textClear,
-                              style: mTS(),
+                      /*Flexible(
+                        flex: 5,
+                        child: Center(
+                          child: ListView.builder(
+                            //key: UniqueKey(),
+                            itemCount: item.treatments.length,
+                            shrinkWrap: true,
+                            controller: _controller,
+                            padding: all(12),
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return _itemBuilder(item.treatments[index], state);
+                            },
+                          ),
+                        ),
+                      ),*/
+                      Flexible(
+                        flex: 1,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            state(() {
+                              item.reset();
+                            });
+                            _logsViewModel.updateLogs();
+                            Navigator.pop(context);
+                          },
+                          style: buttonStyle,
+                          child: SizedBox(
+                            width: screenWidth * 0.4,
+                            height: screenHeight * 0.056,
+                            child: Center(
+                              child: Text(
+                                textClear,
+                                style: mTS(),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -198,30 +211,37 @@ class _Treatment extends State<Treatment> with TickerProviderStateMixin {
     }
   }
 
-  _itemBuilder(CheckableItem item, Function(void Function()) state) {
-    return Card(
-      child: ListTile(
-        title: Row(
-          children: [
-            Icon(
-              Icons.check_circle,
-              color: item.isChecked ? colorPrimary : colorBlack,
-            ),
-            Expanded(
-              child: Container(
-                margin: left(12),
-                child: Text(item.description),
-              ),
+  Widget _itemBuilder(CheckableItem item, Function(void Function()) state) {
+    return GestureDetector(
+      onTap: () {
+        state(() {
+          item.isChecked = !item.isChecked;
+          setState(() {});
+          _logsViewModel.updateLogs();
+        });
+      },
+      child: Container(
+        width: screenWidth * 0.25,
+        margin: trbl(12, 12, 12, 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: item.isChecked ? colorGreen : colorWhite,
+          shape: BoxShape.rectangle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.16),
+              offset: const Offset(0.0, 3.0), //(x,y)
+              blurRadius: 6.0,
             ),
           ],
         ),
-        onTap: () {
-          state(() {
-            item.isChecked = !item.isChecked;
-            setState(() {});
-            _logsViewModel.updateLogs();
-          });
-        },
+        child: Center(
+          child: Text(
+            item.description,
+            style: rTS(),
+            textAlign: TextAlign.center,
+          ),
+        ),
       ),
     );
   }

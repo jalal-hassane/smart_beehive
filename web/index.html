@@ -1,0 +1,34 @@
+<html>
+...
+<body>
+<!-- Add this line -->
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+<script src='https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js'></script>
+<script src='https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js'></script>
+
+
+
+<script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyBSDk5UO_ckJTNBtNFMAQOfRW7nqCeVBRQ",
+    authDomain: "smartbeehive-41c07.firebaseapp.com",
+    projectId: "smartbeehive-41c07",
+    storageBucket: "smartbeehive-41c07.appspot.com",
+    messagingSenderId: "655846909924",
+    appId: "1:655846909924:web:bcee0ec8f7d9f38eb1c9f1",
+    measurementId: "G-KK0PPG19BD",
+      };
+
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+var messaging = firebase.messaging();
+messaging.getToken({vapidKey: "BEEqpIs_qHeecAXeGJ5s3tbDx9kXGgrzpsU5Uh7g6MFsI7EH4_Q_-U1E_IACY0bgvkoW3mBxJjhv5hj9X5azrsM"});
+messaging.isSupported = false;
+</script>
+
+<script src="main.dart.js" type="application/javascript"></script>
+</body>
+</html>

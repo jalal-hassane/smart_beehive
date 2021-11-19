@@ -45,6 +45,7 @@ const textType = 'Type';
 const textHighest = 'Highest';
 const textLowest = 'Lowest';
 const textEditHive = 'Edit Hive';
+const textEdit = 'Edit';
 const textNA = 'N/A';
 const textSave = 'Save';
 const textOk = 'Ok';

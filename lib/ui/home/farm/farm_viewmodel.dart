@@ -47,7 +47,8 @@ class FarmViewModel extends ChangeNotifier {
   }
 
   _addProperties(Beehive beehive, String hiveId) async {
-    final _properties = HiveProperties(hiveId: hiveId,hiveKeeperId: beehive.keeperId);
+    final _properties =
+        HiveProperties(hiveId: hiveId, hiveKeeperId: beehive.keeperId);
     beehive.properties = _properties;
     return properties.add(_properties.toMap()).then((doc) {
       beehive.propertiesId = doc.id;

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:smart_beehive/composite/colors.dart';
-import 'package:smart_beehive/composite/dimensions.dart';
 import 'package:smart_beehive/composite/strings.dart';
 import 'package:smart_beehive/composite/styles.dart';
 import 'package:smart_beehive/main.dart';
@@ -41,6 +40,7 @@ class _Map extends State<LocationMap> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: colorWhite,
         body: Stack(
           children: [
             GoogleMap(
@@ -123,7 +123,8 @@ class _Map extends State<LocationMap> {
           },
           infoWindow: InfoWindow(
             title: 'Current Location',
-            snippet: 'Lat: ${double.parse((latLng.latitude).toStringAsFixed(2))}, '
+            snippet:
+                'Lat: ${double.parse((latLng.latitude).toStringAsFixed(2))}, '
                 'Long: ${double.parse((latLng.longitude).toStringAsFixed(2))}',
           ),
         ),

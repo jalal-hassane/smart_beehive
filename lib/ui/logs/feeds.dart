@@ -51,6 +51,7 @@ class _Feeds extends State<Feeds> {
     _generateTaps();
     return SafeArea(
       child: Scaffold(
+        backgroundColor: colorWhite,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,

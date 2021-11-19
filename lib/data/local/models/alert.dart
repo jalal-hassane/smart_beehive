@@ -27,11 +27,6 @@ class Alert {
     return '($lowerBound - $upperBound)';
   }
 
-  String get _type {
-    if (type == null) return '';
-    return type!.description;
-  }
-
   Alert({AlertType? t, double? lb, double? ub}) {
     type = t;
     lowerBound = lb;

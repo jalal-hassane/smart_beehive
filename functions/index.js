@@ -8,6 +8,16 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const pleaseClickHere = ", please click here for more details";
+const fiveMinutesCron = "*/5 * * * *";
+const everyDayCron = "every day 00:00";
+const timezone = "Europe/London";
+const collectionProperties = "Properties";
+const collectionBeekeeper = "Beekeeper";
+const collectionHivesId = "Hives/{id}";
+const collectionPropertiesId = "Properties/{id}";
+const temperature = "Temperature";
+const humidity = "Humidity";
+const population = "Population";
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
@@ -15,43 +25,46 @@ admin.initializeApp({
 
 // every 5 minutes job
 exports.collectFiveMinutesData = functions.pubsub
-    .schedule("*/5 * * * *")
-    .timeZone("Europe/London")
+    .schedule(fiveMinutesCron)
+    .timeZone(timezone)
     .onRun((context) => {
-      admin.firestore().collection("Properties")
+      const promises = [];
+      admin.firestore().collection(collectionProperties)
           .get()
-          .then((query) => {
-            query.forEach((doc) => {
+          .then(async (query) => {
+            for (const doc of query.docs) {
               const metadata = doc.data();
-              console.log("Properties => " + Object.keys(doc));
-              console.log("Properties => " + Object.values(doc));
               const time = admin.firestore.Timestamp.fromDate(new Date());
               metadata.temperature_5.push(
                   {
                     date: time,
                     value: metadata.temperature,
-                  }
+                  },
               );
               metadata.weight_5.push(
                   {
                     date: time,
                     value: metadata.weight,
-                  }
+                  },
               );
               metadata.humidity_5.push(
                   {
                     date: time,
                     value: metadata.humidity,
-                  }
+                  },
               );
               metadata.population_5.push(
                   {
                     date: time,
                     value: metadata.population,
-                  }
+                  },
               );
-              return doc.ref.update(metadata, {merge: true});
-            });
+              promises.push(
+                  doc.ref.update(metadata, {merge: true}),
+              );
+            }
+            await Promise.all(promises);
+            console.log("Return Result => ", 1);
           })
           .catch((error) => {
             console.log("Catching error => " + error);
@@ -60,57 +73,59 @@ exports.collectFiveMinutesData = functions.pubsub
 
 // every day job
 exports.collectDailyData = functions.pubsub
-    .schedule("0 0 * * *")
-    .timeZone("Europe/London")
+    .schedule(everyDayCron)
+    .timeZone(timezone)
     .onRun((context) => {
-      admin.firestore().collection("Properties")
+      const promises = [];
+      admin.firestore().collection(collectionProperties)
           .get()
-          .then((query) => {
-            query.forEach((doc) => {
+          .then(async (query) => {
+            for (const doc of query.docs) {
               const metadata = doc.data();
-              console.log("Properties => " + Object.keys(doc));
-              console.log("Properties => " + Object.values(doc));
               const time = admin.firestore.Timestamp.fromDate(new Date());
               metadata.temperature_day.push(
                   {
                     date: time,
                     value: metadata.temperature,
-                  }
+                  },
               );
               metadata.weight_day.push(
                   {
                     date: time,
                     value: metadata.weight,
-                  }
+                  },
               );
               metadata.humidity_day.push(
                   {
                     date: time,
                     value: metadata.humidity,
-                  }
+                  },
               );
               metadata.population_day.push(
                   {
                     date: time,
                     value: metadata.population,
-                  }
+                  },
               );
-              return doc.ref.update(metadata, {merge: true});
-            });
-          })
-          .catch((error) => {
+              promises.push(
+                  doc.ref.update(metadata, {merge: true}),
+              );
+            }
+            await Promise.all(promises);
+            console.log("Return Result => ", 1);
+          }).catch((error) => {
             console.log("Catching error => " + error);
           });
     });
 
 exports.raiseSwarmingAlert = functions.firestore
-    .document("Hives/{id}")
+    .document(collectionHivesId)
     .onUpdate((change, context) => {
       const hiveId = context.params.id;
       const hive = change.after.data();
 
       if (hive.swarming) {
-        admin.firestore().collection("Beekeeper")
+        admin.firestore().collection(collectionBeekeeper)
             .doc(hive.KeeperID)
             .get()
             .then((doc) => {
@@ -143,54 +158,52 @@ exports.raiseSwarmingAlert = functions.firestore
     });
 
 exports.alertBeekeeper = functions.firestore
-    .document("/Properties/{id}")
+    .document(collectionPropertiesId)
     .onUpdate((change, context) => {
     // check for alerts
       const propId = context.params.id;
       const payloads = [];
       const mProperties = change.after.data();
-      console.log("mProperties => " + Object.values(mProperties));
-      console.log("mProperties => " + Object.keys(mProperties));
       for (let i = 0; i < mProperties.alerts.length; i++) {
         const alert = mProperties.alerts[i];
         switch (alert.type) {
-          case "Temperature":
+          case temperature:
             payloads
                 .push(
                     getPayload(alert, mProperties.temperature,
-                        propId
-                    )
+                        propId,
+                    ),
                 );
             break;
-          case "Humidity":
+          case humidity:
             payloads
                 .push(
                     getPayload(alert, mProperties.humidity,
-                        propId
-                    )
+                        propId,
+                    ),
                 );
             break;
-          case "Population":
+          case population:
             payloads
                 .push(
                     getPayload(alert, mProperties.population,
-                        propId
-                    )
+                        propId,
+                    ),
                 );
             break;
           default:
             payloads
                 .push(
                     getPayload(alert, mProperties.weight,
-                        propId
-                    )
+                        propId,
+                    ),
                 );
         }
       }
       if (payloads.length == 0) {
         return console.log("No alerts to be raised");
       }
-      admin.firestore().collection("Beekeeper")
+      admin.firestore().collection(collectionBeekeeper)
           .doc(mProperties.KeeperID)
           .get()
           .then((doc) => {

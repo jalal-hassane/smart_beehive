@@ -199,6 +199,7 @@ class _HarvestHistory extends State<HarvestHistory>
     _fadeInController.forward(from: 0);
     return SafeArea(
       child: Scaffold(
+        backgroundColor: colorWhite,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -326,100 +327,11 @@ class _HarvestHistory extends State<HarvestHistory>
     );
   }
 
-  _totalWidget(List<ItemHarvest> list) {
-    if (list.isEmpty) return Container();
-    if (_typeFilterApplied && _filter.description != list.first.title) {
-      return Container();
-    }
-    final _widgets = <Widget>[
-      Text(list.first.title, style: bTS()),
-    ];
-    for (ItemHarvest itemHarvest in list) {
-      _widgets.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('${itemHarvest.value} ', style: mTS()),
-            Text(itemHarvest.unit!.description, style: rTS()),
-          ],
-        ),
-      );
-    }
-    return Column(children: _widgets);
-  }
-
   _generateWidgets(List<ItemHarvestHistory> list) {
     var _widgets = <Widget>[];
     _clearTotalLists();
     _getTotals(list);
     _logTotalLists();
-    /*final _totals = <Widget>[];
-    if (_totalBeeswax.isNotEmpty) {
-      if (!_typeFilterApplied || _filter.description == logBeeswax) {
-        _totals.add(_totalWidget(_totalBeeswax));
-      }
-    }
-    if (_totalHoney.isNotEmpty) {
-      if (!_typeFilterApplied || _filter.description == logHoney) {
-        _totals.add(_totalWidget(_totalHoney));
-      }
-    }
-    if (_totalHoneycomb.isNotEmpty) {
-      if (!_typeFilterApplied || _filter.description == logHoneycomb) {
-        _totals.add(_totalWidget(_totalHoneycomb));
-      }
-    }
-    if (_totalPollen.isNotEmpty) {
-      if (!_typeFilterApplied || _filter.description == logPollen) {
-        _totals.add(_totalWidget(_totalPollen));
-      }
-    }
-    if (_totalPropolis.isNotEmpty) {
-      if (!_typeFilterApplied || _filter.description == logPropolis) {
-        _totals.add(_totalWidget(_totalPropolis));
-      }
-    }
-    if (_totalRoyalJelly.isNotEmpty) {
-      if (!_typeFilterApplied || _filter.description == logRoyalJelly) {
-        _totals.add(_totalWidget(_totalRoyalJelly));
-      }
-    }
-    if (_totals.isNotEmpty) {
-      _widgets.add(
-        Padding(
-          padding: all(8),
-          child: Column(
-            children: [
-              Container(
-                margin: bottom(10),
-                child: Text(
-                  textTotal,
-                  style: boTS(size: 20, color: Colors.green),
-                ),
-              ),
-              Center(
-                child: GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  children: _totals,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      _widgets.add(
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: Text(textNoData, style: rTS()),
-            ),
-          ],
-        ),
-      );
-    }*/
     if (!_typeFilterApplied || _filter.description == logBeeswax) {
       if (_totalBeeswax.isNotEmpty) {
         _widgets.add(
@@ -531,10 +443,6 @@ class _HarvestHistory extends State<HarvestHistory>
               ],
             ),
             SfCartesianChart(
-              /*title: ChartTitle(
-                text: harvest.first.title,
-                textStyle: mTS(),
-              ),*/
               primaryXAxis: CategoryAxis(labelStyle: mTS(size: 10)),
               primaryYAxis: NumericAxis(labelStyle: mTS(size: 10)),
               tooltipBehavior: TooltipBehavior(

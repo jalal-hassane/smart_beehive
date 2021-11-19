@@ -51,6 +51,7 @@ class _Queen extends State<Queen> {
     _generateTaps();
     return SafeArea(
       child: Scaffold(
+        backgroundColor: colorWhite,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -238,8 +239,6 @@ class _Queen extends State<Queen> {
         return _swarmStatusWidgets(itemLog);
     }
   }
-
-  _itemLogWidget(String icon, String text) {}
 
   _queenStatusWidgets(ItemLog itemLog, Function(void Function()) state) {
     f(String icon, String title, QueenStatus status, Color? color) {

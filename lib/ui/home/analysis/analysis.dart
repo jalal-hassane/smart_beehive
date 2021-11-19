@@ -3,6 +3,7 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_beehive/composite/assets.dart';
 import 'package:smart_beehive/composite/colors.dart';
@@ -45,26 +46,23 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   late final _collection =
       fireStore.collection(collectionProperties).doc(_hive.propertiesId);
 
-  late final TooltipBehavior _tooltipBehavior = TooltipBehavior(enable: true);
   final List<Info> _dataSource = [];
   final List<Info> _last5DataSource = [];
   int _last5Length = 0;
   final List<Info> _dailyDataSource = [];
   int _dailyLength = 0;
 
-  final List<BeeType> _population = [
-    BeeType('Type1', 5000),
-    BeeType('Type2', 1000),
-    BeeType('Type3', 200),
-  ];
-
   bool _showCurrentAlert = false;
   bool _showLast5Alert = false;
   bool _showDailyAlert = false;
-  bool _showTempAlert = false;
   bool _highTemp = false;
   bool stateExpanded = false;
   bool _showLoader = false;
+
+  late final _addLottieController = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 2500));
+  late final _fadeInController = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1000));
 
   late AnalysisViewModel _analysisViewModel;
 
@@ -77,8 +75,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   }
 
   _success() {
-    setState(() {});
-    logInfo('alert: added successfully');
+    // setState(() {});
   }
 
   _failure(String error) {
@@ -88,7 +85,13 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    animateCount();
     _initPlayer();
+  }
+
+  animateCount() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+    _fadeInController.forward();
   }
 
   Widget _updateValues(
@@ -137,7 +140,10 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
       }
     }
 
+    _checkAlerts(value);
+
     logInfo("last 5 ${_last5DataSource.map((e) => e.toMap())}");
+    logInfo("daily ${_dailyDataSource.map((e) => e.toMap())}");
     return Column(
       children: [
         _cartesianChartWidget(
@@ -161,9 +167,32 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     );
   }
 
-  _snapshots() async{
+  _checkAlerts(double value) {
+    // todo handle alert widgets
+    if (_hive.properties.alerts.isEmpty) return;
+    final humidityAlerts =
+        _hive.properties.alerts.where((element) => element.type == widget.type);
+    if (humidityAlerts.isNotEmpty) {
+      for (Alert alert in humidityAlerts) {
+        if (value > alert.upperBound! || value < alert.lowerBound!) {
+          if (widget.type == AlertType.temperature) {
+            if (value > alert.upperBound!) {
+              _highTemp = true;
+            }
+            if (value < alert.upperBound!) {
+              _highTemp = false;
+            }
+          }
+          _showCurrentAlert = true;
+          break;
+        }
+      }
+    }
+  }
+
+  _snapshots() async {
     _showLoader = true;
-    await Future.delayed(const Duration(milliseconds:500));
+    await Future.delayed(const Duration(milliseconds: 500));
     _showLoader = false;
   }
 
@@ -173,6 +202,8 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     _initViewModel();
     return SafeArea(
       child: Scaffold(
+        backgroundColor: colorWhite,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -196,7 +227,8 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                 : SingleChildScrollView(
                     child: FutureBuilder(
                       future: _snapshots(),
-                      builder: (context, snapshot) => StreamBuilder<DocumentSnapshot>(
+                      builder: (context, snapshot) =>
+                          StreamBuilder<DocumentSnapshot>(
                         stream: _collection.snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
@@ -206,23 +238,29 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                           }
 
                           if (snapshot.connectionState ==
-                              ConnectionState.waiting || _showLoader) {
+                                  ConnectionState.waiting ||
+                              _showLoader) {
                             return SizedBox(
-                              height: screenHeight*0.5,
+                              height: screenHeight * 0.5,
                               child: Center(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const CircularProgressIndicator(color: colorPrimary,),
-                                    Container(margin:top(8),child: const Text("Collecting data")),
+                                    const CircularProgressIndicator(
+                                      color: colorPrimary,
+                                    ),
+                                    Container(
+                                      margin: top(8),
+                                      child: const Text("Collecting data"),
+                                    ),
                                   ],
                                 ),
                               ),
                             );
                           }
-                          final map =
-                              snapshot.requireData.data() as Map<String, dynamic>;
+                          final map = snapshot.requireData.data()
+                              as Map<String, dynamic>;
                           return parseData(map);
                         },
                       ),
@@ -300,78 +338,101 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     if (remove) amount = amount * -1;
     _hive.properties.population = _hive.properties.population! + amount;
     if (_hive.properties.population! < 0) _hive.properties.population = 0;
+
     // update population
+    _amountController.clear();
+    if (!remove) {
+      _analysisScaleController.forward(from: 0).whenComplete(() {
+        _analysisScaleController.reverse(from: 1);
+      });
+      //_addLottieController.forward(from: 0);
+    }
+    setState(() {});
     _analysisViewModel.updatePopulation();
   }
 
   final _amountController = TextEditingController();
 
   _showAddBeesSheet() {
-    context.show((_) {
-      return StatefulBuilder(
-        builder: (con, state) {
-          return FractionallySizedBox(
-            heightFactor: 0.75,
-            child: GestureDetector(
-              onTap: () => unFocus(con),
-              onPanDown: (details) => unFocus(con),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    textAddBees,
-                    style: bTS(size: 30, color: colorPrimary),
-                  ),
-                  sheetTextField(
-                    screenWidth,
-                    screenHeight,
-                    _amountController,
-                    textAddBees,
-                    type: const TextInputType.numberWithOptions(
-                        decimal: false, signed: false),
-                    align: TextAlign.center,
-                    last: true,
-                    //submit:(v)=> _updatePopulation(),
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        margin: bottom(10),
-                        child: ElevatedButton(
-                          onPressed: () => state(() => _updatePopulation()),
-                          style: buttonStyle,
+    context.show(
+      (_) {
+        return StatefulBuilder(
+          builder: (con, state) {
+            return FractionallySizedBox(
+              heightFactor: 0.75,
+              child: GestureDetector(
+                onTap: () => unFocus(con),
+                onPanDown: (details) => unFocus(con),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      textAddBees,
+                      style: bTS(size: 30, color: colorPrimary),
+                    ),
+                    sheetTextField(
+                      screenWidth,
+                      screenHeight,
+                      _amountController,
+                      textAddBees,
+                      type: const TextInputType.numberWithOptions(
+                          decimal: false, signed: false),
+                      align: TextAlign.center,
+                      last: true,
+                      //submit:(v)=> _updatePopulation(),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                    Column(
+                      children: [
+                        Container(
+                          margin: bottom(10),
+                          child: ElevatedButton(
+                            onPressed: () => state(() {
+                              Navigator.pop(con);
+                              _updatePopulation();
+                            }),
+                            style: buttonStyle,
+                            child: SizedBox(
+                              width: screenWidth * 0.4,
+                              height: screenHeight * 0.056,
+                              child: Center(
+                                child: Text(
+                                  textAdd,
+                                  style: mTS(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            state(() {
+                              Navigator.pop(con);
+                              _updatePopulation(remove: true);
+                            });
+                          },
                           child: SizedBox(
-                            width: screenWidth * 0.4,
-                            height: screenHeight * 0.056,
+                            width: screenWidth * 0.3,
+                            height: screenHeight * 0.05,
                             child: Center(
                               child: Text(
-                                textAdd,
+                                textRemove,
                                 style: mTS(),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        width: screenWidth * 0.3,
-                        height: screenHeight * 0.05,
-                        child: Center(
-                          child: Text(
-                            textRemove,
-                            style: mTS(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      );
-    });
+            );
+          },
+        );
+      },
+      onClosing: () => _amountController.clear(),
+    );
   }
 
   _populationWidget() {
@@ -380,19 +441,21 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            pngBeesCount,
-            width: screenWidth * 0.7,
-            height: screenHeight * 0.5,
-            color: Colors.green,
+          Lottie.asset(
+            lottieBelieve,
+            repeat: true,
+            width: screenWidth * 0.5,
           ),
           Center(
             child: Padding(
               padding: all(8),
-              child: Text(
-                "${_hive.properties.population}",
-                textAlign: TextAlign.center,
-                style: bTS(size: 30),
+              child: ScaleTransition(
+                scale: _textScaleAnimation,
+                child: Text(
+                  "${_hive.properties.population}",
+                  textAlign: TextAlign.center,
+                  style: bTS(size: 30),
+                ),
               ),
             ),
           ),
@@ -436,7 +499,7 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
                   child: Text(
                     'Time: ' +
                         formatDate(swarmingTime!, [hh, ':', nn, ' ', am]),
-                    style:bTS(color: Colors.red),
+                    style: bTS(color: Colors.red),
                   ),
                 ),
               ),
@@ -708,30 +771,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     );
   }
 
-  _circularChartWidget() {
-    return Padding(
-      padding: all(12),
-      child: SfCircularChart(
-        // Chart title
-        title: ChartTitle(
-          text: textPopulation,
-          textStyle: mTS(),
-        ),
-        legend: Legend(isVisible: true),
-        tooltipBehavior: _tooltipBehavior,
-        series: <PieSeries<BeeType, String>>[
-          PieSeries<BeeType, String>(
-            dataSource: _population,
-            xValueMapper: (datum, index) => datum.name,
-            yValueMapper: (datum, index) => datum.value,
-            // Enable data label
-            dataLabelSettings: const DataLabelSettings(isVisible: true),
-          ),
-        ],
-      ),
-    );
-  }
-
   // alert widget
   _initPlayer() async {
     await audioPlayer.setAsset(soundAlert);
@@ -900,16 +939,6 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     upperBound: 1.0,
   );
 
-  late final Animation<double> _analysisRotationAnimation = Tween<double>(
-    begin: 1.0,
-    end: 0.5,
-  ).animate(
-    CurvedAnimation(
-      parent: _analysisScaleController,
-      curve: Curves.ease,
-    ),
-  );
-
   late final AnimationController _analysisFadeController = AnimationController(
     duration: const Duration(milliseconds: 500),
     vsync: this,
@@ -917,31 +946,16 @@ class _Analysis extends State<Analysis> with TickerProviderStateMixin {
     upperBound: 1.0,
   );
 
-  late final Animation<double> _analysisFadeAnimation = Tween<double>(
-    begin: 1.0,
-    end: 0.1,
-  ).animate(
-    CurvedAnimation(
-      parent: _analysisFadeController,
-      curve: Curves.ease,
-    ),
-  );
-
-  late final Animation<double> _analysisScaleAnimation = Tween<double>(
-    begin: 0.0,
-    end: 1.0,
-  ).animate(
-    CurvedAnimation(
-      parent: _analysisScaleController,
-      curve: Curves.ease,
-    ),
-  );
+  late final _textScaleAnimation =
+      doubleAnimation(_analysisScaleController, begin: 1.0, end: 1.2);
 
   @override
   void dispose() {
     _scaleController.dispose();
     _analysisScaleController.dispose();
     _analysisFadeController.dispose();
+    _addLottieController.dispose();
+    _fadeInController.dispose();
     audioPlayer.dispose();
     Vibration.cancel();
     super.dispose();

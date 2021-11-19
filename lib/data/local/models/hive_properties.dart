@@ -11,7 +11,7 @@ class HiveProperties {
   double? humidity = 85;
   double? weight = 5.5;
   int? population = 2000;
-  List<Alert>? alerts = [];
+  List<Alert> alerts = [];
   String? hiveId;
   String? hiveKeeperId;
 
@@ -42,7 +42,7 @@ class HiveProperties {
       fieldHumidity: humidity,
       fieldWeight: weight,
       fieldPopulation: population,
-      fieldAlerts: alerts?.map((e) => e.toMap()).toList(),
+      fieldAlerts: alerts.map((e) => e.toMap()).toList(),
       fieldLastFiveTemperature:
           lastFiveTemperature.map((e) => e.toMap()).toList(),
       fieldLastFiveWeight: lastFiveHumidity.map((e) => e.toMap()).toList(),

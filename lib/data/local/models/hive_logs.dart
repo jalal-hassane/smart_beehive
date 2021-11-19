@@ -90,7 +90,7 @@ class LogQueen {
     queenInfo.add(QueenCells.layingWorker.info);
     queenInfo.add(QueenCells.drone.info);
     queenInfo.add(QueenCells.youngestBrood.info);*/
-    queenInfo.add(Swarm.info);
+    //queenInfo.add(Swarm.info);
     // item about wings
     queenInfo.add(
       ItemAbout(pngQueenExcluder, logQueenExcluder, logQueenExcluderInfo),
@@ -146,7 +146,7 @@ class LogQueen {
         //key: const ValueKey(logQueenMarking),
       ),
     );*/
-    queenLogs.add(itemLog4);
+    //queenLogs.add(itemLog4);
     queenLogs.add(itemLog5);
     return queenLogs;
   }

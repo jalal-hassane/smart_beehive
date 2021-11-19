@@ -25,7 +25,7 @@ class AnalysisViewModel extends ChangeNotifier {
 
   stopSwarming() async {
     final updatedHive =
-    beehives.firstWhere((element) => element.id == currentHiveId);
+        beehives.firstWhere((element) => element.id == currentHiveId);
     updatedHive.hiveIsSwarming = false;
     logInfo('updatedHive ${updatedHive.toMap()}');
     hives

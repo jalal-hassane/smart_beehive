@@ -28,7 +28,6 @@ class _Registration extends State<Registration> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _showShimmer = false;
   bool _proceedDisabled = true;
   double _proceedOpacity = 0.5;
 
@@ -171,7 +170,6 @@ class _Registration extends State<Registration> {
   handleProceedState(bool enabled) {
     setState(() {
       _proceedDisabled = !enabled;
-      _showShimmer = enabled;
       _proceedOpacity = enabled ? 1.0 : 0.5;
     });
   }

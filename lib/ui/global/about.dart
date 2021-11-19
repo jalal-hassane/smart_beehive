@@ -28,6 +28,7 @@ class _About extends State<About> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: colorWhite,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
